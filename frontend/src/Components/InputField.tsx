@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import { useState } from "react"; 
 import Select from "react-select";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { MdLockOutline } from "react-icons/md";
@@ -65,7 +65,7 @@ function InputField({
             isDisabled={disabled}
             value={options.find((opt) => opt.value === value) || null}
             onChange={(selected) =>
-              handleChange({ target: { name, value: selected?.value || "" } })
+              handleChange({ target: { name, value: String(selected?.value || "") } })
             }
             placeholder={placeholder || "Select"}
             classNames={{
