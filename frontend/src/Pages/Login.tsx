@@ -38,9 +38,9 @@ function Login(): React.JSX.Element {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-200 via-purple-100 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 ">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7]">
       <motion.div
-        className="grid lg:grid-cols-2 w-full max-w-6xl rounded-[32px] shadow-2xl overflow-hidden bg-white/40 dark:bg-gray-800/60 backdrop-blur-lg "
+        className="grid lg:grid-cols-2 w-full max-w-6xl rounded-[32px] shadow-2xl overflow-hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/20"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
@@ -50,7 +50,7 @@ function Login(): React.JSX.Element {
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="hidden lg:block relative overflow-hidden rounded-l-[32px] bg-gradient-to-br from-purple-300 to-purple-500 flex items-center justify-center"
+          className="hidden lg:block relative overflow-hidden rounded-l-[32px] bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] flex items-center justify-center"
         >
           <div className="text-white text-center p-8">
             <h2 className="text-2xl font-bold mb-4">Welcome Back!</h2>
@@ -111,7 +111,7 @@ function Login(): React.JSX.Element {
                   <motion.div variants={itemVariants} className="text-right">
                     <Link
                       to="/login-with-email-verification"
-                      className="text-purple-700 dark:text-purple-400 text-sm font-medium hover:underline"
+                      className="text-[#00C6D7] hover:text-[#1976D2] text-sm font-medium hover:underline transition-colors"
                     >
                       Forgot Password?
                     </Link>

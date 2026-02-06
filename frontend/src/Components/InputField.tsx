@@ -57,7 +57,7 @@ function InputField({
         className={`relative border rounded-md transition-colors flex items-center ${
           disabled
             ? "border-gray-300 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed bg-gray-100 dark:bg-gray-800"
-            : "border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900"
+            : "border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 focus-within:border-[#00C6D7] focus-within:ring-2 focus-within:ring-[#00C6D7]/20"
         }`}
       >
         {isDropdown ? (
