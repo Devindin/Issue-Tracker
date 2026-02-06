@@ -11,7 +11,7 @@ interface Option {
 interface InputFieldProps {
   label: string;
   name: string;
-  type: 'text' | 'password' | 'textarea' | 'select';
+  type: 'text' | 'password' | 'textarea' | 'select' | 'email' | 'number' | 'tel' | 'url';
   placeholder?: string;
   handleChange: (event: { target: { name: string; value: string } }) => void;
   requiredfiled?: boolean;
@@ -19,6 +19,8 @@ interface InputFieldProps {
   options?: Option[];
   values?: Record<string, string>;
   showLockIcon?: boolean;
+  errors?: Record<string, string>;
+  touched?: Record<string, boolean>;
 }
 
 function InputField({
