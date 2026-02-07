@@ -29,6 +29,7 @@ import {
 } from "chart.js";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import PageLayout from "../Layout/PageLayout";
+import PageTitle from "../Components/PageTitle";
 
 // Register ChartJS components
 ChartJS.register(
@@ -429,14 +430,11 @@ const Reports: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-              Reports & Analytics
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Comprehensive insights into your issue tracking performance
-            </p>
-          </div>
+          <PageTitle
+            title="Reports & Analytics"
+            subtitle="Comprehensive insights into your issue tracking performance"
+            textColor="text-white"
+          />
           <div className="flex gap-3">
             {/* Date Range Selector */}
             <select
