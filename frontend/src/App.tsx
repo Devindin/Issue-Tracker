@@ -6,6 +6,7 @@ import ViewIssue from "./Pages/ViewIssue";
 import EditIssue from "./Pages/EditIssue";
 import CreateIssue from "./Pages/CreateIssue";
 import Reports from "./Pages/Reports";
+import Settings from "./Pages/Settings";
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/issues/:id/edit" element={<EditIssue />} />
         <Route path="/issues/new" element={<CreateIssue />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </BrowserRouter>
   );
