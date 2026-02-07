@@ -248,27 +248,27 @@ const Settings: React.FC = () => {
           )}
         </AnimatePresence>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar Tabs */}
+        <div className="space-y-6">
+          {/* Horizontal Tabs */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="lg:col-span-1"
+            className="bg-white rounded-2xl shadow-md p-2"
           >
-            <div className="bg-white rounded-2xl shadow-md p-2 space-y-1">
+            <div className="flex flex-wrap gap-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                  className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all font-medium ${
                     activeTab === tab.id
                       ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
-                      : "text-gray-700 hover:bg-gray-100"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
                   }`}
                 >
                   <span className="text-lg">{tab.icon}</span>
-                  <span className="font-medium">{tab.label}</span>
+                  <span>{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -276,14 +276,14 @@ const Settings: React.FC = () => {
 
           {/* Content Area */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-3"
+            className="bg-white rounded-2xl shadow-md p-6"
           >
-            <div className="bg-white rounded-2xl shadow-md p-6">
-              {/* Profile Tab */}
-              {activeTab === "profile" && (
+            <div>
+            {/* Profile Tab */}
+            {activeTab === "profile" && (
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-gray-800">
@@ -974,9 +974,10 @@ const Settings: React.FC = () => {
             </div>
           </motion.div>
         </div>
+
       </div>
 
-      {/* Delete Account Modal */}
+        {/* Delete Account Modal */}
       <AnimatePresence>
         {showDeleteModal && (
           <motion.div
