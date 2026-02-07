@@ -1,6 +1,4 @@
 import React from "react";
-import LoginHeadings from "../Components/LoginHeadings";
-import LoginSecondaryHeadding from "../Components/LoginSecondaryHeadding";
 import InputField from "../Components/InputField";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -91,7 +89,16 @@ function Login(): React.JSX.Element {
             >
               {({ handleChange, values, errors, touched }) => (
                 <Form className="flex flex-col w-full max-w-md space-y-4">
-    
+                  <motion.div variants={itemVariants}>
+                    <h1 className="text-2xl font-bold text-gray-800 text-center mb-2">
+                      Welcome Back
+                    </h1>
+                  </motion.div>
+                  <motion.div variants={itemVariants}>
+                    <p className="text-gray-600 text-center mb-6">
+                      Sign in to your account
+                    </p>
+                  </motion.div>
 
                   <motion.div variants={itemVariants}>
                     <InputField
