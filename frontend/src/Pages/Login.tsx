@@ -91,12 +91,7 @@ function Login(): React.JSX.Element {
             >
               {({ handleChange, values, errors, touched }) => (
                 <Form className="flex flex-col w-full max-w-md space-y-4">
-                  <motion.div variants={itemVariants}>
-                    <LoginHeadings content="Welcome Back" />
-                  </motion.div>
-                  <motion.div variants={itemVariants}>
-                    <LoginSecondaryHeadding content="Sign in to your account" />
-                  </motion.div>
+    
 
                   <motion.div variants={itemVariants}>
                     <InputField
