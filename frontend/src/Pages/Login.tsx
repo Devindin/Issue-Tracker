@@ -3,6 +3,7 @@ import LoginHeadings from "../Components/LoginHeadings";
 import LoginSecondaryHeadding from "../Components/LoginSecondaryHeadding";
 import InputField from "../Components/InputField";
 import { Formik, Form } from "formik";
+import * as Yup from "yup";
 import PrimaryButton from "../Components/PrimaryButton";
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "../Components/Footer";
@@ -13,6 +14,15 @@ interface LoginFormValues {
   email: string;
   password: string;
 }
+
+const loginValidationSchema = Yup.object({
+  email: Yup.string()
+    .email("Please enter a valid email address")
+    .required("Email is required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
+});
 
 function Login(): React.JSX.Element {
   const navigate = useNavigate();
@@ -40,27 +50,14 @@ function Login(): React.JSX.Element {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7]">
       <motion.div
-        className="grid lg:grid-cols-2 w-full max-w-6xl rounded-[32px] shadow-2xl overflow-hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/20"
+        className="w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/20"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Left Image */}
+        {/* Form Section */}
         <motion.div
-          initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="hidden lg:block relative overflow-hidden rounded-l-[32px] bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] flex items-center justify-center"
-        >
-          <div className="text-white text-center p-8">
-            <h2 className="text-2xl font-bold mb-4">Welcome Back!</h2>
-            <p className="text-purple-100">Sign in to access your dashboard</p>
-          </div>
-        </motion.div>
-
-        {/* Right Form */}
-        <motion.div
-          className="flex flex-col justify-between p-8 sm:p-10 lg:p-12"
+          className="flex flex-col justify-between p-8 sm:p-10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
