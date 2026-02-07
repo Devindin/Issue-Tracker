@@ -4,12 +4,7 @@ import {
   FaShieldAlt,
   FaSave,
 } from "react-icons/fa";
-
-interface SecuritySettings {
-  twoFactorAuth: boolean;
-  sessionTimeout: number;
-  loginAlerts: boolean;
-}
+import { type SecuritySettings } from "../types";
 
 interface SecurityTabProps {
   security: SecuritySettings;

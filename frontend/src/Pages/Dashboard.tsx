@@ -12,26 +12,7 @@ import DashboardCard from "../Components/Dashboardcard";
 import IssueCard from "../Components/IssueCard";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-
-// Types
-interface Issue {
-  id: number;
-  title: string;
-  description: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High";
-  severity: "Minor" | "Major" | "Critical";
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface IssueStats {
-  open: number;
-  inProgress: number;
-  resolved: number;
-  closed: number;
-  total: number;
-}
+import { type Issue, type IssueStats } from "../types";
 
 const Dashboard: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([]);

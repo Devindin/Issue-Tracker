@@ -12,15 +12,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-
-// Types
-interface IssueFormData {
-  title: string;
-  description: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High" | "Critical";
-  severity: "Minor" | "Major" | "Critical";
-}
+import { type IssueFormData } from "../types";
 
 // Validation schema
 const validationSchema = Yup.object({

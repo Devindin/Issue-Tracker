@@ -14,21 +14,7 @@ import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
 import DeleteModal from "../Components/DeleteModal";
 import Pagination from "../Components/Pagination";
-
-// Types
-interface Issue {
-  id: number;
-  title: string;
-  description: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High" | "Critical";
-  severity: "Minor" | "Major" | "Critical";
-  createdAt: string;
-  updatedAt: string;
-}
-
-type SortField = "createdAt" | "updatedAt" | "priority" | "status" | "title";
-type SortOrder = "asc" | "desc";
+import { type Issue, type SortField, type SortOrder } from "../types";
 
 const Issues: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([]);

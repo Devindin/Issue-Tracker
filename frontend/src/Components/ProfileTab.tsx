@@ -11,16 +11,7 @@ import {
   FaGlobe,
   FaSave,
 } from "react-icons/fa";
-
-interface UserProfile {
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  website: string;
-  bio: string;
-  avatar: string;
-}
+import { type UserProfile } from "../types";
 
 interface ProfileTabProps {
   profile: UserProfile;

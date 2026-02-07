@@ -3,16 +3,7 @@ import {
   FaBell,
   FaSave,
 } from "react-icons/fa";
-
-interface NotificationSettings {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  issueCreated: boolean;
-  issueUpdated: boolean;
-  issueResolved: boolean;
-  issueAssigned: boolean;
-  weeklyReport: boolean;
-}
+import { type NotificationSettings } from "../types";
 
 interface NotificationsTabProps {
   notifications: NotificationSettings;

@@ -2,14 +2,7 @@ import React from "react";
 import {
   FaSave,
 } from "react-icons/fa";
-
-interface PreferenceSettings {
-  language: string;
-  timezone: string;
-  dateFormat: string;
-  itemsPerPage: number;
-  defaultView: string;
-}
+import { type PreferenceSettings } from "../types";
 
 interface PreferencesTabProps {
   preferences: PreferenceSettings;

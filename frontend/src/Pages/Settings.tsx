@@ -16,41 +16,7 @@ import NotificationsTab from "../Components/NotificationsTab";
 import PreferencesTab from "../Components/PreferencesTab";
 import DataPrivacyTab from "../Components/DataPrivacyTab";
 import DeleteAccountModal from "../Components/DeleteAccountModal";
-
-// Types
-interface UserProfile {
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  website: string;
-  bio: string;
-  avatar: string;
-}
-
-interface NotificationSettings {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  issueCreated: boolean;
-  issueUpdated: boolean;
-  issueResolved: boolean;
-  issueAssigned: boolean;
-  weeklyReport: boolean;
-}
-
-interface SecuritySettings {
-  twoFactorAuth: boolean;
-  sessionTimeout: number;
-  loginAlerts: boolean;
-}
-
-interface PreferenceSettings {
-  language: string;
-  timezone: string;
-  dateFormat: string;
-  itemsPerPage: number;
-  defaultView: string;
-}
+import { type UserProfile, type NotificationSettings, type SecuritySettings, type PreferenceSettings } from "../types";
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("profile");
