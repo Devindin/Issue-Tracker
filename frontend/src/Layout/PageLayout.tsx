@@ -61,8 +61,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const userName = user?.name || "User";
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7]">
-      {/* 🖥️ Sidebar for Desktop */}
+    <div className="flex h-screen bg-gradient-to-br from-blue-300 via-blue-200 to-blue-50">
+      {/* Sidebar for Desktop */}
       <motion.div
         animate={{ width: collapsed ? "4rem" : "15rem" }}
         transition={{ duration: 0.6, type: "spring", stiffness: 120 }}
@@ -138,7 +138,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         </nav>
       </motion.div>
 
-      {/* 📱 Mobile Hamburger Button */}
+      {/* Mobile Hamburger Button */}
       <div className="absolute top-4 left-4 md:hidden z-50">
         <button
           onClick={() => setSidebarOpen(true)}
@@ -149,7 +149,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         </button>
       </div>
 
-      {/* 📱 Mobile Sidebar Overlay */}
+      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
@@ -229,7 +229,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         )}
       </AnimatePresence>
 
-      {/* 📄 Main Content Area */}
+      {/* Main Content Area */}
       <div className="flex-1 p-4 md:p-6 overflow-auto">
         {children || (
           <motion.div
@@ -245,7 +245,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         )}
       </div>
 
-      {/* 🚪 Logout Confirmation Modal */}
+      {/* Logout Confirmation Modal */}
       <AnimatePresence>
         {showLogoutModal && (
           <motion.div
@@ -264,23 +264,16 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center">
-                {/* Icon */}
                 <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-100 mb-4">
                   <FaSignOutAlt className="h-7 w-7 text-red-600" />
                 </div>
-
-                {/* Title */}
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Sign Out
                 </h3>
-
-                {/* Message */}
                 <p className="text-sm text-gray-600 mb-6">
                   Are you sure you want to sign out? You'll need to sign in
                   again to access your account.
                 </p>
-
-                {/* Buttons */}
                 <div className="flex gap-3">
                   <button
                     onClick={cancelLogout}
