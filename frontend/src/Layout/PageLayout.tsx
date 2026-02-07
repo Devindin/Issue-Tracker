@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
   FaCog,
@@ -30,6 +30,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = (): void => {
     setShowLogoutModal(true);
@@ -46,6 +47,15 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
 
   const cancelLogout = (): void => {
     setShowLogoutModal(false);
+  };
+
+  const isActivePath = (path: string): boolean => {
+    if (path === "/issues") {
+      // Issues is active for /issues, /issues/:id, /issues/:id/edit but NOT /issues/new
+      return location.pathname === "/issues" ||
+             (location.pathname.startsWith("/issues/") && !location.pathname.includes("/new"));
+    }
+    return location.pathname === path;
   };
 
   const menuItems: MenuItem[] = [
@@ -107,13 +117,20 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         <nav className="flex-1 p-2 space-y-1">
           {menuItems.map((item, index) => {
             if (item.path) {
+              const isActive = isActivePath(item.path);
               return (
                 <Link
                   key={index}
                   to={item.path}
-                  className="flex items-center gap-4 p-3 rounded-xl cursor-pointer font-medium transition-all hover:bg-[#1976D2]/10 text-[#0A3D91] hover:text-[#1976D2] group"
+                  className={`flex items-center gap-4 p-3 rounded-xl cursor-pointer font-medium transition-all group ${
+                    isActive
+                      ? "bg-[#1976D2] text-white shadow-lg"
+                      : "hover:bg-[#1976D2]/10 text-[#0A3D91] hover:text-[#1976D2]"
+                  }`}
                 >
-                  <span className="text-lg group-hover:scale-110 transition-transform text-[#1976D2]">
+                  <span className={`text-lg group-hover:scale-110 transition-transform ${
+                    isActive ? "text-white" : "text-[#1976D2]"
+                  }`}>
                     {item.icon}
                   </span>
                   {!collapsed && <span>{item.label}</span>}
@@ -189,14 +206,21 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               <nav className="space-y-2 flex-1">
                 {menuItems.map((item, index) => {
                   if (item.path) {
+                    const isActive = isActivePath(item.path);
                     return (
                       <Link
                         key={index}
                         to={item.path}
                         onClick={() => setSidebarOpen(false)}
-                        className="flex items-center gap-3 p-3 rounded-xl transition-colors hover:bg-[#1976D2]/10 text-[#0A3D91] hover:text-[#1976D2]"
+                        className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                          isActive
+                            ? "bg-[#1976D2] text-white"
+                            : "hover:bg-[#1976D2]/10 text-[#0A3D91] hover:text-[#1976D2]"
+                        }`}
                       >
-                        <span className="text-lg text-[#1976D2]">{item.icon}</span>
+                        <span className={`text-lg ${isActive ? "text-white" : "text-[#1976D2]"}`}>
+                          {item.icon}
+                        </span>
                         <span className="font-medium">{item.label}</span>
                       </Link>
                     );
