@@ -20,6 +20,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
+import PageTitle from "../Components/PageTitle";
 
 // Types
 interface UserProfile {
@@ -221,12 +222,11 @@ const Settings: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-            Settings
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Manage your account settings and preferences
-          </p>
+          <PageTitle
+            title="Settings"
+            subtitle="Manage your account settings and preferences"
+            textColor="text-white"
+          />
         </motion.div>
 
         {/* Success Message */}
