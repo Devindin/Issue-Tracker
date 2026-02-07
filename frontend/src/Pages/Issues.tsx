@@ -13,6 +13,7 @@ import PageLayout from "../Layout/PageLayout";
 import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
 import DeleteModal from "../Components/DeleteModal";
+import Pagination from "../Components/Pagination";
 
 // Types
 interface Issue {
@@ -43,7 +44,7 @@ const Issues: React.FC = () => {
   const [issueToDelete, setIssueToDelete] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
-  const itemsPerPage = 12;
+  const itemsPerPage = 6;
 
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
@@ -543,65 +544,22 @@ const Issues: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-center gap-2 mt-6"
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mt-6"
               >
-                <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Previous
-                </button>
-
-                <div className="flex gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => {
-                      // Show first page, last page, current page, and pages around current
-                      if (
-                        page === 1 ||
-                        page === totalPages ||
-                        (page >= currentPage - 1 && page <= currentPage + 1)
-                      ) {
-                        return (
-                          <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                              currentPage === page
-                                ? "bg-indigo-600 text-white"
-                                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            }`}
-                          >
-                            {page}
-                          </button>
-                        );
-                      } else if (
-                        page === currentPage - 2 ||
-                        page === currentPage + 2
-                      ) {
-                        return (
-                          <span
-                            key={page}
-                            className="px-2 py-2 text-gray-500"
-                          >
-                            ...
-                          </span>
-                        );
-                      }
-                      return null;
-                    }
-                  )}
-                </div>
-
-                <button
-                  onClick={() =>
-                    setCurrentPage(Math.min(totalPages, currentPage + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  Next
-                </button>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  totalItems={filteredIssues.length}
+                  itemsPerPage={itemsPerPage}
+                  showFirstLast={true}
+                  showPageNumbers={true}
+                  maxPageButtons={5}
+                  size="md"
+                  variant="default"
+                  showItemsInfo={true}
+                />
               </motion.div>
             )}
           </>
