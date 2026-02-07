@@ -9,6 +9,10 @@ import {
   FaArrowUp,
   FaArrowDown,
   FaClock,
+  FaEye,
+  FaEdit,
+  FaTrash,
+  FaMinus,
 } from "react-icons/fa";
 
 interface Issue {
@@ -24,27 +28,29 @@ interface Issue {
 
 interface IssueCardProps {
   issue: Issue;
+  viewMode?: "grid" | "list";
   index?: number;
+  onDelete?: (id: number) => void;
 }
 
-const IssueCard: React.FC<IssueCardProps> = ({ issue, index = 0 }) => {
+const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index = 0, onDelete }) => {
   // Get status badge styles
   const getStatusBadge = (status: string) => {
     const styles = {
-      Open: "bg-blue-100 text-blue-700 border-blue-300",
-      "In Progress": "bg-yellow-100 text-yellow-700 border-yellow-300",
-      Resolved: "bg-green-100 text-green-700 border-green-300",
-      Closed: "bg-gray-100 text-gray-700 border-gray-300",
+      Open: "bg-orange-50 text-orange-700 border-orange-200",
+      "In Progress": "bg-blue-50 text-blue-700 border-blue-200",
+      Resolved: "bg-green-50 text-green-700 border-green-200",
+      Closed: "bg-gray-50 text-gray-700 border-gray-200",
     };
     return styles[status as keyof typeof styles] || "";
   };
 
   const getPriorityBadge = (priority: string) => {
     const styles = {
-      Low: "bg-gray-100 text-gray-600 border-gray-300",
-      Medium: "bg-orange-100 text-orange-600 border-orange-300",
-      High: "bg-red-100 text-red-600 border-red-300",
-      Critical: "bg-purple-100 text-purple-700 border-purple-300",
+      Low: "bg-green-50 text-green-700 border-green-200",
+      Medium: "bg-yellow-50 text-yellow-700 border-yellow-200",
+      High: "bg-orange-50 text-orange-700 border-orange-200",
+      Critical: "bg-red-50 text-red-700 border-red-200",
     };
     return styles[priority as keyof typeof styles] || "";
   };
@@ -55,6 +61,9 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, index = 0 }) => {
     }
     if (priority === "Low") {
       return <FaArrowDown className="inline" />;
+    }
+    if (priority === "Medium") {
+      return <FaMinus className="inline" />;
     }
     return null;
   };
@@ -86,6 +95,85 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, index = 0 }) => {
     }
   };
 
+  if (viewMode === "grid") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+        className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all overflow-hidden group"
+      >
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-gray-400 font-mono text-sm">
+              #{issue.id}
+            </span>
+            <div className="flex gap-2">
+              <Link to={`/issues/${issue.id}`}>
+                <button className="p-2 text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors">
+                  <FaEye />
+                </button>
+              </Link>
+              <Link to={`/issues/${issue.id}/edit`}>
+                <button className="p-2 text-[#00C6D7] hover:bg-[#00C6D7]/10 rounded-lg transition-colors">
+                  <FaEdit />
+                </button>
+              </Link>
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(issue.id)}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <FaTrash />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Title */}
+          <Link to={`/issues/${issue.id}`}>
+            <h3 className="font-bold text-gray-800 mb-2 group-hover:text-[#1976D2] transition-colors line-clamp-2">
+              {issue.title}
+            </h3>
+          </Link>
+
+          {/* Description */}
+          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+            {issue.description}
+          </p>
+
+          {/* Badges */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
+                issue.status
+              )}`}
+            >
+              {getStatusIcon(issue.status)}
+              {issue.status}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
+                issue.priority
+              )}`}
+            >
+              {getPriorityIcon(issue.priority)}
+              {issue.priority}
+            </span>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center text-xs text-gray-500 border-t border-gray-100 pt-4">
+            <FaClock className="mr-2" />
+            {formatDate(issue.createdAt)}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // List View (default)
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -93,59 +181,75 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, index = 0 }) => {
       transition={{ duration: 0.3, delay: index * 0.05 }}
       className="p-6 hover:bg-gray-50 transition-colors"
     >
-      <Link
-        to={`/issues/${issue.id}`}
-        className="block group"
-      >
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <div className="flex-1">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        {/* Left Section */}
+        <div className="flex-1 min-w-0">
+          <Link to={`/issues/${issue.id}`} className="block group">
             <div className="flex items-start gap-3">
-              <span className="text-gray-400 font-mono text-sm mt-1">
+              <span className="text-gray-400 font-mono text-sm mt-1 flex-shrink-0">
                 #{issue.id}
               </span>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-800 group-hover:text-indigo-600 transition-colors">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-800 group-hover:text-[#1976D2] transition-colors mb-1">
                   {issue.title}
                 </h3>
-                <p className="text-gray-600 text-sm mt-1 line-clamp-2">
+                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
                   {issue.description}
                 </p>
-                <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
-                  <FaClock />
-                  <span>Created {formatDate(issue.createdAt)}</span>
+                <div className="flex flex-wrap gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
+                      issue.status
+                    )}`}
+                  >
+                    {getStatusIcon(issue.status)}
+                    {issue.status}
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
+                      issue.priority
+                    )}`}
+                  >
+                    {getPriorityIcon(issue.priority)}
+                    {issue.priority}
+                  </span>
+                  <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                    {issue.severity}
+                  </span>
                 </div>
               </div>
             </div>
+          </Link>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="text-xs text-gray-500 hidden lg:flex items-center gap-2">
+            <FaClock />
+            {formatDate(issue.createdAt)}
           </div>
-
-          <div className="flex flex-wrap gap-2 md:items-center">
-            {/* Status Badge */}
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getStatusBadge(
-                issue.status
-              )}`}
-            >
-              {getStatusIcon(issue.status)}
-              {issue.status}
-            </span>
-
-            {/* Priority Badge */}
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${getPriorityBadge(
-                issue.priority
-              )}`}
-            >
-              {getPriorityIcon(issue.priority)}
-              {issue.priority}
-            </span>
-
-            {/* Severity Badge */}
-            <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-              {issue.severity}
-            </span>
+          <div className="flex gap-2">
+            <Link to={`/issues/${issue.id}`}>
+              <button className="p-2 text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors">
+                <FaEye />
+              </button>
+            </Link>
+            <Link to={`/issues/${issue.id}/edit`}>
+              <button className="p-2 text-[#00C6D7] hover:bg-[#00C6D7]/10 rounded-lg transition-colors">
+                <FaEdit />
+              </button>
+            </Link>
+            {onDelete && (
+              <button
+                onClick={() => onDelete(issue.id)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <FaTrash />
+              </button>
+            )}
           </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 };
