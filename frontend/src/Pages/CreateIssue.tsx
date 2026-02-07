@@ -120,13 +120,7 @@ const CreateIssue: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
-          <div className="flex items-center gap-4">
-            <Link
-              to="/issues"
-              className="p-2 text-white hover:text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors"
-            >
-              ←
-            </Link>
+          <div className="flex items-center gap-4 mb-4">
             <PageTitle
               title="Create New Issue"
               subtitle="Fill in the details below to report a new issue"
