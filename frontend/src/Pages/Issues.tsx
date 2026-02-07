@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import IssueCard from "../Components/IssueCard";
+import PageTitle from "../Components/PageTitle";
 
 // Types
 interface Issue {
@@ -336,14 +337,10 @@ const Issues: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white">
-              All Issues
-            </h1>
-            <p className="text-white mt-1">
-              Manage and track all your issues in one place
-            </p>
-          </div>
+          <PageTitle
+            title="All Issues"
+            subtitle="Manage and track all your issues in one place"
+          />
           <div className="flex gap-3">
             <div className="relative">
               <button

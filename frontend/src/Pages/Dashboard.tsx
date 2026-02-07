@@ -11,6 +11,7 @@ import {
 import DashboardCard from "../Components/Dashboardcard";
 import IssueCard from "../Components/IssueCard";
 import PageLayout from "../Layout/PageLayout";
+import PageTitle from "../Components/PageTitle";
 
 // Types
 interface Issue {
@@ -158,14 +159,10 @@ const Dashboard: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white">
-              Dashboard
-            </h1>
-            <p className="text-white mt-1">
-              Overview of all issues and their current status
-            </p>
-          </div>
+          <PageTitle
+            title="Dashboard"
+            subtitle="Overview of all issues and their current status"
+          />
           <Link to="/issues/new">
             <motion.button
               whileHover={{ scale: 1.05 }}
