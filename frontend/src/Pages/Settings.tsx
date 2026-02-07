@@ -19,6 +19,8 @@ import {
   FaTrash,
   FaExclamationTriangle,
 } from "react-icons/fa";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 
@@ -56,6 +58,27 @@ interface PreferenceSettings {
   itemsPerPage: number;
   defaultView: string;
 }
+
+// Validation schemas
+const profileValidationSchema = Yup.object({
+  name: Yup.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be less than 50 characters")
+    .required("Full name is required"),
+  email: Yup.string()
+    .email("Please enter a valid email address")
+    .required("Email is required"),
+  phone: Yup.string()
+    .matches(/^\+?[\d\s\-\(\)]+$/, "Please enter a valid phone number")
+    .min(10, "Phone number must be at least 10 digits"),
+  location: Yup.string()
+    .max(100, "Location must be less than 100 characters"),
+  website: Yup.string()
+    .url("Please enter a valid URL")
+    .max(200, "Website URL must be less than 200 characters"),
+  bio: Yup.string()
+    .max(500, "Bio must be less than 500 characters"),
+});
 
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("profile");
@@ -138,11 +161,6 @@ const Settings: React.FC = () => {
 
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 3000);
-  };
-
-  // Handle profile change
-  const handleProfileChange = (field: keyof UserProfile, value: string) => {
-    setProfile((prev) => ({ ...prev, [field]: value }));
   };
 
   // Handle password change
@@ -284,7 +302,18 @@ const Settings: React.FC = () => {
             <div>
             {/* Profile Tab */}
             {activeTab === "profile" && (
-                <div className="space-y-6">
+              <Formik
+                initialValues={profile}
+                validationSchema={profileValidationSchema}
+                onSubmit={(values) => {
+                  setProfile(values);
+                  saveSettings();
+                  setIsEditingProfile(false);
+                }}
+                enableReinitialize
+              >
+                {({ isSubmitting, dirty, isValid }) => (
+                  <Form className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-gray-800">
                       Profile Information
@@ -347,32 +376,36 @@ const Settings: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Full Name
+                        Full Name *
                       </label>
-                      <input
+                      <Field
+                        name="name"
                         type="text"
-                        value={profile.name}
-                        onChange={(e) =>
-                          handleProfileChange("name", e.target.value)
-                        }
                         disabled={!isEditingProfile}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:text-gray-600"
+                      />
+                      <ErrorMessage
+                        name="name"
+                        component="div"
+                        className="mt-1 text-sm text-red-600"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         <FaEnvelope className="inline mr-2" />
-                        Email
+                        Email *
                       </label>
-                      <input
+                      <Field
+                        name="email"
                         type="email"
-                        value={profile.email}
-                        onChange={(e) =>
-                          handleProfileChange("email", e.target.value)
-                        }
                         disabled={!isEditingProfile}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:text-gray-600"
+                      />
+                      <ErrorMessage
+                        name="email"
+                        component="div"
+                        className="mt-1 text-sm text-red-600"
                       />
                     </div>
 
@@ -381,14 +414,16 @@ const Settings: React.FC = () => {
                         <FaPhone className="inline mr-2" />
                         Phone
                       </label>
-                      <input
+                      <Field
+                        name="phone"
                         type="tel"
-                        value={profile.phone}
-                        onChange={(e) =>
-                          handleProfileChange("phone", e.target.value)
-                        }
                         disabled={!isEditingProfile}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:text-gray-600"
+                      />
+                      <ErrorMessage
+                        name="phone"
+                        component="div"
+                        className="mt-1 text-sm text-red-600"
                       />
                     </div>
 
@@ -397,14 +432,16 @@ const Settings: React.FC = () => {
                         <FaMapMarkerAlt className="inline mr-2" />
                         Location
                       </label>
-                      <input
+                      <Field
+                        name="location"
                         type="text"
-                        value={profile.location}
-                        onChange={(e) =>
-                          handleProfileChange("location", e.target.value)
-                        }
                         disabled={!isEditingProfile}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:text-gray-600"
+                      />
+                      <ErrorMessage
+                        name="location"
+                        component="div"
+                        className="mt-1 text-sm text-red-600"
                       />
                     </div>
 
@@ -413,14 +450,16 @@ const Settings: React.FC = () => {
                         <FaGlobe className="inline mr-2" />
                         Website
                       </label>
-                      <input
+                      <Field
+                        name="website"
                         type="url"
-                        value={profile.website}
-                        onChange={(e) =>
-                          handleProfileChange("website", e.target.value)
-                        }
                         disabled={!isEditingProfile}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:text-gray-600"
+                      />
+                      <ErrorMessage
+                        name="website"
+                        component="div"
+                        className="mt-1 text-sm text-red-600"
                       />
                     </div>
 
@@ -428,14 +467,17 @@ const Settings: React.FC = () => {
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Bio
                       </label>
-                      <textarea
-                        value={profile.bio}
-                        onChange={(e) =>
-                          handleProfileChange("bio", e.target.value)
-                        }
+                      <Field
+                        name="bio"
+                        as="textarea"
                         disabled={!isEditingProfile}
                         rows={3}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50 disabled:text-gray-600 resize-none"
+                      />
+                      <ErrorMessage
+                        name="bio"
+                        component="div"
+                        className="mt-1 text-sm text-red-600"
                       />
                     </div>
                   </div>
@@ -443,18 +485,19 @@ const Settings: React.FC = () => {
                   {isEditingProfile && (
                     <div className="flex gap-3 pt-4 border-t">
                       <button
-                        onClick={() => {
-                          saveSettings();
-                          setIsEditingProfile(false);
-                        }}
-                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+                        type="submit"
+                        disabled={isSubmitting || !dirty || !isValid}
+                        className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
-                        <FaSave /> Save Changes
+                        <FaSave />
+                        {isSubmitting ? "Saving..." : "Save Changes"}
                       </button>
                     </div>
                   )}
-                </div>
-              )}
+                  </Form>
+                )}
+              </Formik>
+            )}
 
               {/* Security Tab */}
               {activeTab === "security" && (
