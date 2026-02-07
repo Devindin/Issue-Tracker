@@ -17,6 +17,7 @@ import {
   FaTag,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
+import PageTitle from "../Components/PageTitle";
 
 interface Issue {
   id: number;
@@ -252,14 +253,15 @@ const ViewIssue: React.FC = () => {
           <div className="flex items-center gap-4">
             <Link
               to="/issues"
-              className="p-2 text-gray-600 hover:text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors"
+              className="p-2 text-white hover:text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors"
             >
               <FaArrowLeft />
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">Issue #{issue.id}</h1>
-              <p className="text-gray-600 mt-1">View issue details</p>
-            </div>
+            <PageTitle
+              title={`Issue #${issue.id}`}
+              subtitle="View issue details"
+              textColor="text-white"
+            />
           </div>
           <div className="flex gap-3">
             <Link

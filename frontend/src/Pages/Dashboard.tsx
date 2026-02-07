@@ -162,6 +162,7 @@ const Dashboard: React.FC = () => {
           <PageTitle
             title="Dashboard"
             subtitle="Overview of all issues and their current status"
+            textColor="text-white"
           />
           <Link to="/issues/new">
             <motion.button

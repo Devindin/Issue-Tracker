@@ -340,6 +340,7 @@ const Issues: React.FC = () => {
           <PageTitle
             title="All Issues"
             subtitle="Manage and track all your issues in one place"
+            textColor="text-white"
           />
           <div className="flex gap-3">
             <div className="relative">

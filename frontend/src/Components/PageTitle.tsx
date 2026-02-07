@@ -2,18 +2,21 @@ import React from "react";
 
 interface PageTitleProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
+  textColor?: string;
 }
 
-const PageTitle: React.FC<PageTitleProps> = ({ title, subtitle }) => {
+const PageTitle: React.FC<PageTitleProps> = ({ title, subtitle, textColor = "text-white" }) => {
   return (
     <div>
-      <h1 className="text-3xl md:text-4xl font-bold text-white">
+      <h1 className={`text-3xl md:text-4xl font-bold ${textColor}`}>
         {title}
       </h1>
-      <p className="text-white mt-1">
-        {subtitle}
-      </p>
+      {subtitle && (
+        <p className={`mt-1 ${textColor}`}>
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 };

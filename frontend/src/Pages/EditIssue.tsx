@@ -11,6 +11,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import PrimaryButton from "../Components/PrimaryButton";
 import InputField from "../Components/InputField";
+import PageTitle from "../Components/PageTitle";
 
 interface Issue {
   id: number;
@@ -214,14 +215,15 @@ const EditIssue: React.FC = () => {
           <div className="flex items-center gap-4">
             <Link
               to={`/issues/${issue.id}`}
-              className="p-2 text-gray-600 hover:text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors"
+              className="p-2 text-white hover:text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors"
             >
               <FaArrowLeft />
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">Edit Issue #{issue.id}</h1>
-              <p className="text-gray-600 mt-1">Update issue details</p>
-            </div>
+            <PageTitle
+              title={`Edit Issue #${issue.id}`}
+              subtitle="Update issue details"
+              textColor="text-white"
+            />
           </div>
         </motion.div>
 
