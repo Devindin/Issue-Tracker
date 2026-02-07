@@ -41,7 +41,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
     // Navigate to login page
-    navigate("/login");
+    navigate("/");
     setShowLogoutModal(false);
   };
 
