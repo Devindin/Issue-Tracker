@@ -4,22 +4,14 @@ import { Link } from "react-router-dom";
 import {
   FaExclamationCircle,
   FaSpinner,
-  FaCheckCircle,
-  FaTimesCircle,
   FaPlus,
   FaSearch,
-  FaFilter,
-  FaArrowUp,
-  FaArrowDown,
-  FaClock,
-  FaEdit,
   FaTrash,
   FaFileExport,
-  FaSort,
-  FaEye,
   FaTimes,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
+import IssueCard from "../Components/IssueCard";
 
 // Types
 interface Issue {
@@ -35,7 +27,6 @@ interface Issue {
 
 type SortField = "createdAt" | "updatedAt" | "priority" | "status" | "title";
 type SortOrder = "asc" | "desc";
-type ViewMode = "grid" | "list";
 
 const Issues: React.FC = () => {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -46,7 +37,6 @@ const Issues: React.FC = () => {
   const [filterSeverity, setFilterSeverity] = useState<string>("All");
   const [sortField, setSortField] = useState<SortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [issueToDelete, setIssueToDelete] = useState<number | null>(null);
@@ -325,67 +315,6 @@ const Issues: React.FC = () => {
     a.click();
   };
 
-  // Badge styles
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      Open: "bg-blue-100 text-blue-700 border-blue-300",
-      "In Progress": "bg-yellow-100 text-yellow-700 border-yellow-300",
-      Resolved: "bg-green-100 text-green-700 border-green-300",
-      Closed: "bg-gray-100 text-gray-700 border-gray-300",
-    };
-    return styles[status as keyof typeof styles] || "";
-  };
-
-  const getPriorityBadge = (priority: string) => {
-    const styles = {
-      Low: "bg-gray-100 text-gray-600 border-gray-300",
-      Medium: "bg-orange-100 text-orange-600 border-orange-300",
-      High: "bg-red-100 text-red-600 border-red-300",
-      Critical: "bg-purple-100 text-purple-700 border-purple-300",
-    };
-    return styles[priority as keyof typeof styles] || "";
-  };
-
-  const getPriorityIcon = (priority: string) => {
-    if (priority === "High" || priority === "Critical") {
-      return <FaArrowUp className="inline" />;
-    }
-    if (priority === "Low") {
-      return <FaArrowDown className="inline" />;
-    }
-    return null;
-  };
-
-  const getStatusIcon = (status: string) => {
-    const icons = {
-      Open: <FaExclamationCircle />,
-      "In Progress": <FaSpinner className="animate-spin" />,
-      Resolved: <FaCheckCircle />,
-      Closed: <FaTimesCircle />,
-    };
-    return icons[status as keyof typeof icons] || null;
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortOrder("desc");
-    }
-  };
-
   const clearFilters = () => {
     setSearchTerm("");
     setFilterStatus("All");
@@ -408,10 +337,10 @@ const Issues: React.FC = () => {
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            <h1 className="text-3xl md:text-4xl font-bold text-white">
               All Issues
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-white mt-1">
               Manage and track all your issues in one place
             </p>
           </div>
@@ -592,172 +521,24 @@ const Issues: React.FC = () => {
           </motion.div>
         ) : (
           <>
-            {/* Grid View */}
-            {viewMode === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* List View */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl shadow-md overflow-hidden"
+            >
+              <div className="divide-y divide-gray-100">
                 {paginatedIssues.map((issue, index) => (
-                  <motion.div
+                  <IssueCard
                     key={issue.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all overflow-hidden group"
-                  >
-                    <div className="p-6">
-                      {/* Header */}
-                      <div className="flex items-start justify-between mb-4">
-                        <span className="text-gray-400 font-mono text-sm">
-                          #{issue.id}
-                        </span>
-                        <div className="flex gap-2">
-                          <Link to={`/issues/${issue.id}`}>
-                            <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                              <FaEye />
-                            </button>
-                          </Link>
-                          <Link to={`/issues/${issue.id}/edit`}>
-                            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                              <FaEdit />
-                            </button>
-                          </Link>
-                          <button
-                            onClick={() => handleDeleteClick(issue.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Title */}
-                      <Link to={`/issues/${issue.id}`}>
-                        <h3 className="font-bold text-gray-800 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
-                          {issue.title}
-                        </h3>
-                      </Link>
-
-                      {/* Description */}
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                        {issue.description}
-                      </p>
-
-                      {/* Badges */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
-                            issue.status
-                          )}`}
-                        >
-                          {getStatusIcon(issue.status)}
-                          {issue.status}
-                        </span>
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
-                            issue.priority
-                          )}`}
-                        >
-                          {getPriorityIcon(issue.priority)}
-                          {issue.priority}
-                        </span>
-                      </div>
-
-                      {/* Footer */}
-                      <div className="flex items-center text-xs text-gray-500 border-t border-gray-100 pt-4">
-                        <FaClock className="mr-2" />
-                        {formatDate(issue.createdAt)}
-                      </div>
-                    </div>
-                  </motion.div>
+                    issue={issue}
+                    viewMode="list"
+                    index={index}
+                    onDelete={handleDeleteClick}
+                  />
                 ))}
               </div>
-            ) : (
-              /* List View */
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-md overflow-hidden"
-              >
-                <div className="divide-y divide-gray-100">
-                  {paginatedIssues.map((issue, index) => (
-                    <motion.div
-                      key={issue.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.03 }}
-                      className="p-6 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        {/* Left Section */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start gap-3">
-                            <span className="text-gray-400 font-mono text-sm mt-1 flex-shrink-0">
-                              #{issue.id}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <Link to={`/issues/${issue.id}`}>
-                                <h3 className="font-semibold text-gray-800 hover:text-indigo-600 transition-colors mb-1">
-                                  {issue.title}
-                                </h3>
-                              </Link>
-                              <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                                {issue.description}
-                              </p>
-                              <div className="flex flex-wrap gap-2">
-                                <span
-                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
-                                    issue.status
-                                  )}`}
-                                >
-                                  {getStatusIcon(issue.status)}
-                                  {issue.status}
-                                </span>
-                                <span
-                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
-                                    issue.priority
-                                  )}`}
-                                >
-                                  {getPriorityIcon(issue.priority)}
-                                  {issue.priority}
-                                </span>
-                                <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-                                  {issue.severity}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Right Section */}
-                        <div className="flex items-center gap-4 flex-shrink-0">
-                          <div className="text-xs text-gray-500 hidden lg:flex items-center gap-2">
-                            <FaClock />
-                            {formatDate(issue.createdAt)}
-                          </div>
-                          <div className="flex gap-2">
-                            <Link to={`/issues/${issue.id}`}>
-                              <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                                <FaEye />
-                              </button>
-                            </Link>
-                            <Link to={`/issues/${issue.id}/edit`}>
-                              <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                <FaEdit />
-                              </button>
-                            </Link>
-                            <button
-                              onClick={() => handleDeleteClick(issue.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+            </motion.div>
 
             {/* Pagination */}
             {totalPages > 1 && (

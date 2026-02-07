@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
 import Issues from "./Pages/Issues";
+import ViewIssue from "./Pages/ViewIssue";
+import EditIssue from "./Pages/EditIssue";
 
 
 function App() {
@@ -11,6 +13,8 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/issues" element={<Issues />} />
+        <Route path="/issues/:id" element={<ViewIssue />} />
+        <Route path="/issues/:id/edit" element={<EditIssue />} />
       </Routes>
     </BrowserRouter>
   );
