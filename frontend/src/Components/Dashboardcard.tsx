@@ -34,10 +34,10 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
     switch (variant) {
       case "total":
         return {
-          container: "bg-gradient-to-br from-[#0A3D91] to-[#1976D2] text-white shadow-lg",
-          title: "text-[#1976D2] text-sm font-medium",
-          value: "text-4xl font-bold mt-2 text-white",
-          icon: "text-5xl text-[#1976D2] opacity-50",
+          container: "bg-[#00C6D7] text-white shadow-xl rounded-3xl p-6 border-2 border-white/30",
+          title: "text-white/80 text-sm font-medium",
+          value: "text-5xl font-bold mt-2 text-white drop-shadow-lg",
+          icon: "text-6xl text-white opacity-90 drop-shadow-lg",
         };
       case "open":
         return {
