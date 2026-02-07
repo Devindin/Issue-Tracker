@@ -7,10 +7,12 @@ import {
   FaArrowLeft,
   FaExclamationCircle,
   FaSpinner,
+  FaSave,
+  FaTimes,
+  FaExclamationTriangle,
+  FaInfoCircle,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
-import PrimaryButton from "../Components/PrimaryButton";
-import InputField from "../Components/InputField";
 import PageTitle from "../Components/PageTitle";
 
 interface Issue {
@@ -30,6 +32,40 @@ const EditIssue: React.FC = () => {
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+
+  // Character count limits
+  const TITLE_MAX_LENGTH = 100;
+  const DESCRIPTION_MAX_LENGTH = 1000;
+
+  // Get priority color classes
+  const getPriorityColor = (priority: string) => {
+    const colors = {
+      Low: "bg-gray-100 border-gray-300 text-gray-700",
+      Medium: "bg-orange-100 border-orange-300 text-orange-700",
+      High: "bg-red-100 border-red-300 text-red-700",
+      Critical: "bg-purple-100 border-purple-300 text-purple-700",
+    };
+    return colors[priority as keyof typeof colors];
+  };
+
+  const getSeverityColor = (severity: string) => {
+    const colors = {
+      Minor: "bg-blue-100 border-blue-300 text-blue-700",
+      Major: "bg-yellow-100 border-yellow-300 text-yellow-700",
+      Critical: "bg-red-100 border-red-300 text-red-700",
+    };
+    return colors[severity as keyof typeof colors];
+  };
+
+  const getStatusColor = (status: string) => {
+    const colors = {
+      Open: "bg-blue-100 border-blue-300 text-blue-700",
+      "In Progress": "bg-yellow-100 border-yellow-300 text-yellow-700",
+      Resolved: "bg-green-100 border-green-300 text-green-700",
+      Closed: "bg-gray-100 border-gray-300 text-gray-700",
+    };
+    return colors[status as keyof typeof colors];
+  };
 
   // Mock data - replace with actual API call
   const mockIssues: Issue[] = [
@@ -232,7 +268,7 @@ const EditIssue: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-md p-8"
+          className="space-y-6"
         >
           <Formik
             initialValues={{
@@ -245,112 +281,291 @@ const EditIssue: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ isSubmitting }) => (
+            {({ isSubmitting, values }) => (
               <Form className="space-y-6">
-                {/* Title */}
-                <div>
-                  <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Title *
-                  </label>
-                  <Field
-                    as={InputField}
-                    id="title"
-                    name="title"
-                    type="text"
-                    placeholder="Enter issue title"
-                    className="w-full"
-                  />
-                  <ErrorMessage name="title" component="div" className="text-red-600 text-sm mt-1" />
-                </div>
+                {/* Main Information Card */}
+                <div className="bg-white rounded-2xl shadow-md p-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                    <FaInfoCircle className="text-indigo-600" />
+                    Main Information
+                  </h2>
 
-                {/* Description */}
-                <div>
-                  <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description *
-                  </label>
-                  <Field
-                    as="textarea"
-                    id="description"
-                    name="description"
-                    rows={6}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent resize-vertical"
-                    placeholder="Describe the issue in detail"
-                  />
-                  <ErrorMessage name="description" component="div" className="text-red-600 text-sm mt-1" />
-                </div>
-
-                {/* Status, Priority, Severity */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Status */}
-                  <div>
-                    <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Status *
+                  {/* Title */}
+                  <div className="mb-6">
+                    <label
+                      htmlFor="title"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Title <span className="text-red-500">*</span>
                     </label>
                     <Field
-                      as="select"
-                      id="status"
-                      name="status"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent appearance-none bg-white cursor-pointer"
-                    >
-                      <option value="Open">Open</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Resolved">Resolved</option>
-                      <option value="Closed">Closed</option>
-                    </Field>
-                    <ErrorMessage name="status" component="div" className="text-red-600 text-sm mt-1" />
+                      as="input"
+                      id="title"
+                      name="title"
+                      type="text"
+                      maxLength={TITLE_MAX_LENGTH}
+                      placeholder="Enter a clear, concise title for the issue"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    />
+                    <ErrorMessage name="title" component="div" className="text-red-500 text-sm mt-1 flex items-center gap-1" />
+                    <div className="flex justify-end mt-1">
+                      <span
+                        className={`text-xs ${
+                          values.title.length > TITLE_MAX_LENGTH * 0.9
+                            ? "text-red-500"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {values.title.length}/{TITLE_MAX_LENGTH}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Priority */}
-                  <div>
-                    <label htmlFor="priority" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Priority *
+                  {/* Description */}
+                  <div className="mb-6">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Description <span className="text-red-500">*</span>
                     </label>
                     <Field
-                      as="select"
-                      id="priority"
-                      name="priority"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent appearance-none bg-white cursor-pointer"
-                    >
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="High">High</option>
-                      <option value="Critical">Critical</option>
-                    </Field>
-                    <ErrorMessage name="priority" component="div" className="text-red-600 text-sm mt-1" />
+                      as="textarea"
+                      id="description"
+                      name="description"
+                      maxLength={DESCRIPTION_MAX_LENGTH}
+                      rows={6}
+                      placeholder="Provide a detailed description of the issue, including steps to reproduce, expected behavior, and actual behavior..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+                    />
+                    <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1 flex items-center gap-1" />
+                    <div className="flex justify-end mt-1">
+                      <span
+                        className={`text-xs ${
+                          values.description.length > DESCRIPTION_MAX_LENGTH * 0.9
+                            ? "text-red-500"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {values.description.length}/{DESCRIPTION_MAX_LENGTH}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Classification Card */}
+                <div className="bg-white rounded-2xl shadow-md p-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                    <FaExclamationTriangle className="text-indigo-600" />
+                    Classification
+                  </h2>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Status */}
+                    <div>
+                      <label
+                        htmlFor="status"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        Status
+                      </label>
+                      <div className="relative">
+                        <Field
+                          as="select"
+                          id="status"
+                          name="status"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                        >
+                          <option value="Open">Open</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Resolved">Resolved</option>
+                          <option value="Closed">Closed</option>
+                        </Field>
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <span
+                          className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getStatusColor(
+                            values.status
+                          )}`}
+                        >
+                          {values.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Priority */}
+                    <div>
+                      <label
+                        htmlFor="priority"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        Priority
+                      </label>
+                      <div className="relative">
+                        <Field
+                          as="select"
+                          id="priority"
+                          name="priority"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                        >
+                          <option value="Low">Low</option>
+                          <option value="Medium">Medium</option>
+                          <option value="High">High</option>
+                          <option value="Critical">Critical</option>
+                        </Field>
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <span
+                          className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getPriorityColor(
+                            values.priority
+                          )}`}
+                        >
+                          {values.priority}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Severity */}
+                    <div>
+                      <label
+                        htmlFor="severity"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        Severity
+                      </label>
+                      <div className="relative">
+                        <Field
+                          as="select"
+                          id="severity"
+                          name="severity"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                        >
+                          <option value="Minor">Minor</option>
+                          <option value="Major">Major</option>
+                          <option value="Critical">Critical</option>
+                        </Field>
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <span
+                          className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getSeverityColor(
+                            values.severity
+                          )}`}
+                        >
+                          {values.severity}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Severity */}
-                  <div>
-                    <label htmlFor="severity" className="block text-sm font-semibold text-gray-700 mb-2">
-                      Severity *
-                    </label>
-                    <Field
-                      as="select"
-                      id="severity"
-                      name="severity"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent appearance-none bg-white cursor-pointer"
-                    >
-                      <option value="Minor">Minor</option>
-                      <option value="Major">Major</option>
-                      <option value="Critical">Critical</option>
-                    </Field>
-                    <ErrorMessage name="severity" component="div" className="text-red-600 text-sm mt-1" />
+                  {/* Info Box */}
+                  <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div className="flex gap-3">
+                      <FaInfoCircle className="text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-blue-800">
+                        <p className="font-semibold mb-1">Classification Guide:</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>
+                            <strong>Priority:</strong> How quickly the issue needs to
+                            be addressed
+                          </li>
+                          <li>
+                            <strong>Severity:</strong> The impact of the issue on the
+                            system
+                          </li>
+                          <li>
+                            <strong>Status:</strong> Current state of the issue
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Form Actions */}
-                <div className="flex gap-4 pt-6 border-t border-gray-200">
-                  <Link
-                    to={`/issues/${issue.id}`}
-                    className="flex-1 px-6 py-3 text-center text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors"
-                  >
-                    Cancel
-                  </Link>
-                  <PrimaryButton
-                    label={saving ? "Saving..." : "Save Changes"}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <motion.button
                     type="submit"
                     disabled={isSubmitting || saving}
-                  />
+                    whileHover={{ scale: (isSubmitting || saving) ? 1 : 1.02 }}
+                    whileTap={{ scale: (isSubmitting || saving) ? 1 : 0.98 }}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed transition-all"
+                  >
+                    {saving || isSubmitting ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
+                        >
+                          <FaSave />
+                        </motion.div>
+                        Saving Changes...
+                      </>
+                    ) : (
+                      <>
+                        <FaSave /> Save Changes
+                      </>
+                    )}
+                  </motion.button>
+
+                  <Link to={`/issues/${issue.id}`} className="flex-1">
+                    <motion.button
+                      type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all"
+                    >
+                      <FaTimes /> Cancel
+                    </motion.button>
+                  </Link>
                 </div>
               </Form>
             )}
