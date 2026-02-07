@@ -28,7 +28,7 @@ import {
   Filler,
 } from "chart.js";
 import { Bar, Pie, Line } from "react-chartjs-2";
-import PageLayout from "../layout/PageLayout";
+import PageLayout from "../Layout/PageLayout";
 
 // Register ChartJS components
 ChartJS.register(
@@ -81,7 +81,6 @@ const Reports: React.FC = () => {
   const [stats, setStats] = useState<ReportStats | null>(null);
   const [trendData, setTrendData] = useState<TrendData | null>(null);
   const [dateRange, setDateRange] = useState<string>("7"); // days
-  const [selectedChart, setSelectedChart] = useState<string>("all");
 
   useEffect(() => {
     fetchReportData();
@@ -91,7 +90,7 @@ const Reports: React.FC = () => {
     try {
       setLoading(true);
       // TODO: Replace with actual API call
-      const response = await fetch(
+      await fetch(
         `/api/issues/reports?days=${dateRange}`,
         {
           headers: {
@@ -99,7 +98,6 @@ const Reports: React.FC = () => {
           },
         }
       );
-      const data = await response.json();
 
       // Mock data for development
       const mockIssues: Issue[] = generateMockIssues();
