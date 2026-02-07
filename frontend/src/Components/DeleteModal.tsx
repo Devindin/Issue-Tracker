@@ -9,6 +9,7 @@ interface DeleteModalProps {
   title?: string;
   message?: string;
   itemName?: string;
+  confirmText?: string;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -17,7 +18,8 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   onConfirm,
   title = "Delete Item",
   message,
-  itemName
+  itemName,
+  confirmText = "Delete"
 }) => {
   const defaultMessage = itemName
     ? `Are you sure you want to delete ${itemName}? This action cannot be undone.`
@@ -62,7 +64,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
                   onClick={onConfirm}
                   className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-lg shadow-red-200"
                 >
-                  Delete
+                  {confirmText}
                 </button>
               </div>
             </div>

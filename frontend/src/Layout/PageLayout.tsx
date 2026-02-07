@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import DeleteModal from "../Components/DeleteModal";
 
 interface MenuItem {
   icon: React.JSX.Element;
@@ -61,7 +62,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const userName = user?.name || "User";
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-blue-300 via-blue-200 to-blue-50">
+    <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">
       {/* Sidebar for Desktop */}
       <motion.div
         animate={{ width: collapsed ? "4rem" : "15rem" }}
@@ -83,7 +84,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           </button>
         </div>
 
-        {/* Profile Section */}
         <div className="flex items-center justify-center flex-col py-4">
           <motion.div
             className="w-12 h-12 rounded-full border-2 border-[#00C6D7] bg-[#1976D2] flex items-center justify-center"
@@ -104,7 +104,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           )}
         </div>
 
-        {/* Navigation Menu */}
         <nav className="flex-1 p-2 space-y-1">
           {menuItems.map((item, index) => {
             if (item.path) {
@@ -153,7 +152,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
       <AnimatePresence>
         {sidebarOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -161,8 +159,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden"
               onClick={() => setSidebarOpen(false)}
             />
-
-            {/* Sidebar */}
             <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
@@ -170,7 +166,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               transition={{ duration: 0.3, type: "spring" }}
               className="fixed top-0 left-0 w-72 h-full z-50 flex flex-col bg-white shadow-2xl p-6"
             >
-              {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <h2 className="font-bold text-xl text-[#0A3D91]">
                   Issue<span className="text-[#00C6D7]">Desk</span><span className="text-[#0A3D91] font-bold">X</span>
@@ -184,7 +179,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 </button>
               </div>
 
-              {/* Profile in Mobile */}
               <div className="flex items-center gap-3 mb-6 p-3 bg-[#1976D2]/10 rounded-xl">
                 <div className="w-10 h-10 rounded-full border-2 border-[#00C6D7] bg-[#1976D2] flex items-center justify-center">
                   <FaUser className="text-white text-sm" />
@@ -192,7 +186,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 <span className="font-semibold text-[#0A3D91]">{userName}</span>
               </div>
 
-              {/* Navigation */}
               <nav className="space-y-2 flex-1">
                 {menuItems.map((item, index) => {
                   if (item.path) {
@@ -248,49 +241,14 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
       {/* Logout Confirmation Modal */}
       <AnimatePresence>
         {showLogoutModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-            onClick={cancelLogout}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", duration: 0.3 }}
-              className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-100 mb-4">
-                  <FaSignOutAlt className="h-7 w-7 text-red-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  Sign Out
-                </h3>
-                <p className="text-sm text-gray-600 mb-6">
-                  Are you sure you want to sign out? You'll need to sign in
-                  again to access your account.
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={cancelLogout}
-                    className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmLogout}
-                    className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-lg shadow-red-200"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+          <DeleteModal
+            isOpen={showLogoutModal}
+            onClose={cancelLogout}
+            onConfirm={confirmLogout}
+            title="Sign Out"
+            message="Are you sure you want to sign out? You'll need to sign in again to access your account."
+            confirmText="Sign Out"
+          />
         )}
       </AnimatePresence>
     </div>
