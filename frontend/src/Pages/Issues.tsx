@@ -13,6 +13,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
+import DeleteModal from "../Components/DeleteModal";
 
 // Types
 interface Issue {
@@ -609,53 +610,13 @@ const Issues: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-            onClick={() => setShowDeleteModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", duration: 0.3 }}
-              className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-red-100 mb-4">
-                  <FaTrash className="h-7 w-7 text-red-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  Delete Issue
-                </h3>
-                <p className="text-sm text-gray-600 mb-6">
-                  Are you sure you want to delete this issue? This action
-                  cannot be undone.
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmDelete}
-                    className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-lg shadow-red-200"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Issue"
+        message="Are you sure you want to delete this issue? This action cannot be undone."
+      />
     </PageLayout>
   );
 };
