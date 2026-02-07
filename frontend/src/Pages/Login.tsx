@@ -42,9 +42,27 @@ function Login(): React.JSX.Element {
     visible: { opacity: 1, y: 0 },
   };
 
-  const handleSubmit = (values: LoginFormValues): void => {
-    console.log("Form submitted:", values);
-    navigate("/dashboard");
+  const handleSubmit = async (values: LoginFormValues): Promise<void> => {
+    try {
+      // TODO: Replace with actual API call
+      console.log("Form submitted:", values);
+
+      // Mock authentication - in real app, this would be an API call
+      if (values.email && values.password) {
+        // Store user data in localStorage (mock)
+        localStorage.setItem("authToken", "mock-jwt-token");
+        localStorage.setItem("user", JSON.stringify({
+          id: 1,
+          name: "John Doe",
+          email: values.email
+        }));
+
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      // In a real app, you would show an error message here
+    }
   };
 
   return (
@@ -68,6 +86,7 @@ function Login(): React.JSX.Element {
           >
             <Formik
               initialValues={{ email: "", password: "" }}
+              validationSchema={loginValidationSchema}
               onSubmit={handleSubmit}
             >
               {({ handleChange, values, errors, touched }) => (
