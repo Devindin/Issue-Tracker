@@ -30,6 +30,8 @@ import {
 import { Bar, Pie, Line } from "react-chartjs-2";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
+import MetricCard from "../Components/MetricCard";
+import StatCard from "../Components/StatCard";
 
 // Register ChartJS components
 ChartJS.register(
@@ -473,59 +475,37 @@ const Reports: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
             >
-              {/* Total Issues */}
-              <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <FaChartBar className="text-3xl opacity-80" />
-                  <span className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
-                    Total
-                  </span>
-                </div>
-                <h3 className="text-4xl font-bold mb-1">{stats?.totalIssues}</h3>
-                <p className="text-indigo-100 text-sm">Total Issues</p>
-              </div>
+              <MetricCard
+                title="Total Issues"
+                value={stats?.totalIssues || 0}
+                icon={<FaChartBar />}
+                badge="Total"
+                gradient={true}
+              />
 
-              {/* Open Issues */}
-              <div className="bg-white rounded-2xl p-6 shadow-md border border-blue-100">
-                <div className="flex items-center justify-between mb-2">
-                  <FaExclamationCircle className="text-3xl text-blue-500" />
-                  <span className="text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
-                    Active
-                  </span>
-                </div>
-                <h3 className="text-4xl font-bold text-gray-800 mb-1">
-                  {stats?.openIssues}
-                </h3>
-                <p className="text-gray-600 text-sm">Open Issues</p>
-              </div>
+              <MetricCard
+                title="Open Issues"
+                value={stats?.openIssues || 0}
+                icon={<FaExclamationCircle />}
+                badge="Active"
+                badgeColor="text-blue-600 bg-blue-100"
+              />
 
-              {/* Resolution Rate */}
-              <div className="bg-white rounded-2xl p-6 shadow-md border border-green-100">
-                <div className="flex items-center justify-between mb-2">
-                  <FaCheckCircle className="text-3xl text-green-500" />
-                  <span className="text-xs font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                    Rate
-                  </span>
-                </div>
-                <h3 className="text-4xl font-bold text-gray-800 mb-1">
-                  {stats?.resolutionRate.toFixed(0)}%
-                </h3>
-                <p className="text-gray-600 text-sm">Resolution Rate</p>
-              </div>
+              <MetricCard
+                title="Resolution Rate"
+                value={`${stats?.resolutionRate.toFixed(0)}%` || "0%"}
+                icon={<FaCheckCircle />}
+                badge="Rate"
+                badgeColor="text-green-600 bg-green-100"
+              />
 
-              {/* Avg Resolution Time */}
-              <div className="bg-white rounded-2xl p-6 shadow-md border border-purple-100">
-                <div className="flex items-center justify-between mb-2">
-                  <FaClock className="text-3xl text-purple-500" />
-                  <span className="text-xs font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">
-                    Time
-                  </span>
-                </div>
-                <h3 className="text-4xl font-bold text-gray-800 mb-1">
-                  {stats?.avgResolutionTime.toFixed(0)}h
-                </h3>
-                <p className="text-gray-600 text-sm">Avg Resolution Time</p>
-              </div>
+              <MetricCard
+                title="Avg Resolution Time"
+                value={`${stats?.avgResolutionTime.toFixed(0)}h` || "0h"}
+                icon={<FaClock />}
+                badge="Time"
+                badgeColor="text-purple-600 bg-purple-100"
+              />
             </motion.div>
 
             {/* Additional Stats */}
@@ -535,57 +515,34 @@ const Reports: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="grid grid-cols-1 md:grid-cols-3 gap-4"
             >
-              {/* Critical Issues */}
-              <div className="bg-white rounded-2xl p-6 shadow-md border-l-4 border-red-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium mb-1">
-                      Critical Issues
-                    </p>
-                    <h4 className="text-3xl font-bold text-gray-800">
-                      {stats?.criticalIssues}
-                    </h4>
-                  </div>
-                  <div className="bg-red-100 p-4 rounded-xl">
-                    <FaExclamationCircle className="text-2xl text-red-600" />
-                  </div>
-                </div>
-              </div>
+              <StatCard
+                title="Critical Issues"
+                value={stats?.criticalIssues || 0}
+                subtitle="Unresolved critical priority issues"
+                icon={<FaExclamationCircle className="text-2xl text-red-600" />}
+                accentColor="border-red-500"
+              />
 
-              {/* Issues This Week */}
-              <div className="bg-white rounded-2xl p-6 shadow-md border-l-4 border-blue-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium mb-1">
-                      Issues This Week
-                    </p>
-                    <h4 className="text-3xl font-bold text-gray-800">
-                      {stats?.issuesThisWeek}
-                    </h4>
-                  </div>
-                  <div className="bg-blue-100 p-4 rounded-xl">
-                    <FaCalendarAlt className="text-2xl text-blue-600" />
-                  </div>
-                </div>
-              </div>
+              <StatCard
+                title="Issues This Week"
+                value={stats?.issuesThisWeek || 0}
+                subtitle="New issues in the last 7 days"
+                icon={<FaCalendarAlt className="text-2xl text-blue-600" />}
+                accentColor="border-blue-500"
+              />
 
-              {/* Trend Indicator */}
-              <div className="bg-white rounded-2xl p-6 shadow-md border-l-4 border-indigo-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium mb-1">
-                      Issue Trend
-                    </p>
-                    <h4 className={`text-3xl font-bold flex items-center gap-2 ${trendIndicator?.color || "text-gray-800"}`}>
-                      {trendIndicator?.icon}
-                      {trendIndicator?.text}
-                    </h4>
+              <StatCard
+                title="Issue Trend"
+                value={
+                  <div className={`flex items-center gap-2 ${trendIndicator?.color || "text-gray-800"}`}>
+                    {trendIndicator?.icon}
+                    {trendIndicator?.text}
                   </div>
-                  <div className="bg-indigo-100 p-4 rounded-xl">
-                    <FaChartLine className="text-2xl text-indigo-600" />
-                  </div>
-                </div>
-              </div>
+                }
+                subtitle="Issue creation trend"
+                icon={<FaChartLine className="text-2xl text-indigo-600" />}
+                accentColor="border-indigo-500"
+              />
             </motion.div>
 
             {/* Trend Chart */}
