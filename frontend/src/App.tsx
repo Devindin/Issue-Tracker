@@ -4,6 +4,7 @@ import Dashboard from "./Pages/Dashboard";
 import Issues from "./Pages/Issues";
 import ViewIssue from "./Pages/ViewIssue";
 import EditIssue from "./Pages/EditIssue";
+import CreateIssue from "./Pages/CreateIssue";
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/issues" element={<Issues />} />
         <Route path="/issues/:id" element={<ViewIssue />} />
         <Route path="/issues/:id/edit" element={<EditIssue />} />
+        <Route path="/issues/new" element={<CreateIssue />} />
       </Routes>
     </BrowserRouter>
   );
