@@ -20,19 +20,20 @@ import StatCard from "../Components/StatCard";
 import TrendChart from "../Components/TrendChart";
 import StatusChart from "../Components/StatusChart";
 import PriorityChart from "../Components/PriorityChart";
+import type { IssueStatus, IssuePriority, IssueSeverity } from "../types";
 
 // Types
-interface Issue {
+interface ReportIssue {
   id: number;
   title: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High" | "Critical";
-  severity: "Minor" | "Major" | "Critical";
+  description: string;
+  status: IssueStatus;
+  priority: IssuePriority;
+  severity: IssueSeverity;
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
 }
-
 interface ReportStats {
   totalIssues: number;
   openIssues: number;
@@ -54,7 +55,7 @@ interface TrendData {
 
 const Reports: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
-  const [issues, setIssues] = useState<Issue[]>([]);
+  const [issues, setIssues] = useState<ReportIssue[]>([]);
   const [stats, setStats] = useState<ReportStats | null>(null);
   const [trendData, setTrendData] = useState<TrendData | null>(null);
   const [dateRange, setDateRange] = useState<string>("7"); // days
@@ -77,7 +78,7 @@ const Reports: React.FC = () => {
       );
 
       // Mock data for development
-      const mockIssues: Issue[] = generateMockIssues();
+      const mockIssues: ReportIssue[] = generateMockIssues();
       setIssues(mockIssues);
 
       const calculatedStats = calculateStats(mockIssues);
@@ -98,7 +99,7 @@ const Reports: React.FC = () => {
   };
 
   // Generate mock issues for development
-  const generateMockIssues = (): Issue[] => {
+  const generateMockIssues = (): ReportIssue[] => {
     const statuses: ("Open" | "In Progress" | "Resolved" | "Closed")[] = [
       "Open",
       "In Progress",
@@ -117,7 +118,7 @@ const Reports: React.FC = () => {
       "Critical",
     ];
 
-    const mockData: Issue[] = [];
+    const mockData: ReportIssue[] = [];
     const now = new Date();
 
     for (let i = 1; i <= 50; i++) {
@@ -139,6 +140,7 @@ const Reports: React.FC = () => {
       mockData.push({
         id: i,
         title: `Issue ${i}`,
+        description: `Description for issue ${i}`,
         status,
         priority: priorities[Math.floor(Math.random() * priorities.length)],
         severity: severities[Math.floor(Math.random() * severities.length)],
@@ -152,7 +154,7 @@ const Reports: React.FC = () => {
   };
 
   // Calculate statistics
-  const calculateStats = (issueList: Issue[]): ReportStats => {
+  const calculateStats = (issueList: ReportIssue[]): ReportStats => {
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -214,7 +216,7 @@ const Reports: React.FC = () => {
 
   // Calculate trend data for charts
   const calculateTrendData = (
-    issueList: Issue[],
+    issueList: ReportIssue[],
     days: number
   ): TrendData => {
     const labels: string[] = [];
