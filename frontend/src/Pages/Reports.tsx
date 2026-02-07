@@ -2,50 +2,24 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   FaChartBar,
-  FaChartPie,
-  FaChartLine,
   FaDownload,
   FaSpinner,
   FaCalendarAlt,
   FaExclamationCircle,
   FaClock,
   FaCheckCircle,
+  FaChartLine,
   FaArrowUp,
   FaArrowDown,
   FaEquals,
 } from "react-icons/fa";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-  Filler,
-} from "chart.js";
-import { Bar, Pie, Line } from "react-chartjs-2";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import MetricCard from "../Components/MetricCard";
 import StatCard from "../Components/StatCard";
-
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-  Filler
-);
+import TrendChart from "../Components/TrendChart";
+import StatusChart from "../Components/StatusChart";
+import PriorityChart from "../Components/PriorityChart";
 
 // Types
 interface Issue {
@@ -282,122 +256,6 @@ const Reports: React.FC = () => {
     return { labels, created, resolved };
   };
 
-  // Chart configurations
-  const statusChartData = {
-    labels: ["Open", "In Progress", "Resolved", "Closed"],
-    datasets: [
-      {
-        label: "Issues by Status",
-        data: [
-          stats?.openIssues || 0,
-          stats?.inProgressIssues || 0,
-          stats?.resolvedIssues || 0,
-          stats?.closedIssues || 0,
-        ],
-        backgroundColor: [
-          "rgba(59, 130, 246, 0.8)", // Blue
-          "rgba(234, 179, 8, 0.8)", // Yellow
-          "rgba(34, 197, 94, 0.8)", // Green
-          "rgba(156, 163, 175, 0.8)", // Gray
-        ],
-        borderColor: [
-          "rgb(59, 130, 246)",
-          "rgb(234, 179, 8)",
-          "rgb(34, 197, 94)",
-          "rgb(156, 163, 175)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const priorityChartData = {
-    labels: ["Low", "Medium", "High", "Critical"],
-    datasets: [
-      {
-        label: "Issues by Priority",
-        data: [
-          issues.filter((i) => i.priority === "Low").length,
-          issues.filter((i) => i.priority === "Medium").length,
-          issues.filter((i) => i.priority === "High").length,
-          issues.filter((i) => i.priority === "Critical").length,
-        ],
-        backgroundColor: [
-          "rgba(156, 163, 175, 0.8)", // Gray
-          "rgba(249, 115, 22, 0.8)", // Orange
-          "rgba(239, 68, 68, 0.8)", // Red
-          "rgba(168, 85, 247, 0.8)", // Purple
-        ],
-        borderColor: [
-          "rgb(156, 163, 175)",
-          "rgb(249, 115, 22)",
-          "rgb(239, 68, 68)",
-          "rgb(168, 85, 247)",
-        ],
-        borderWidth: 2,
-      },
-    ],
-  };
-
-  const trendChartData = {
-    labels: trendData?.labels || [],
-    datasets: [
-      {
-        label: "Created",
-        data: trendData?.created || [],
-        borderColor: "rgb(99, 102, 241)",
-        backgroundColor: "rgba(99, 102, 241, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: "Resolved",
-        data: trendData?.resolved || [],
-        borderColor: "rgb(34, 197, 94)",
-        backgroundColor: "rgba(34, 197, 94, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-        labels: {
-          padding: 15,
-          font: {
-            size: 12,
-          },
-        },
-      },
-      tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        padding: 12,
-        titleFont: {
-          size: 14,
-        },
-        bodyFont: {
-          size: 13,
-        },
-      },
-    },
-  };
-
-  const pieChartOptions = {
-    ...chartOptions,
-    plugins: {
-      ...chartOptions.plugins,
-      legend: {
-        ...chartOptions.plugins.legend,
-        position: "right" as const,
-      },
-    },
-  };
-
   // Export report as PDF (placeholder)
   const exportReport = () => {
     // TODO: Implement PDF export functionality
@@ -550,22 +408,32 @@ const Reports: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="bg-white rounded-2xl p-6 shadow-md"
             >
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <FaChartLine className="text-indigo-600" />
-                    Issues Trend
-                  </h2>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Created vs Resolved issues over time
-                  </p>
-                </div>
-              </div>
-              <div className="h-80">
-                <Line data={trendChartData} options={chartOptions} />
-              </div>
+              <TrendChart
+                data={{
+                  labels: trendData?.labels || [],
+                  datasets: [
+                    {
+                      label: "Created",
+                      data: trendData?.created || [],
+                      borderColor: "rgb(99, 102, 241)",
+                      backgroundColor: "rgba(99, 102, 241, 0.1)",
+                      tension: 0.4,
+                      fill: true,
+                    },
+                    {
+                      label: "Resolved",
+                      data: trendData?.resolved || [],
+                      borderColor: "rgb(34, 197, 94)",
+                      backgroundColor: "rgba(34, 197, 94, 0.1)",
+                      tension: 0.4,
+                      fill: true,
+                    },
+                  ],
+                }}
+                title="Issues Trend"
+                subtitle="Created vs Resolved issues over time"
+              />
             </motion.div>
 
             {/* Status and Priority Charts */}
@@ -575,15 +443,36 @@ const Reports: React.FC = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-white rounded-2xl p-6 shadow-md"
               >
-                <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                  <FaChartPie className="text-indigo-600" />
-                  Status Distribution
-                </h2>
-                <div className="h-80">
-                  <Pie data={statusChartData} options={pieChartOptions} />
-                </div>
+                <StatusChart
+                  data={{
+                    labels: ["Open", "In Progress", "Resolved", "Closed"],
+                    datasets: [
+                      {
+                        label: "Issues by Status",
+                        data: [
+                          stats?.openIssues || 0,
+                          stats?.inProgressIssues || 0,
+                          stats?.resolvedIssues || 0,
+                          stats?.closedIssues || 0,
+                        ],
+                        backgroundColor: [
+                          "rgba(59, 130, 246, 0.8)", // Blue
+                          "rgba(234, 179, 8, 0.8)", // Yellow
+                          "rgba(34, 197, 94, 0.8)", // Green
+                          "rgba(156, 163, 175, 0.8)", // Gray
+                        ],
+                        borderColor: [
+                          "rgb(59, 130, 246)",
+                          "rgb(234, 179, 8)",
+                          "rgb(34, 197, 94)",
+                          "rgb(156, 163, 175)",
+                        ],
+                        borderWidth: 2,
+                      },
+                    ],
+                  }}
+                />
               </motion.div>
 
               {/* Priority Distribution */}
@@ -591,28 +480,36 @@ const Reports: React.FC = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="bg-white rounded-2xl p-6 shadow-md"
               >
-                <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                  <FaChartBar className="text-indigo-600" />
-                  Priority Distribution
-                </h2>
-                <div className="h-80">
-                  <Bar
-                    data={priorityChartData}
-                    options={{
-                      ...chartOptions,
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          ticks: {
-                            stepSize: 1,
-                          },
-                        },
+                <PriorityChart
+                  data={{
+                    labels: ["Low", "Medium", "High", "Critical"],
+                    datasets: [
+                      {
+                        label: "Issues by Priority",
+                        data: [
+                          issues.filter((i) => i.priority === "Low").length,
+                          issues.filter((i) => i.priority === "Medium").length,
+                          issues.filter((i) => i.priority === "High").length,
+                          issues.filter((i) => i.priority === "Critical").length,
+                        ],
+                        backgroundColor: [
+                          "rgba(156, 163, 175, 0.8)", // Gray
+                          "rgba(249, 115, 22, 0.8)", // Orange
+                          "rgba(239, 68, 68, 0.8)", // Red
+                          "rgba(168, 85, 247, 0.8)", // Purple
+                        ],
+                        borderColor: [
+                          "rgb(156, 163, 175)",
+                          "rgb(249, 115, 22)",
+                          "rgb(239, 68, 68)",
+                          "rgb(168, 85, 247)",
+                        ],
+                        borderWidth: 2,
                       },
-                    }}
-                  />
-                </div>
+                    ],
+                  }}
+                />
               </motion.div>
             </div>
 
