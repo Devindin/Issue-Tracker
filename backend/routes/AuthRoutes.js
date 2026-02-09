@@ -24,9 +24,16 @@ router.post('/register-company', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Check if company email already exists
+    const existingCompany = await Company.findOne({ email });
+    if (existingCompany) {
+      return res.status(400).json({ message: 'Company email already exists' });
+    }
+
     // Create company
     const company = new Company({
       name: companyName,
+      email,
       description: companyDescription,
       owner: null // Will set after creating user
     });
@@ -59,7 +66,7 @@ router.post('/register-company', async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, companyId: company._id, role: user.role },
-      process.env.jwt_secret,
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
@@ -81,7 +88,9 @@ router.post('/register-company', async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({
+      message: error?.message || 'Server error',
+    });
   }
 });
 

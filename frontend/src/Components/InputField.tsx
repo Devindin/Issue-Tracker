@@ -34,6 +34,8 @@ function InputField({
   options = [],
   values = {},
   showLockIcon = false,
+  errors,
+  touched,
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -41,6 +43,8 @@ function InputField({
   const isPasswordField = type === "password";
 
   const value = values[name] || "";
+  const errorMessage =
+    touched?.[name] && errors?.[name] ? errors[name] : "";
 
   return (
     <div className="w-full flex flex-col space-y-1 mt-[8px]">
@@ -57,7 +61,9 @@ function InputField({
         className={`relative border rounded-md transition-colors flex items-center ${
           disabled
             ? "border-gray-300 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed bg-gray-100 dark:bg-gray-800"
-            : "border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 focus-within:border-[#00C6D7] focus-within:ring-2 focus-within:ring-[#00C6D7]/20"
+            : errorMessage
+              ? "border-red-500 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-200"
+              : "border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 focus-within:border-[#00C6D7] focus-within:ring-2 focus-within:ring-[#00C6D7]/20"
         }`}
       >
         {isDropdown ? (
@@ -132,6 +138,9 @@ function InputField({
           </>
         )}
       </div>
+      {errorMessage && (
+        <p className="text-red-600 text-xs mt-1">{errorMessage}</p>
+      )}
     </div>
   );
 }

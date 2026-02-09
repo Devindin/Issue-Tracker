@@ -1,7 +1,9 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import "./index.css";
+import App from "./App.tsx";
+import { store } from "./app/stores";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,7 +15,7 @@ import {
   Legend,
   BarElement,
   ArcElement,
-} from 'chart.js';
+} from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -27,8 +29,10 @@ ChartJS.register(
   ArcElement,
 );
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-)
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </StrictMode>
+);

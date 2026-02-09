@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import InputField from "../Components/InputField";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -9,8 +9,11 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import Logo from "../assets/logo.png";
 import AuthBackground from "../Components/AuthBackground";
+import { useRegisterCompanyMutation } from "../auth/authApi";
 
 interface RegisterFormValues {
+  companyName: string;
+  companyDescription: string;
   name: string;
   email: string;
   password: string;
@@ -18,6 +21,10 @@ interface RegisterFormValues {
 }
 
 const registerValidationSchema = Yup.object({
+  companyName: Yup.string()
+    .min(2, "Company name must be at least 2 characters")
+    .required("Company name is required"),
+  companyDescription: Yup.string().max(500, "Description is too long"),
   name: Yup.string()
     .min(2, "Name must be at least 2 characters")
     .required("Name is required"),
@@ -34,6 +41,8 @@ const registerValidationSchema = Yup.object({
 
 function Register(): React.JSX.Element {
   const navigate = useNavigate();
+  const [registerCompany, { isLoading }] = useRegisterCompanyMutation();
+  const [submitError, setSubmitError] = useState<string>("");
 
   // Motion variants
   const containerVariants: Variants = {
@@ -51,27 +60,38 @@ function Register(): React.JSX.Element {
   };
 
   const handleSubmit = async (values: RegisterFormValues): Promise<void> => {
+    setSubmitError("");
     try {
-      // TODO: Replace with actual API call
-      console.log("Registration submitted:", values);
+      const result = await registerCompany({
+        companyName: values.companyName,
+        companyDescription: values.companyDescription,
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      }).unwrap();
 
-      // Mock registration - in real app, this would be an API call
-      if (values.name && values.email && values.password && values.confirmPassword) {
-        // Store user data in localStorage (mock)
-        localStorage.setItem("authToken", "mock-jwt-token");
-        localStorage.setItem("user", JSON.stringify({
-          id: 1,
-          name: values.name,
-          email: values.email
-        }));
-
-        navigate("/dashboard");
+      if (result?.token) {
+        localStorage.setItem("token", result.token);
       }
+
+      navigate("/");
     } catch (error) {
-      console.error("Registration error:", error);
-      // In a real app, you would show an error message here
+      console.error("Register error:", error);
+      const err = error as
+        | { data?: { message?: string; error?: string } }
+        | { message?: string }
+        | { error?: string }
+        | undefined;
+      const message =
+        err?.data?.message ||
+        err?.data?.error ||
+        err?.message ||
+        err?.error ||
+        "Registration failed. Please try again.";
+      setSubmitError(message);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] relative overflow-hidden p-10">
@@ -96,7 +116,14 @@ function Register(): React.JSX.Element {
             variants={itemVariants}
           >
             <Formik
-              initialValues={{ name: "", email: "", password: "", confirmPassword: "" }}
+              initialValues={{
+                companyName: "",
+                companyDescription: "",
+                name: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+              }}
               validationSchema={registerValidationSchema}
               onSubmit={handleSubmit}
             >
@@ -111,6 +138,42 @@ function Register(): React.JSX.Element {
                     <p className="text-gray-600 text-center text-sm mb-2">
                       Sign up to get started
                     </p>
+                  </motion.div>
+
+                  {submitError && (
+                    <div
+                      role="alert"
+                      aria-live="assertive"
+                      className="mb-2 rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
+                    >
+                      {submitError}
+                    </div>
+                  )}
+
+                  <motion.div variants={itemVariants}>
+                    <InputField
+                      label="Company Name"
+                      name="companyName"
+                      type="text"
+                      placeholder="Acme Inc."
+                      handleChange={handleChange}
+                      values={values}
+                      errors={errors}
+                      touched={touched}
+                    />
+                  </motion.div>
+
+                  <motion.div variants={itemVariants}>
+                    <InputField
+                      label="Company Description"
+                      name="companyDescription"
+                      type="text"
+                      placeholder="What does your company do?"
+                      handleChange={handleChange}
+                      values={values}
+                      errors={errors}
+                      touched={touched}
+                    />
                   </motion.div>
 
                   <motion.div variants={itemVariants}>
@@ -166,8 +229,12 @@ function Register(): React.JSX.Element {
                   </motion.div>
 
                   <motion.div variants={itemVariants}>
-                    <PrimaryButton label="Sign Up" type="submit" />
+                    <PrimaryButton
+                      label={isLoading ? "Signing Up..." : "Sign Up"}
+                      type="submit"
+                    />
                   </motion.div>
+
 
                   <motion.div variants={itemVariants} className="text-center mt-4">
                     <span className="text-gray-600 dark:text-gray-400 text-sm">
