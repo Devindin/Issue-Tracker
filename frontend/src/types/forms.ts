@@ -2,9 +2,10 @@
 export interface IssueFormData {
   title: string;
   description: string;
-  priority: IssuePriority;
-  severity: IssueSeverity;
-  status: IssueStatus;
+  priority: string;
+  severity: string;
+  status: string;
+  assigneeId: string;
 }
 
 export interface LoginFormData {

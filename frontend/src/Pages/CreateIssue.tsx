@@ -33,6 +33,7 @@ const validationSchema = Yup.object({
   severity: Yup.string()
     .oneOf(["Minor", "Major", "Critical"], "Invalid severity")
     .required("Severity is required"),
+  assigneeId: Yup.string(),
 });
 
 const CreateIssue: React.FC = () => {
@@ -129,6 +130,7 @@ const CreateIssue: React.FC = () => {
             status: "Open",
             priority: "Medium",
             severity: "Minor",
+            assigneeId: "",
           }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
@@ -212,7 +214,7 @@ const CreateIssue: React.FC = () => {
                   Classification
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* Status */}
                   <div>
                     <label
@@ -352,6 +354,50 @@ const CreateIssue: React.FC = () => {
                       </span>
                     </div>
                   </div>
+
+                  {/* Assignee */}
+                  <div>
+                    <label
+                      htmlFor="assigneeId"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Assignee
+                    </label>
+                    <div className="relative">
+                      <Field
+                        as="select"
+                        id="assigneeId"
+                        name="assigneeId"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                      >
+                        <option value="">Unassigned</option>
+                        <option value="1">John Doe</option>
+                        <option value="2">Jane Smith</option>
+                        <option value="3">Mike Johnson</option>
+                        <option value="4">Sarah Wilson</option>
+                      </Field>
+                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg
+                          className="w-4 h-4 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <span className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border bg-gray-100 border-gray-300 text-gray-700">
+                        {values.assigneeId ? `Assigned to ${["", "John Doe", "Jane Smith", "Mike Johnson", "Sarah Wilson"][parseInt(values.assigneeId)]}` : "Unassigned"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Info Box */}
@@ -371,6 +417,10 @@ const CreateIssue: React.FC = () => {
                         </li>
                         <li>
                           <strong>Status:</strong> Current state of the issue
+                        </li>
+                        <li>
+                          <strong>Assignee:</strong> Team member responsible for
+                          resolving the issue
                         </li>
                       </ul>
                     </div>
