@@ -125,7 +125,7 @@ function Login(): React.JSX.Element {
 
                   <motion.div variants={itemVariants} className="text-right">
                     <Link
-                      to="/login-with-email-verification"
+                      to="/forgot-password"
                       className="text-[#00C6D7] hover:text-[#1976D2] text-sm font-medium hover:underline transition-colors"
                     >
                       Forgot Password?
