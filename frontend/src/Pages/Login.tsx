@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Footer from "../Components/Footer";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
+import Logo from "../assets/logo.png";
 
 interface LoginFormValues {
   email: string;
@@ -49,11 +50,14 @@ function Login(): React.JSX.Element {
       if (values.email && values.password) {
         // Store user data in localStorage (mock)
         localStorage.setItem("authToken", "mock-jwt-token");
-        localStorage.setItem("user", JSON.stringify({
-          id: 1,
-          name: "John Doe",
-          email: values.email
-        }));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            id: 1,
+            name: "John Doe",
+            email: values.email,
+          }),
+        );
 
         navigate("/dashboard");
       }
@@ -64,7 +68,8 @@ function Login(): React.JSX.Element {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7]">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] flex flex-col">
+      <img src={Logo} alt="Login Illustration" className="h-40 self-center" />
       <motion.div
         className="w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/20"
         initial={{ opacity: 0, scale: 0.95 }}
@@ -89,7 +94,6 @@ function Login(): React.JSX.Element {
             >
               {({ handleChange, values, errors, touched }) => (
                 <Form className="flex flex-col w-full max-w-md space-y-4">
-
                   <motion.div variants={itemVariants}>
                     <InputField
                       label="Email"
@@ -128,8 +132,6 @@ function Login(): React.JSX.Element {
                   <motion.div variants={itemVariants}>
                     <PrimaryButton label="Sign In" type="submit" />
                   </motion.div>
-
-                 
                 </Form>
               )}
             </Formik>
