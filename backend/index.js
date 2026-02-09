@@ -16,6 +16,11 @@ mongoose.connect(process.env.MONGODB_URL)
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
+// Load models
+require('./models/Company');
+require('./models/User');
+require('./models/Issue');
+
 // Routes
 app.use('/auth', require('./routes/AuthRoutes'));
 
