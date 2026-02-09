@@ -23,6 +23,8 @@ const Issues: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterPriority, setFilterPriority] = useState<string>("All");
   const [filterSeverity, setFilterSeverity] = useState<string>("All");
+  const [filterAssignee, setFilterAssignee] = useState<string>("All");
+  const [filterCompletedDate, setFilterCompletedDate] = useState<string>("All");
   const [sortField, setSortField] = useState<SortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -70,6 +72,7 @@ const Issues: React.FC = () => {
           status: "Open",
           priority: "High",
           severity: "Major",
+          assignee: { id: 1, name: "John Doe", email: "john@example.com" },
           createdAt: "2026-02-05T10:30:00Z",
           updatedAt: "2026-02-05T10:30:00Z",
         },
@@ -80,6 +83,7 @@ const Issues: React.FC = () => {
           status: "In Progress",
           priority: "Critical",
           severity: "Critical",
+          assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
           createdAt: "2026-02-04T14:20:00Z",
           updatedAt: "2026-02-06T09:15:00Z",
         },
@@ -90,6 +94,7 @@ const Issues: React.FC = () => {
           status: "Open",
           priority: "Medium",
           severity: "Minor",
+          assignee: { id: 3, name: "Mike Johnson", email: "mike@example.com" },
           createdAt: "2026-02-03T16:45:00Z",
           updatedAt: "2026-02-03T16:45:00Z",
         },
@@ -100,6 +105,8 @@ const Issues: React.FC = () => {
           status: "Resolved",
           priority: "Low",
           severity: "Minor",
+          assignee: { id: 4, name: "Sarah Wilson", email: "sarah@example.com" },
+          completedAt: "2026-02-06T10:30:00Z",
           createdAt: "2026-02-02T11:00:00Z",
           updatedAt: "2026-02-06T10:30:00Z",
         },
@@ -110,6 +117,7 @@ const Issues: React.FC = () => {
           status: "In Progress",
           priority: "High",
           severity: "Major",
+          assignee: { id: 1, name: "John Doe", email: "john@example.com" },
           createdAt: "2026-02-01T08:30:00Z",
           updatedAt: "2026-02-07T08:00:00Z",
         },
@@ -130,6 +138,7 @@ const Issues: React.FC = () => {
           status: "Open",
           priority: "Low",
           severity: "Minor",
+          assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
           createdAt: "2026-01-30T09:10:00Z",
           updatedAt: "2026-01-30T09:10:00Z",
         },
@@ -140,6 +149,7 @@ const Issues: React.FC = () => {
           status: "In Progress",
           priority: "High",
           severity: "Major",
+          assignee: { id: 3, name: "Mike Johnson", email: "mike@example.com" },
           createdAt: "2026-01-29T13:45:00Z",
           updatedAt: "2026-02-05T14:20:00Z",
         },
@@ -150,6 +160,7 @@ const Issues: React.FC = () => {
           status: "Open",
           priority: "Medium",
           severity: "Minor",
+          assignee: { id: 4, name: "Sarah Wilson", email: "sarah@example.com" },
           createdAt: "2026-01-28T10:15:00Z",
           updatedAt: "2026-01-28T10:15:00Z",
         },
@@ -160,6 +171,8 @@ const Issues: React.FC = () => {
           status: "Resolved",
           priority: "Medium",
           severity: "Major",
+          assignee: { id: 1, name: "John Doe", email: "john@example.com" },
+          completedAt: "2026-02-04T11:00:00Z",
           createdAt: "2026-01-27T16:30:00Z",
           updatedAt: "2026-02-04T11:00:00Z",
         },
@@ -180,6 +193,7 @@ const Issues: React.FC = () => {
           status: "In Progress",
           priority: "Critical",
           severity: "Critical",
+          assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
           createdAt: "2026-01-25T14:50:00Z",
           updatedAt: "2026-02-06T16:30:00Z",
         },
@@ -202,7 +216,32 @@ const Issues: React.FC = () => {
         filterPriority === "All" || issue.priority === filterPriority;
       const matchesSeverity =
         filterSeverity === "All" || issue.severity === filterSeverity;
-      return matchesSearch && matchesStatus && matchesPriority && matchesSeverity;
+      const matchesAssignee =
+        filterAssignee === "All" || (issue.assignee && issue.assignee.name === filterAssignee);
+      const matchesCompletedDate = (() => {
+        if (filterCompletedDate === "All") return true;
+        if (!issue.completedAt) return filterCompletedDate === "Unassigned";
+        const completedDate = new Date(issue.completedAt);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const lastWeek = new Date(today);
+        lastWeek.setDate(lastWeek.getDate() - 7);
+
+        switch (filterCompletedDate) {
+          case "Today":
+            return completedDate.toDateString() === today.toDateString();
+          case "Yesterday":
+            return completedDate.toDateString() === yesterday.toDateString();
+          case "Last Week":
+            return completedDate >= lastWeek;
+          case "Unassigned":
+            return !issue.completedAt;
+          default:
+            return true;
+        }
+      })();
+      return matchesSearch && matchesStatus && matchesPriority && matchesSeverity && matchesAssignee && matchesCompletedDate;
     });
 
     // Sort
@@ -225,7 +264,7 @@ const Issues: React.FC = () => {
     });
 
     return filtered;
-  }, [issues, debouncedSearch, filterStatus, filterPriority, filterSeverity, sortField, sortOrder]);
+  }, [issues, debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterCompletedDate, sortField, sortOrder]);
 
   const filteredIssues = filteredAndSortedIssues();
 
@@ -237,7 +276,7 @@ const Issues: React.FC = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, filterStatus, filterPriority, filterSeverity]);
+  }, [debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterCompletedDate]);
 
   // Delete issue
   const handleDeleteClick = (id: number) => {
@@ -268,7 +307,7 @@ const Issues: React.FC = () => {
 
   // Export functionality
   const exportToCSV = () => {
-    const headers = ["ID", "Title", "Description", "Status", "Priority", "Severity", "Created At", "Updated At"];
+    const headers = ["ID", "Title", "Description", "Status", "Priority", "Severity", "Assignee", "Completed At", "Created At", "Updated At"];
     const csvData = filteredIssues.map((issue) => [
       issue.id,
       `"${issue.title}"`,
@@ -276,6 +315,8 @@ const Issues: React.FC = () => {
       issue.status,
       issue.priority,
       issue.severity,
+      issue.assignee ? issue.assignee.name : "Unassigned",
+      issue.completedAt || "",
       issue.createdAt,
       issue.updatedAt,
     ]);
@@ -308,11 +349,13 @@ const Issues: React.FC = () => {
     setFilterStatus("All");
     setFilterPriority("All");
     setFilterSeverity("All");
+    setFilterAssignee("All");
+    setFilterCompletedDate("All");
     setSortField("createdAt");
     setSortOrder("desc");
   };
 
-  const hasActiveFilters = searchTerm || filterStatus !== "All" || filterPriority !== "All" || filterSeverity !== "All";
+  const hasActiveFilters = searchTerm || filterStatus !== "All" || filterPriority !== "All" || filterSeverity !== "All" || filterAssignee !== "All" || filterCompletedDate !== "All";
 
   return (
     <PageLayout>
@@ -441,7 +484,42 @@ const Issues: React.FC = () => {
               </select>
             </div>
 
-            {/* Sort By */}
+            {/* Assignee Filter */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Assignee
+              </label>
+              <select
+                value={filterAssignee}
+                onChange={(e) => setFilterAssignee(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+              >
+                <option value="All">All Assignees</option>
+                <option value="John Doe">John Doe</option>
+                <option value="Jane Smith">Jane Smith</option>
+                <option value="Mike Johnson">Mike Johnson</option>
+                <option value="Sarah Wilson">Sarah Wilson</option>
+                <option value="Unassigned">Unassigned</option>
+              </select>
+            </div>
+
+            {/* Completion Date Filter */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Completed
+              </label>
+              <select
+                value={filterCompletedDate}
+                onChange={(e) => setFilterCompletedDate(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+              >
+                <option value="All">All Dates</option>
+                <option value="Today">Today</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="Last Week">Last Week</option>
+                <option value="Unassigned">Not Completed</option>
+              </select>
+            </div>
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sort By

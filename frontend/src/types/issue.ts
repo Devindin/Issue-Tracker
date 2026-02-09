@@ -1,4 +1,6 @@
 // Common types used across the application
+import type { User } from "./user";
+
 export interface Issue {
   id: number;
   title: string;
@@ -6,6 +8,9 @@ export interface Issue {
   status: IssueStatus;
   priority: IssuePriority;
   severity: IssueSeverity;
+  assignee?: User;
+  assigneeId?: number;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
