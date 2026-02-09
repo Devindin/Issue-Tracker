@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./Pages/Login";
+import Register from "./Pages/Register";
 import Dashboard from "./Pages/Dashboard";
 import Issues from "./Pages/Issues";
 import ViewIssue from "./Pages/ViewIssue";
@@ -14,6 +15,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/issues" element={<Issues />} />
         <Route path="/issues/:id" element={<ViewIssue />} />
