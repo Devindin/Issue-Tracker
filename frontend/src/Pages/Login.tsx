@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import InputField from "../Components/InputField";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -9,6 +9,9 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import AuthBackground from "../Components/AuthBackground";
 import Logo from "../assets/logo.png";
+import { useLoginMutation } from "../auth/authApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../auth/authSlice";
 
 interface LoginFormValues {
   email: string;
@@ -26,6 +29,9 @@ const loginValidationSchema = Yup.object({
 
 function Login(): React.JSX.Element {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+  const [submitError, setSubmitError] = useState<string>("");
 
   // Motion variants
   const containerVariants: Variants = {
@@ -43,28 +49,35 @@ function Login(): React.JSX.Element {
   };
 
   const handleSubmit = async (values: LoginFormValues): Promise<void> => {
+    setSubmitError("");
     try {
-      // TODO: Replace with actual API call
-      console.log("Form submitted:", values);
+      const result = await login({
+        email: values.email,
+        password: values.password,
+      }).unwrap();
 
-      // Mock authentication - in real app, this would be an API call
-      if (values.email && values.password) {
-        // Store user data in localStorage (mock)
-        localStorage.setItem("authToken", "mock-jwt-token");
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: 1,
-            name: "John Doe",
-            email: values.email,
-          }),
-        );
+      dispatch(
+        setCredentials({
+          user: result?.user || null,
+          token: result?.token || null,
+        })
+      );
 
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
-      // In a real app, you would show an error message here
+      const err = error as
+        | { data?: { message?: string; error?: string } }
+        | { message?: string }
+        | { error?: string }
+        | undefined;
+      const message =
+        err?.data?.message ||
+        err?.data?.error ||
+        err?.message ||
+        err?.error ||
+        "Login failed. Please try again.";
+      setSubmitError(message);
     }
   };
 
@@ -97,6 +110,15 @@ function Login(): React.JSX.Element {
             >
               {({ handleChange, values, errors, touched }) => (
                 <Form className="flex flex-col w-full max-w-md space-y-2">
+                  {submitError && (
+                    <div
+                      role="alert"
+                      aria-live="assertive"
+                      className="mb-2 rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
+                    >
+                      {submitError}
+                    </div>
+                  )}
                   <motion.div variants={itemVariants}>
                     <InputField
                       label="Email"
@@ -133,7 +155,10 @@ function Login(): React.JSX.Element {
                   </motion.div>
 
                   <motion.div variants={itemVariants}>
-                    <PrimaryButton label="Sign In" type="submit" />
+                    <PrimaryButton
+                      label={isLoading ? "Signing In..." : "Sign In"}
+                      type="submit"
+                    />
                   </motion.div>
 
                   <motion.div variants={itemVariants} className="text-center mt-4">
