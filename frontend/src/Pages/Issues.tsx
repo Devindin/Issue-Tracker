@@ -505,10 +505,15 @@ const Issues: React.FC = () => {
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white cursor-pointer"
               >
                 <option value="All">All Assignees</option>
+                <option value="Assign to me">👤 Assign to me</option>
                 <option value="John Doe">John Doe</option>
                 <option value="Jane Smith">Jane Smith</option>
                 <option value="Mike Johnson">Mike Johnson</option>
                 <option value="Sarah Wilson">Sarah Wilson</option>
+                <option value="Alex Chen">Alex Chen</option>
+                <option value="Emily Davis">Emily Davis</option>
+                <option value="David Brown">David Brown</option>
+                <option value="Lisa Garcia">Lisa Garcia</option>
                 <option value="Unassigned">Unassigned</option>
               </select>
             </div>

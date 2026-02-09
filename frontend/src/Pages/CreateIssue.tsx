@@ -371,10 +371,15 @@ const CreateIssue: React.FC = () => {
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
                       >
                         <option value="">Unassigned</option>
+                        <option value="me">👤 Assign to me</option>
                         <option value="1">John Doe</option>
                         <option value="2">Jane Smith</option>
                         <option value="3">Mike Johnson</option>
                         <option value="4">Sarah Wilson</option>
+                        <option value="5">Alex Chen</option>
+                        <option value="6">Emily Davis</option>
+                        <option value="7">David Brown</option>
+                        <option value="8">Lisa Garcia</option>
                       </Field>
                       <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                         <svg
@@ -393,8 +398,25 @@ const CreateIssue: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-2">
-                      <span className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border bg-gray-100 border-gray-300 text-gray-700">
-                        {values.assigneeId ? `Assigned to ${["", "John Doe", "Jane Smith", "Mike Johnson", "Sarah Wilson"][parseInt(values.assigneeId)]}` : "Unassigned"}
+                      <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                        values.assigneeId
+                          ? "bg-green-100 border-green-300 text-green-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}>
+                        {values.assigneeId === "me" 
+                          ? "👤 Assigned to me" 
+                          : values.assigneeId 
+                            ? `Assigned to ${{
+                                "1": "John Doe",
+                                "2": "Jane Smith", 
+                                "3": "Mike Johnson",
+                                "4": "Sarah Wilson",
+                                "5": "Alex Chen",
+                                "6": "Emily Davis",
+                                "7": "David Brown",
+                                "8": "Lisa Garcia"
+                              }[values.assigneeId]}` 
+                            : "Unassigned"}
                       </span>
                     </div>
                   </div>

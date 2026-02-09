@@ -530,10 +530,15 @@ const EditIssue: React.FC = () => {
                           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
                         >
                           <option value="">Unassigned</option>
+                          <option value="Assign to me">👤 Assign to me</option>
                           <option value="John Doe">John Doe</option>
                           <option value="Jane Smith">Jane Smith</option>
                           <option value="Mike Johnson">Mike Johnson</option>
                           <option value="Sarah Wilson">Sarah Wilson</option>
+                          <option value="Alex Chen">Alex Chen</option>
+                          <option value="Emily Davis">Emily Davis</option>
+                          <option value="David Brown">David Brown</option>
+                          <option value="Lisa Garcia">Lisa Garcia</option>
                         </Field>
                         <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                           <svg
