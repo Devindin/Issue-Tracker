@@ -7,6 +7,7 @@ import {
   FaPalette,
   FaDatabase,
   FaCheck,
+  FaShieldAlt,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
@@ -15,6 +16,7 @@ import SecurityTab from "../Components/SecurityTab";
 import NotificationsTab from "../Components/NotificationsTab";
 import PreferencesTab from "../Components/PreferencesTab";
 import DataPrivacyTab from "../Components/DataPrivacyTab";
+import UserManagementTab from "../Components/UserManagementTab";
 import DeleteAccountModal from "../Components/DeleteAccountModal";
 import { type UserProfile, type NotificationSettings, type SecuritySettings, type PreferenceSettings } from "../types";
 
@@ -117,6 +119,7 @@ const Settings: React.FC = () => {
     { id: "security", label: "Security", icon: <FaLock /> },
     { id: "notifications", label: "Notifications", icon: <FaBell /> },
     { id: "preferences", label: "Preferences", icon: <FaPalette /> },
+    { id: "users", label: "User Management", icon: <FaShieldAlt /> },
     { id: "data", label: "Data & Privacy", icon: <FaDatabase /> },
   ];
 
@@ -223,6 +226,11 @@ const Settings: React.FC = () => {
                 setPreferences={setPreferences}
                 saveSettings={saveSettings}
               />
+            )}
+
+            {/* User Management Tab */}
+            {activeTab === "users" && (
+              <UserManagementTab saveSettings={saveSettings} />
             )}
 
             {/* Data & Privacy Tab */}
