@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
+import { type User } from "../types";
 
 interface Issue {
   id: number;
@@ -22,6 +23,9 @@ interface Issue {
   status: "Open" | "In Progress" | "Resolved" | "Closed";
   priority: "Low" | "Medium" | "High" | "Critical";
   severity: "Minor" | "Major" | "Critical";
+  assignee?: User;
+  assigneeId?: number;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -76,6 +80,7 @@ const EditIssue: React.FC = () => {
       status: "Open",
       priority: "High",
       severity: "Major",
+      assignee: { id: 1, name: "John Doe", email: "john@example.com" },
       createdAt: "2026-02-05T10:30:00Z",
       updatedAt: "2026-02-05T10:30:00Z",
     },
@@ -86,6 +91,7 @@ const EditIssue: React.FC = () => {
       status: "In Progress",
       priority: "Critical",
       severity: "Critical",
+      assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
       createdAt: "2026-02-04T14:20:00Z",
       updatedAt: "2026-02-06T09:15:00Z",
     },
@@ -96,6 +102,7 @@ const EditIssue: React.FC = () => {
       status: "Open",
       priority: "Medium",
       severity: "Minor",
+      assignee: { id: 3, name: "Mike Johnson", email: "mike@example.com" },
       createdAt: "2026-02-03T16:45:00Z",
       updatedAt: "2026-02-03T16:45:00Z",
     },
@@ -106,6 +113,8 @@ const EditIssue: React.FC = () => {
       status: "Resolved",
       priority: "Low",
       severity: "Minor",
+      assignee: { id: 4, name: "Sarah Wilson", email: "sarah@example.com" },
+      completedAt: "2026-02-06T10:30:00Z",
       createdAt: "2026-02-02T11:00:00Z",
       updatedAt: "2026-02-06T10:30:00Z",
     },
@@ -116,6 +125,7 @@ const EditIssue: React.FC = () => {
       status: "In Progress",
       priority: "High",
       severity: "Major",
+      assignee: { id: 1, name: "John Doe", email: "john@example.com" },
       createdAt: "2026-02-01T08:30:00Z",
       updatedAt: "2026-02-07T08:00:00Z",
     },
@@ -136,6 +146,7 @@ const EditIssue: React.FC = () => {
       status: "Open",
       priority: "Low",
       severity: "Minor",
+      assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
       createdAt: "2026-01-30T12:15:00Z",
       updatedAt: "2026-01-30T12:15:00Z",
     },
@@ -181,6 +192,7 @@ const EditIssue: React.FC = () => {
     severity: Yup.string()
       .oneOf(["Minor", "Major", "Critical"], "Invalid severity")
       .required("Severity is required"),
+    assignee: Yup.string().optional(),
   });
 
   const handleSubmit = async (values: any) => {
@@ -277,6 +289,7 @@ const EditIssue: React.FC = () => {
               status: issue.status,
               priority: issue.priority,
               severity: issue.severity,
+              assignee: issue.assignee?.name || "",
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
@@ -360,7 +373,7 @@ const EditIssue: React.FC = () => {
                     Classification
                   </h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Status */}
                     <div>
                       <label
@@ -500,6 +513,56 @@ const EditIssue: React.FC = () => {
                         </span>
                       </div>
                     </div>
+
+                    {/* Assignee */}
+                    <div>
+                      <label
+                        htmlFor="assignee"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        Assignee
+                      </label>
+                      <div className="relative">
+                        <Field
+                          as="select"
+                          id="assignee"
+                          name="assignee"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                        >
+                          <option value="">Unassigned</option>
+                          <option value="John Doe">John Doe</option>
+                          <option value="Jane Smith">Jane Smith</option>
+                          <option value="Mike Johnson">Mike Johnson</option>
+                          <option value="Sarah Wilson">Sarah Wilson</option>
+                        </Field>
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="mt-2">
+                        <span
+                          className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                            values.assignee
+                              ? "bg-green-100 border-green-300 text-green-700"
+                              : "bg-gray-100 border-gray-300 text-gray-700"
+                          }`}
+                        >
+                          {values.assignee || "Unassigned"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Info Box */}
@@ -519,6 +582,9 @@ const EditIssue: React.FC = () => {
                           </li>
                           <li>
                             <strong>Status:</strong> Current state of the issue
+                          </li>
+                          <li>
+                            <strong>Assignee:</strong> Person responsible for the issue
                           </li>
                         </ul>
                       </div>
