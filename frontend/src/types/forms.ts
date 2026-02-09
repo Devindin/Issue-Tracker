@@ -20,6 +20,3 @@ export interface RegisterFormData {
   password: string;
   confirmPassword: string;
 }
-
-// Import types that are referenced
-import type { IssuePriority, IssueSeverity, IssueStatus } from './issue';

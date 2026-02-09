@@ -135,6 +135,16 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
           createdAt: "2026-02-01T09:15:00Z",
           lastLogin: "2026-02-07T11:20:00Z",
         },
+        {
+          id: 4,
+          name: "Sarah Wilson",
+          email: "sarah@example.com",
+          role: "qa",
+          permissions: getDefaultPermissions("qa"),
+          status: "active",
+          createdAt: "2026-01-25T13:30:00Z",
+          lastLogin: "2026-02-06T14:15:00Z",
+        },
       ];
       setUsers(mockUsers);
       localStorage.setItem("managedUsers", JSON.stringify(mockUsers));
