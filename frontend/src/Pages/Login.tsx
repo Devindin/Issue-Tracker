@@ -185,7 +185,7 @@ function Login(): React.JSX.Element {
           initial="hidden"
           animate="visible"
         >
-            <img src={Logo} alt="Logo" className="w-40 mx-auto mb-6" />
+            <img src={Logo} alt="Logo" className="w-40 mx-auto " />
           <motion.div
             className="flex flex-col justify-center items-center flex-grow"
             variants={itemVariants}
@@ -196,7 +196,7 @@ function Login(): React.JSX.Element {
               onSubmit={handleSubmit}
             >
               {({ handleChange, values, errors, touched }) => (
-                <Form className="flex flex-col w-full max-w-md space-y-4">
+                <Form className="flex flex-col w-full max-w-md space-y-2">
                   <motion.div variants={itemVariants}>
                     <InputField
                       label="Email"
@@ -234,6 +234,18 @@ function Login(): React.JSX.Element {
 
                   <motion.div variants={itemVariants}>
                     <PrimaryButton label="Sign In" type="submit" />
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="text-center mt-4">
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">
+                      Don't have an account?{" "}
+                      <Link
+                        to="/register"
+                        className="text-[#00C6D7] hover:text-[#1976D2] font-medium hover:underline transition-colors"
+                      >
+                        Sign up
+                      </Link>
+                    </span>
                   </motion.div>
                 </Form>
               )}
