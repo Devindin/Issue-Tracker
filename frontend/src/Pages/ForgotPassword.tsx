@@ -114,11 +114,6 @@ function ForgotPassword(): React.JSX.Element {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] relative overflow-hidden">
       <AuthBackground />
 
-      {/* Debug: Show current step */}
-      <div className="fixed top-4 left-4 bg-black text-white px-4 py-2 rounded text-sm z-50">
-        Current Step: {step}
-      </div>
-
       <motion.div
         className="w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/20 relative z-10"
         initial={{ opacity: 0, scale: 0.95 }}

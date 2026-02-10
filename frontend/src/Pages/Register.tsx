@@ -10,6 +10,8 @@ import type { Variants } from "framer-motion";
 import Logo from "../assets/logo.png";
 import AuthBackground from "../Components/AuthBackground";
 import { useRegisterCompanyMutation } from "../features/auth/authApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../features/auth/authSlice";
 
 interface RegisterFormValues {
   companyName: string;
@@ -41,6 +43,7 @@ const registerValidationSchema = Yup.object({
 
 function Register(): React.JSX.Element {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [registerCompany, { isLoading }] = useRegisterCompanyMutation();
   const [submitError, setSubmitError] = useState<string>("");
 
@@ -69,11 +72,16 @@ function Register(): React.JSX.Element {
         email: values.email,
         password: values.password,
       }).unwrap();
+// Save both user and token to Redux store (which also saves to localStorage)
+      dispatch(
+        setCredentials({
+          user: result?.user || null,
+          token: result?.token || null,
+        })
+      );
 
-      if (result?.token) {
-        localStorage.setItem("token", result.token);
-      }
-
+      // Navigate to dashboard after successful registration
+      navigate("/dashboard
       navigate("/");
     } catch (error: any) {
       console.error("Register error:", error);
