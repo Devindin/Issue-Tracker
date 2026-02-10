@@ -15,7 +15,7 @@ import PageTitle from "../Components/PageTitle";
 import DeleteModal from "../Components/DeleteModal";
 import Pagination from "../Components/Pagination";
 import { type SortField, type SortOrder } from "../types";
-import { useGetIssuesQuery } from "../features/issues/issueApi";
+import { useGetIssuesQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
 
 const Issues: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -51,6 +51,9 @@ const Issues: React.FC = () => {
     priority: filterPriority !== "All" ? filterPriority : undefined,
     severity: filterSeverity !== "All" ? filterSeverity : undefined,
   });
+
+  // Delete mutation
+  const [deleteIssue] = useDeleteIssueMutation();
 
   // Get issues from API response
   const issues = data?.issues || [];
@@ -129,8 +132,8 @@ const Issues: React.FC = () => {
   const confirmDelete = async () => {
     if (issueToDelete) {
       try {
-        // TODO: Implement delete API call
-        console.log("Deleting issue:", issueToDelete);
+        await deleteIssue(issueToDelete.toString()).unwrap();
+        console.log("Issue deleted successfully:", issueToDelete);
       } catch (error) {
         console.error("Error deleting issue:", error);
       }
