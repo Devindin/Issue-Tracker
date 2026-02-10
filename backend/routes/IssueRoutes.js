@@ -89,6 +89,9 @@ router.get("/", authMiddleware, async (req, res) => {
 // Create issue
 router.post("/", authMiddleware, async (req, res, next) => {
   try {
+    console.log("\n=== CREATE ISSUE ===");
+    console.log("Request body:", req.body);
+    
     const {
       title,
       description,
@@ -98,12 +101,16 @@ router.post("/", authMiddleware, async (req, res, next) => {
       assigneeId,
       projectId,
     } = req.body;
+    
+    console.log("Extracted projectId:", projectId);
+    console.log("ProjectId type:", typeof projectId);
 
     if (!title || !description) {
       return res.status(400).json({ message: "Title and description are required" });
     }
 
     if (!projectId) {
+      console.log("ERROR: No projectId provided!");
       return res.status(400).json({ message: "Project is required - all issues must belong to a project" });
     }
 
@@ -114,10 +121,11 @@ router.post("/", authMiddleware, async (req, res, next) => {
 
     // Validate projectId (must be a valid MongoDB ObjectId)
     if (projectId && !/^[0-9a-fA-F]{24}$/.test(projectId)) {
+      console.log("ERROR: Invalid projectId format:", projectId);
       return res.status(400).json({ message: "Invalid project ID format" });
     }
-
-    const issue = new Issue({
+    
+    const issueData = {
       title,
       description,
       status,
@@ -127,12 +135,22 @@ router.post("/", authMiddleware, async (req, res, next) => {
       company: req.user?.companyId,
       project: projectId,
       ...(assigneeId && assigneeId !== "" ? { assignee: assigneeId } : {}),
-    });
+    };
+    
+    console.log("Issue data to save:", issueData);
+
+    const issue = new Issue(issueData);
+    
+    console.log("Issue before save:", issue.toObject());
 
     await issue.save();
+    
+    console.log("Issue after save:", issue.toObject());
 
     // Populate project data
     await issue.populate("project", "name key icon");
+    
+    console.log("Issue after populate:", issue.toObject());
 
     return res.status(201).json({
       message: "Issue created successfully",

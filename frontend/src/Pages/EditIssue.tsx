@@ -89,7 +89,7 @@ const EditIssue: React.FC = () => {
       .oneOf(["Minor", "Major", "Critical"], "Invalid severity")
       .required("Severity is required"),
     assigneeId: Yup.string().optional(),
-    projectId: Yup.string().optional(),
+    projectId: Yup.string().required("Project is required"),
   });
 
   const handleSubmit = async (values: any) => {
@@ -102,6 +102,7 @@ const EditIssue: React.FC = () => {
         status: values.status,
         priority: values.priority,
         severity: values.severity,
+        projectId: values.projectId,
       };
       
       // Only include assigneeId if it's a valid MongoDB ObjectId format (24 hex chars)
@@ -109,11 +110,6 @@ const EditIssue: React.FC = () => {
         payload.assigneeId = values.assigneeId;
       } else if (values.assigneeId === "") {
         payload.assigneeId = null;
-      }
-      
-      // Include projectId if provided
-      if (values.projectId) {
-        payload.projectId = values.projectId;
       }
       
       await updateIssue(payload).unwrap();

@@ -64,15 +64,24 @@ const CreateIssue: React.FC = () => {
       }
       // Ignore all other mock user IDs (1-8) as they're not real MongoDB ObjectIds
       
-      const result = await createIssue({
+      const payload = {
         title: values.title,
         description: values.description,
         status: values.status,
         priority: values.priority,
         severity: values.severity,
         assigneeId,
-        projectId: values.projectId || undefined,
-      }).unwrap();
+        projectId: values.projectId,
+      };
+      
+      console.log("[CreateIssue] Form values:", values);
+      console.log("[CreateIssue] Payload to send:", payload);
+      console.log("[CreateIssue] ProjectId being sent:", payload.projectId);
+      
+      const result = await createIssue(payload).unwrap();
+      
+      console.log("[CreateIssue] Response from API:", result);
+      console.log("[CreateIssue] Created issue project:", result.issue?.project);
 
       setCreatedIssueId(result?.issue?.id?.toString() || null);
       setShowSuccessModal(true);
