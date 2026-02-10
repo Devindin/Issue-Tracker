@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -12,16 +12,28 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { type ManagedUser, type CreateUserData, type UserPermissions } from "../types";
+import { 
+  useGetUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation
+} from "../features/users/userApi";
 
 interface UserManagementTabProps {
   saveSettings: () => void;
 }
 
 const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) => {
-  const [users, setUsers] = useState<ManagedUser[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successUserName, setSuccessUserName] = useState("");
+
+  // RTK Query hooks
+  const { data: users = [], isLoading, isError, error } = useGetUsersQuery();
+  const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
+  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
   // Default permissions based on role
   const getDefaultPermissions = (role: string): UserPermissions => {
@@ -97,66 +109,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
     }
   };
 
-  // Load users from localStorage
-  useEffect(() => {
-    const savedUsers = localStorage.getItem("managedUsers");
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers));
-    } else {
-      // Mock data for demonstration
-      const mockUsers: ManagedUser[] = [
-        {
-          id: 1,
-          name: "John Doe",
-          email: "john@example.com",
-          role: "admin",
-          permissions: getDefaultPermissions("admin"),
-          status: "active",
-          createdAt: "2026-01-15T10:00:00Z",
-          lastLogin: "2026-02-09T08:30:00Z",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          email: "jane@example.com",
-          role: "manager",
-          permissions: getDefaultPermissions("manager"),
-          status: "active",
-          createdAt: "2026-01-20T14:00:00Z",
-          lastLogin: "2026-02-08T16:45:00Z",
-        },
-        {
-          id: 3,
-          name: "Mike Johnson",
-          email: "mike@example.com",
-          role: "developer",
-          permissions: getDefaultPermissions("developer"),
-          status: "active",
-          createdAt: "2026-02-01T09:15:00Z",
-          lastLogin: "2026-02-07T11:20:00Z",
-        },
-        {
-          id: 4,
-          name: "Sarah Wilson",
-          email: "sarah@example.com",
-          role: "qa",
-          permissions: getDefaultPermissions("qa"),
-          status: "active",
-          createdAt: "2026-01-25T13:30:00Z",
-          lastLogin: "2026-02-06T14:15:00Z",
-        },
-      ];
-      setUsers(mockUsers);
-      localStorage.setItem("managedUsers", JSON.stringify(mockUsers));
-    }
-  }, []);
-
-  // Save users to localStorage
-  const saveUsers = (updatedUsers: ManagedUser[]) => {
-    setUsers(updatedUsers);
-    localStorage.setItem("managedUsers", JSON.stringify(updatedUsers));
-  };
-
   // Create user validation schema
   const createUserSchema = Yup.object({
     name: Yup.string()
@@ -175,22 +127,20 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
 
   // Handle create user
   const handleCreateUser = async (values: CreateUserData) => {
-    const newUser: ManagedUser = {
-      id: Date.now(),
-      name: values.name,
-      email: values.email,
-      role: values.role,
-      permissions: values.permissions,
-      status: "active",
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedUsers = [...users, newUser];
-    saveUsers(updatedUsers);
-    setShowCreateModal(false);
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3000);
-    saveSettings();
+    try {
+      const result = await createUser(values).unwrap();
+      setShowCreateModal(false);
+      setSuccessUserName(result.name);
+      setShowSuccessMessage(true);
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        setSuccessUserName("");
+      }, 3000);
+      saveSettings();
+    } catch (err: any) {
+      console.error('Failed to create user:', err);
+      alert(`Failed to create user: ${err.data?.message || err.message || 'Unknown error'}`);
+    }
   };
 
   // Handle edit user
@@ -202,34 +152,52 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
   const handleUpdateUser = async (values: Partial<ManagedUser>) => {
     if (!editingUser) return;
 
-    const updatedUsers = users.map(user =>
-      user.id === editingUser.id
-        ? { ...user, ...values }
-        : user
-    );
-    saveUsers(updatedUsers);
-    setEditingUser(null);
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3000);
-    saveSettings();
+    try {
+      const { id, createdAt, lastLogin, ...updateData } = values;
+      const result = await updateUser({ 
+        id: editingUser.id, 
+        data: updateData as Partial<CreateUserData>
+      }).unwrap();
+      setEditingUser(null);
+      setSuccessUserName(result.name);
+      setShowSuccessMessage(true);
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        setSuccessUserName("");
+      }, 3000);
+      saveSettings();
+    } catch (err: any) {
+      console.error('Failed to update user:', err);
+      alert(`Failed to update user: ${err.data?.message || err.message || 'Unknown error'}`);
+    }
   };
 
   // Handle delete user
-  const handleDeleteUser = (userId: number) => {
-    const updatedUsers = users.filter(user => user.id !== userId);
-    saveUsers(updatedUsers);
-    saveSettings();
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user?')) return;
+
+    try {
+      await deleteUser(userId).unwrap();
+      saveSettings();
+    } catch (err: any) {
+      console.error('Failed to delete user:', err);
+      alert(`Failed to delete user: ${err.data?.message || err.message || 'Unknown error'}`);
+    }
   };
 
   // Handle toggle user status
-  const handleToggleStatus = (userId: number) => {
-    const updatedUsers = users.map(user =>
-      user.id === userId
-        ? { ...user, status: user.status === "active" ? "inactive" as const : "active" as const }
-        : user
-    );
-    saveUsers(updatedUsers);
-    saveSettings();
+  const handleToggleStatus = async (user: ManagedUser) => {
+    try {
+      const newStatus = user.status === "active" ? "inactive" : "active";
+      await updateUser({ 
+        id: user.id, 
+        data: { status: newStatus } as any
+      }).unwrap();
+      saveSettings();
+    } catch (err: any) {
+      console.error('Failed to toggle user status:', err);
+      alert(`Failed to toggle user status: ${err.data?.message || err.message || 'Unknown error'}`);
+    }
   };
 
   const getRoleColor = (role: string) => {
@@ -279,12 +247,33 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
           className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3"
         >
           <FaCheck className="text-green-600" />
-          <span className="text-green-800">User saved successfully!</span>
+          <span className="text-green-800">
+            {successUserName ? `User "${successUserName}" saved successfully!` : 'User saved successfully!'}
+          </span>
         </motion.div>
       )}
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <p className="mt-2 text-gray-600">Loading users...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {isError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+          <FaTimes className="text-red-600" />
+          <span className="text-red-800">
+            Failed to load users: {(error as any)?.data?.message || (error as any)?.message || 'Unknown error'}
+          </span>
+        </div>
+      )}
+
       {/* Users List */}
-      <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+      {!isLoading && !isError && (
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <FaUsers />
@@ -346,21 +335,24 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleEditUser(user)}
-                        className="text-indigo-600 hover:text-indigo-900"
+                        disabled={isUpdating || isDeleting}
+                        className="text-indigo-600 hover:text-indigo-900 disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Edit user"
                       >
                         <FaEdit />
                       </button>
                       <button
-                        onClick={() => handleToggleStatus(user.id)}
-                        className={user.status === "active" ? "text-red-600 hover:text-red-900" : "text-green-600 hover:text-green-900"}
+                        onClick={() => handleToggleStatus(user)}
+                        disabled={isUpdating || isDeleting}
+                        className={`${user.status === "active" ? "text-red-600 hover:text-red-900" : "text-green-600 hover:text-green-900"} disabled:opacity-50 disabled:cursor-not-allowed`}
                         title={user.status === "active" ? "Deactivate user" : "Activate user"}
                       >
                         {user.status === "active" ? <FaTimes /> : <FaCheck />}
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-900"
+                        disabled={isUpdating || isDeleting}
+                        className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Delete user"
                       >
                         <FaTrash />
@@ -373,6 +365,7 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
           </table>
         </div>
       </div>
+      )}
 
       {/* Create User Modal */}
       {showCreateModal && (
@@ -458,15 +451,17 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
                     <button
                       type="button"
                       onClick={() => setShowCreateModal(false)}
-                      className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      disabled={isCreating}
+                      className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                      disabled={isCreating}
+                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Create User
+                      {isCreating ? 'Creating...' : 'Create User'}
                     </button>
                   </div>
                 </Form>
@@ -544,15 +539,17 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
                     <button
                       type="button"
                       onClick={() => setEditingUser(null)}
-                      className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      disabled={isUpdating}
+                      className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                      disabled={isUpdating}
+                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Update User
+                      {isUpdating ? 'Updating...' : 'Update User'}
                     </button>
                   </div>
                 </Form>

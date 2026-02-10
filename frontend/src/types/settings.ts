@@ -35,7 +35,7 @@ export interface UserPermissions {
 }
 
 export interface ManagedUser {
-  id: number;
+  id: string; // MongoDB ObjectId
   name: string;
   email: string;
   role: 'admin' | 'manager' | 'developer' | 'qa' | 'viewer';
