@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import Logo from "../assets/logo.png";
 import AuthBackground from "../Components/AuthBackground";
-import { useRegisterCompanyMutation } from "../auth/authApi";
+import { useRegisterCompanyMutation } from "../features/auth/authApi";
 
 interface RegisterFormValues {
   companyName: string;

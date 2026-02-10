@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import authReducer from "../auth/authSlice";
+import authReducer from "../features/auth/authSlice";
 import settingsReducer from "../features/settings/settingsSlice";
 import issuesFilterReducer from "../features/issues/issuesFilterSlice";
 import reportsReducer from "../features/reports/reportsSlice";

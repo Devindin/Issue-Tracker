@@ -9,9 +9,9 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import AuthBackground from "../Components/AuthBackground";
 import Logo from "../assets/logo.png";
-import { useLoginMutation } from "../auth/authApi";
+import { useLoginMutation } from "../features/auth/authApi";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../auth/authSlice";
+import { setCredentials } from "../features/auth/authSlice";
 
 interface LoginFormValues {
   email: string;

@@ -1,4 +1,4 @@
-import { apiSlice } from "../services/apiSlice";
+import { apiSlice } from "../../services/apiSlice";
 
 interface RegisterCompanyPayload {
   companyName: string;
