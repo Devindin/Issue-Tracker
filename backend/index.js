@@ -23,6 +23,7 @@ require('./models/Issue');
 
 // Routes
 app.use('/auth', require('./routes/AuthRoutes'));
+app.use('/issues', require('./routes/IssueRoutes'));
 
 // Basic route
 app.get('/', (req, res) => {

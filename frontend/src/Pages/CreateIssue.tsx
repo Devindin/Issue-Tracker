@@ -13,6 +13,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import { type IssueFormData } from "../types";
+import { useCreateIssueMutation } from "../issues/issueApi";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -39,7 +40,9 @@ const validationSchema = Yup.object({
 const CreateIssue: React.FC = () => {
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
-  const [createdIssueId, setCreatedIssueId] = useState<number | null>(null);
+  const [createdIssueId, setCreatedIssueId] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string>("");
+  const [createIssue, { isLoading }] = useCreateIssueMutation();
 
   // Character count limits
   const TITLE_MAX_LENGTH = 100;
@@ -47,29 +50,33 @@ const CreateIssue: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = async (values: IssueFormData) => {
+    setSubmitError("");
     try {
-      // TODO: Replace with actual API call
-      await fetch("/api/issues", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        body: JSON.stringify({
-          ...values,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }),
-      });
+      const result = await createIssue({
+        title: values.title,
+        description: values.description,
+        status: values.status,
+        priority: values.priority,
+        severity: values.severity,
+        assigneeId: values.assigneeId || undefined,
+      }).unwrap();
 
-      // Mock success for development
-      const mockIssueId = Math.floor(Math.random() * 1000) + 100;
-      setCreatedIssueId(mockIssueId);
+      setCreatedIssueId(result?.issue?.id || null);
       setShowSuccessModal(true);
-
     } catch (error) {
       console.error("Error creating issue:", error);
-      alert("Failed to create issue. Please try again.");
+      const err = error as
+        | { data?: { message?: string; error?: string } }
+        | { message?: string }
+        | { error?: string }
+        | undefined;
+      const message =
+        err?.data?.message ||
+        err?.data?.error ||
+        err?.message ||
+        err?.error ||
+        "Failed to create issue. Please try again.";
+      setSubmitError(message);
     }
   };
 
@@ -137,6 +144,15 @@ const CreateIssue: React.FC = () => {
         >
           {({ isSubmitting, values }) => (
             <Form className="space-y-6">
+              {submitError && (
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
+                >
+                  {submitError}
+                </div>
+              )}
               {/* Main Information Card */}
               <div className="bg-white rounded-2xl shadow-md p-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
@@ -454,12 +470,12 @@ const CreateIssue: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <motion.button
                   type="submit"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                  disabled={isSubmitting || isLoading}
+                  whileHover={{ scale: isSubmitting || isLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isSubmitting || isLoading ? 1 : 0.98 }}
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed transition-all"
                 >
-                  {isSubmitting ? (
+                  {isSubmitting || isLoading ? (
                     <>
                       <motion.div
                         animate={{ rotate: 360 }}
