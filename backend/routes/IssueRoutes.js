@@ -263,4 +263,36 @@ router.put("/:id", authMiddleware, async (req, res) => {
   }
 });
 
+// Delete issue by ID
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log("=== DELETE /issues/:id ===");
+    console.log("Requested ID:", id);
+    console.log("User company ID:", req.user?.companyId);
+
+    // Find and delete issue (verify it belongs to user's company)
+    const issue = await Issue.findOneAndDelete({ 
+      _id: id, 
+      company: req.user?.companyId 
+    });
+
+    console.log("Found and deleted issue:", issue ? `Yes (ID: ${issue._id})` : "No");
+
+    if (!issue) {
+      console.log("Returning 404 - Issue not found");
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    console.log("Returning 200 - Issue deleted successfully");
+    return res.status(200).json({
+      message: "Issue deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete issue error:", error);
+    return res.status(500).json({ message: error?.message || "Server error" });
+  }
+});
+
 module.exports = router;
