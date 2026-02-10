@@ -1,29 +1,8 @@
 import { apiSlice } from "../../services/apiSlice";
-import type { IssueStats } from "../../types";
+import type { Issue, IssueStats } from "../../types";
 
 interface DashboardStatsResponse {
   stats: IssueStats;
-}
-
-interface Issue {
-  id: string | number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  severity: string;
-  assignee?: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
-  reporter?: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface RecentIssuesResponse {

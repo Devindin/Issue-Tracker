@@ -6,24 +6,17 @@ import {
   FaUser,
   FaLock,
   FaBell,
-  FaPalette,
-  FaDatabase,
   FaCheck,
   FaShieldAlt,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import ProfileTab from "../Components/ProfileTab";
-import SecurityTab from "../Components/SecurityTab";
-import NotificationsTab from "../Components/NotificationsTab";
 import UserManagementTab from "../Components/UserManagementTab";
 import DeleteAccountModal from "../Components/DeleteAccountModal";
-import { type UserProfile, type NotificationSettings, type SecuritySettings, type PreferenceSettings } from "../types";
+import { type UserProfile } from "../types";
 import {
   setProfile,
-  setNotifications,
-  setSecurity,
-  setPreferences,
   setActiveTab,
   setShowSuccessMessage,
   loadSettingsFromStorage,
@@ -172,22 +165,22 @@ const Settings: React.FC = () => {
             )}
 
             {/* Security Tab */}
-            {activeTab === "security" && (
+            {/* {activeTab === "security" && (
               <SecurityTab
                 security={security}
                 setSecurity={(updates: Partial<SecuritySettings>) => dispatch(setSecurity(updates))}
                 saveSettings={saveSettings}
               />
-            )}
+            )} */}
 
             {/* Notifications Tab */}
-            {activeTab === "notifications" && (
+            {/* {activeTab === "notifications" && (
               <NotificationsTab
                 notifications={notifications}
                 setNotifications={(updates: Partial<NotificationSettings>) => dispatch(setNotifications(updates))}
                 saveSettings={saveSettings}
               />
-            )}
+            )} */}
 
             {/* User Management Tab */}
             {activeTab === "users" && (
