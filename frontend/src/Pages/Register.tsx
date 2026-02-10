@@ -72,7 +72,8 @@ function Register(): React.JSX.Element {
         email: values.email,
         password: values.password,
       }).unwrap();
-// Save both user and token to Redux store (which also saves to localStorage)
+
+      // Save both user and token to Redux store (which also saves to localStorage)
       dispatch(
         setCredentials({
           user: result?.user || null,
@@ -81,8 +82,7 @@ function Register(): React.JSX.Element {
       );
 
       // Navigate to dashboard after successful registration
-      navigate("/dashboard
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: any) {
       console.error("Register error:", error);
       const message =
