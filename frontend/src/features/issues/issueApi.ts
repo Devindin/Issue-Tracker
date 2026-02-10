@@ -71,34 +71,129 @@ export const issueApi = apiSlice.injectEndpoints({
         if (params?.severity) searchParams.append('severity', params.severity);
         
         const queryString = searchParams.toString();
+        console.log('[API] GET Issues - Request:', {
+          params,
+          url: `/issues${queryString ? `?${queryString}` : ''}`,
+          timestamp: new Date().toISOString()
+        });
         return {
           url: `/issues${queryString ? `?${queryString}` : ''}`,
           method: "GET",
         };
       },
+      transformResponse: (response: IssuesListResponse) => {
+        console.log('[API] GET Issues - Success:', {
+          issueCount: response.issues?.length || 0,
+          message: response.message,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] GET Issues - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
       providesTags: ["Issue"],
     }),
     getIssueById: builder.query<IssueResponse, string>({
-      query: (id) => ({
-        url: `/issues/${id}`,
-        method: "GET",
-      }),
+      query: (id) => {
+        console.log('[API] GET Issue By ID - Request:', {
+          id,
+          url: `/issues/${id}`,
+          timestamp: new Date().toISOString()
+        });
+        return {
+          url: `/issues/${id}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (response: IssueResponse) => {
+        console.log('[API] GET Issue By ID - Success:', {
+          issueId: response.issue?.id,
+          title: response.issue?.title,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] GET Issue By ID - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
       providesTags: (result, error, id) => [{ type: "Issue", id }],
     }),
     createIssue: builder.mutation<IssueResponse, CreateIssuePayload>({
-      query: (payload) => ({
-        url: "/issues",
-        method: "POST",
-        body: payload,
-      }),
+      query: (payload) => {
+        console.log('[API] CREATE Issue - Request:', {
+          payload,
+          url: '/issues',
+          timestamp: new Date().toISOString()
+        });
+        return {
+          url: "/issues",
+          method: "POST",
+          body: payload,
+        };
+      },
+      transformResponse: (response: IssueResponse) => {
+        console.log('[API] CREATE Issue - Success:', {
+          issueId: response.issue?.id,
+          title: response.issue?.title,
+          status: response.issue?.status,
+          priority: response.issue?.priority,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] CREATE Issue - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
       invalidatesTags: ["Issue"],
     }),
     updateIssue: builder.mutation<IssueResponse, UpdateIssuePayload>({
-      query: ({ id, ...payload }) => ({
-        url: `/issues/${id}`,
-        method: "PUT",
-        body: payload,
-      }),
+      query: ({ id, ...payload }) => {
+        console.log('[API] UPDATE Issue - Request:', {
+          id,
+          payload,
+          url: `/issues/${id}`,
+          timestamp: new Date().toISOString()
+        });
+        return {
+          url: `/issues/${id}`,
+          method: "PUT",
+          body: payload,
+        };
+      },
+      transformResponse: (response: IssueResponse) => {
+        console.log('[API] UPDATE Issue - Success:', {
+          issueId: response.issue?.id,
+          title: response.issue?.title,
+          status: response.issue?.status,
+          priority: response.issue?.priority,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] UPDATE Issue - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
       invalidatesTags: (result, error, { id }) => [{ type: "Issue", id }, "Issue"],
     }),
   }),

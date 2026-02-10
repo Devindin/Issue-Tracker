@@ -40,23 +40,105 @@ interface UserProfile {
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     registerCompany: builder.mutation<AuthResponse, RegisterCompanyPayload>({
-      query: (payload) => ({
-        url: "/auth/register-company",
-        method: "POST",
-        body: payload,
-      }),
+      query: (payload) => {
+        console.log('[API] REGISTER Company - Request:', {
+          companyName: payload.companyName,
+          name: payload.name,
+          email: payload.email,
+          hasPassword: !!payload.password,
+          timestamp: new Date().toISOString()
+        });
+        return {
+          url: "/auth/register-company",
+          method: "POST",
+          body: payload,
+        };
+      },
+      transformResponse: (response: AuthResponse) => {
+        console.log('[API] REGISTER Company - Success:', {
+          userId: response.user?.id,
+          userName: response.user?.name,
+          companyId: response.user?.company?.id,
+          companyName: response.user?.company?.name,
+          role: response.user?.role,
+          hasToken: !!response.token,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] REGISTER Company - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
       invalidatesTags: ["Auth"],
     }),
     login: builder.mutation<AuthResponse, LoginCredentials>({
-      query: (credentials) => ({
-        url: "/auth/login",
-        method: "POST",
-        body: credentials,
-      }),
+      query: (credentials) => {
+        console.log('[API] LOGIN - Request:', {
+          email: credentials.email,
+          hasPassword: !!credentials.password,
+          timestamp: new Date().toISOString()
+        });
+        return {
+          url: "/auth/login",
+          method: "POST",
+          body: credentials,
+        };
+      },
+      transformResponse: (response: AuthResponse) => {
+        console.log('[API] LOGIN - Success:', {
+          userId: response.user?.id,
+          userName: response.user?.name,
+          email: response.user?.email,
+          companyId: response.user?.company?.id,
+          companyName: response.user?.company?.name,
+          role: response.user?.role,
+          hasToken: !!response.token,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] LOGIN - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
       invalidatesTags: ["Auth"],
     }),
     getProfile: builder.query<UserProfile, void>({
-      query: () => "/auth/me",
+      query: () => {
+        console.log('[API] GET Profile - Request:', {
+          url: '/auth/me',
+          timestamp: new Date().toISOString()
+        });
+        return "/auth/me";
+      },
+      transformResponse: (response: UserProfile) => {
+        console.log('[API] GET Profile - Success:', {
+          userId: response.id,
+          userName: response.name,
+          email: response.email,
+          role: response.role,
+          company: response.company,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] GET Profile - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
       providesTags: ["Auth"],
     }),
   }),
