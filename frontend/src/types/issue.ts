@@ -2,15 +2,18 @@
 import type { User } from "./user";
 
 export interface Issue {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   status: IssueStatus;
   priority: IssuePriority;
   severity: IssueSeverity;
-  assignee?: User;
-  assigneeId?: number;
-  completedAt?: string;
+  assignee?: User | null;
+  assigneeId?: number | string | null;
+  reporter?: User | null;
+  reporterId?: string | null;
+  company?: string;
+  completedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

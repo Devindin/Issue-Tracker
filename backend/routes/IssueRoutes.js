@@ -4,6 +4,47 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authmiddleware");
 const Issue = require("../models/Issue");
 
+// Get all issues for the user's company
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const issues = await Issue.find({ company: req.user?.companyId })
+      .populate("assignee", "name email")
+      .populate("reporter", "name email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "Issues fetched successfully",
+      issues: issues.map(issue => ({
+        id: issue._id,
+        title: issue.title,
+        description: issue.description,
+        status: issue.status,
+        priority: issue.priority,
+        severity: issue.severity,
+        assignee: issue.assignee ? {
+          id: issue.assignee._id,
+          name: issue.assignee.name,
+          email: issue.assignee.email
+        } : null,
+        assigneeId: issue.assignee?._id || null,
+        reporter: issue.reporter ? {
+          id: issue.reporter._id,
+          name: issue.reporter.name,
+          email: issue.reporter.email
+        } : null,
+        reporterId: issue.reporter?._id || null,
+        company: issue.company,
+        completedAt: issue.completedAt,
+        createdAt: issue.createdAt,
+        updatedAt: issue.updatedAt,
+      })),
+    });
+  } catch (error) {
+    console.error("Fetch issues error:", error);
+    return res.status(500).json({ message: error?.message || "Server error" });
+  }
+});
+
 // Create issue
 router.post("/", authMiddleware, async (req, res, next) => {
   try {

@@ -9,22 +9,49 @@ interface CreateIssuePayload {
   assigneeId?: string;
 }
 
-interface IssueResponse {
-  issue: {
+interface Issue {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  severity: string;
+  assignee?: {
     id: string;
-    title: string;
-    description: string;
-    status: string;
-    priority: string;
-    severity: string;
-    assigneeId?: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+    name: string;
+    email: string;
+  } | null;
+  assigneeId?: string | null;
+  reporter?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+  reporterId?: string | null;
+  company: string;
+  completedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface IssueResponse {
+  issue: Issue;
+}
+
+interface IssuesListResponse {
+  message: string;
+  issues: Issue[];
 }
 
 export const issueApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    getIssues: builder.query<IssuesListResponse, void>({
+      query: () => ({
+        url: "/issues",
+        method: "GET",
+      }),
+      providesTags: ["Issue"],
+    }),
     createIssue: builder.mutation<IssueResponse, CreateIssuePayload>({
       query: (payload) => ({
         url: "/issues",
@@ -36,4 +63,4 @@ export const issueApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useCreateIssueMutation } = issueApi;
+export const { useGetIssuesQuery, useCreateIssueMutation } = issueApi;

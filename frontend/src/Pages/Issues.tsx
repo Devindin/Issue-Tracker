@@ -15,10 +15,10 @@ import PageTitle from "../Components/PageTitle";
 import DeleteModal from "../Components/DeleteModal";
 import Pagination from "../Components/Pagination";
 import { type Issue, type SortField, type SortOrder } from "../types";
+import { useGetIssuesQuery } from "../features/issues/issueApi";
 
 const Issues: React.FC = () => {
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { data, isLoading, isError, error } = useGetIssuesQuery();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterPriority, setFilterPriority] = useState<string>("All");
@@ -45,174 +45,8 @@ const Issues: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch issues
-  useEffect(() => {
-    fetchIssues();
-  }, []);
-
-  const fetchIssues = async () => {
-    try {
-      setLoading(true);
-      // TODO: Replace with actual API call
-      const response = await fetch("/api/issues", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      const data = await response.json();
-      setIssues(data.issues || []);
-    } catch (error) {
-      console.error("Error fetching issues:", error);
-      // Mock data for development
-      const mockIssues: Issue[] = [
-        {
-          id: 1,
-          title: "Login page not responsive on mobile",
-          description: "The login page layout breaks on mobile devices below 768px width. Need to implement responsive design.",
-          status: "Open",
-          priority: "High",
-          severity: "Major",
-          assignee: { id: 1, name: "John Doe", email: "john@example.com" },
-          assigneeId: 1,
-          createdAt: "2026-02-05T10:30:00Z",
-          updatedAt: "2026-02-05T10:30:00Z",
-        },
-        {
-          id: 2,
-          title: "Database connection timeout",
-          description: "Users experiencing timeout errors when connecting to the database during peak hours.",
-          status: "In Progress",
-          priority: "Critical",
-          severity: "Critical",
-          assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
-          assigneeId: 2,
-          createdAt: "2026-02-04T14:20:00Z",
-          updatedAt: "2026-02-06T09:15:00Z",
-        },
-        {
-          id: 3,
-          title: "Add export to CSV feature",
-          description: "Users want to export issue lists to CSV format for reporting purposes.",
-          status: "Open",
-          priority: "Medium",
-          severity: "Minor",
-          assignee: { id: 3, name: "Mike Johnson", email: "mike@example.com" },
-          assigneeId: 3,
-          createdAt: "2026-02-03T16:45:00Z",
-          updatedAt: "2026-02-03T16:45:00Z",
-        },
-        {
-          id: 4,
-          title: "Fix typo in dashboard title",
-          description: "Spelling mistake in the dashboard header section.",
-          status: "Resolved",
-          priority: "Low",
-          severity: "Minor",
-          assignee: { id: 4, name: "Sarah Wilson", email: "sarah@example.com" },
-          assigneeId: 4,
-          completedAt: "2026-02-06T10:30:00Z",
-          createdAt: "2026-02-02T11:00:00Z",
-          updatedAt: "2026-02-06T10:30:00Z",
-        },
-        {
-          id: 5,
-          title: "Performance issues on large datasets",
-          description: "Application slows down significantly when handling more than 1000 issues.",
-          status: "In Progress",
-          priority: "High",
-          severity: "Major",
-          assignee: { id: 1, name: "John Doe", email: "john@example.com" },
-          assigneeId: 1,
-          createdAt: "2026-02-01T08:30:00Z",
-          updatedAt: "2026-02-07T08:00:00Z",
-        },
-        {
-          id: 6,
-          title: "User authentication not working",
-          description: "Some users cannot log in with correct credentials.",
-          status: "Open",
-          priority: "Critical",
-          severity: "Critical",
-          createdAt: "2026-01-31T15:20:00Z",
-          updatedAt: "2026-01-31T15:20:00Z",
-        },
-        {
-          id: 7,
-          title: "Add dark mode support",
-          description: "Implement dark mode theme for better user experience.",
-          status: "Open",
-          priority: "Low",
-          severity: "Minor",
-          assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
-          assigneeId: 2,
-          createdAt: "2026-01-30T09:10:00Z",
-          updatedAt: "2026-01-30T09:10:00Z",
-        },
-        {
-          id: 8,
-          title: "Email notifications not sending",
-          description: "Users are not receiving email notifications for issue updates.",
-          status: "In Progress",
-          priority: "High",
-          severity: "Major",
-          assignee: { id: 3, name: "Mike Johnson", email: "mike@example.com" },
-          assigneeId: 3,
-          createdAt: "2026-01-29T13:45:00Z",
-          updatedAt: "2026-02-05T14:20:00Z",
-        },
-        {
-          id: 9,
-          title: "Improve search functionality",
-          description: "Search should support fuzzy matching and filters.",
-          status: "Open",
-          priority: "Medium",
-          severity: "Minor",
-          assignee: { id: 4, name: "Sarah Wilson", email: "sarah@example.com" },
-          assigneeId: 4,
-          createdAt: "2026-01-28T10:15:00Z",
-          updatedAt: "2026-01-28T10:15:00Z",
-        },
-        {
-          id: 10,
-          title: "Fix pagination bugs",
-          description: "Pagination not working correctly on the issues page.",
-          status: "Resolved",
-          priority: "Medium",
-          severity: "Major",
-          assignee: { id: 1, name: "John Doe", email: "john@example.com" },
-          assigneeId: 1,
-          completedAt: "2026-02-04T11:00:00Z",
-          createdAt: "2026-01-27T16:30:00Z",
-          updatedAt: "2026-02-04T11:00:00Z",
-        },
-        {
-          id: 11,
-          title: "Update documentation",
-          description: "API documentation needs to be updated with recent changes.",
-          status: "Open",
-          priority: "Low",
-          severity: "Minor",
-          createdAt: "2026-01-26T08:00:00Z",
-          updatedAt: "2026-01-26T08:00:00Z",
-        },
-        {
-          id: 12,
-          title: "Security vulnerability in dependencies",
-          description: "npm audit showing critical vulnerabilities that need immediate attention.",
-          status: "In Progress",
-          priority: "Critical",
-          severity: "Critical",
-          assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
-          assigneeId: 2,
-          createdAt: "2026-01-25T14:50:00Z",
-          updatedAt: "2026-02-06T16:30:00Z",
-        },
-      ];
-      setIssues(mockIssues);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Get issues from API response
+  const issues = data?.issues || [];
 
   // Filter and sort issues
   const filteredAndSortedIssues = useCallback(() => {
@@ -570,10 +404,30 @@ const Issues: React.FC = () => {
         </motion.div>
 
         {/* Issues Grid/List */}
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center p-12">
             <FaSpinner className="text-4xl text-indigo-600 animate-spin" />
           </div>
+        ) : isError ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 rounded-2xl p-12 text-center shadow-md border border-red-200"
+          >
+            <FaExclamationCircle className="text-6xl text-red-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-red-800 mb-2">
+              Error Loading Issues
+            </h3>
+            <p className="text-red-600 mb-6">
+              {(error as any)?.data?.message || "Failed to load issues. Please try again."}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
+          </motion.div>
         ) : paginatedIssues.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
