@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../middleware/authmiddleware");
+const { requirePermission } = require("../middleware/permissionMiddleware");
 const Issue = require("../models/Issue");
 
 // Get all issues for the user's company with optional search and filters
@@ -87,7 +88,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // Create issue
-router.post("/", authMiddleware, async (req, res, next) => {
+router.post("/", authMiddleware, requirePermission('canCreateIssues'), async (req, res, next) => {
   try {
     console.log("\n=== CREATE ISSUE ===");
     console.log("Request body:", req.body);
@@ -249,7 +250,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // Update issue by ID
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", authMiddleware, requirePermission('canEditIssues'), async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -343,7 +344,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 // Delete issue by ID
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, requirePermission('canDeleteIssues'), async (req, res) => {
   try {
     const { id } = req.params;
     
