@@ -132,4 +132,72 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Verify email for password reset
+router.post('/verify-email', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    
+    if (!user) {
+      return res.status(404).json({ 
+        message: 'No account found with this email address',
+        exists: false 
+      });
+    }
+
+    // User exists - allow password reset
+    res.status(200).json({
+      message: 'Email verified successfully',
+      exists: true,
+      userId: user._id // We'll need this for the reset
+    });
+
+  } catch (error) {
+    console.error('Verify email error:', error);
+    res.status(500).json({ message: error?.message || 'Server error' });
+  }
+});
+
+// Reset password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: 'Email and new password are required' });
+    }
+
+    // Validate password strength
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    // Find user
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update password (will be hashed by the pre-save hook)
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      message: 'Password reset successfully',
+      success: true
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: error?.message || 'Server error' });
+  }
+});
+
 module.exports = router;
