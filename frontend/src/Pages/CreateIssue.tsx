@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useSelector } from "react-redux";
 import {
   FaSave,
   FaTimes,
@@ -13,7 +14,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import { type IssueFormData } from "../types";
-import { useCreateIssueMutation } from "../issues/issueApi";
+import { useCreateIssueMutation } from "../features/issues/issueApi";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -39,6 +40,7 @@ const validationSchema = Yup.object({
 
 const CreateIssue: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useSelector((state: any) => state.auth);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [createdIssueId, setCreatedIssueId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string>("");
@@ -52,24 +54,28 @@ const CreateIssue: React.FC = () => {
   const handleSubmit = async (values: IssueFormData) => {
     setSubmitError("");
     try {
+      // Replace "me" with current user's ID
+      const assigneeId = values.assigneeId === "me" ? user?.id : values.assigneeId || undefined;
+      
       const result = await createIssue({
         title: values.title,
         description: values.description,
         status: values.status,
         priority: values.priority,
         severity: values.severity,
-        assigneeId: values.assigneeId || undefined,
+        assigneeId,
       }).unwrap();
 
       setCreatedIssueId(result?.issue?.id || null);
       setShowSuccessModal(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating issue:", error);
+      const err = error as { data?: { message?: string; error?: string }; message?: string; error?: string };
       const message =
-        error?.data?.message ||
-        error?.data?.error ||
-        error?.message ||
-        error?.error ||
+        err?.data?.message ||
+        err?.data?.error ||
+        err?.message ||
+        err?.error ||
         "Failed to create issue. Please try again.";
       setSubmitError(message);
     }

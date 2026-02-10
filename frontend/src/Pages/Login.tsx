@@ -3,7 +3,7 @@ import InputField from "../Components/InputField";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import PrimaryButton from "../Components/PrimaryButton";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Footer from "../Components/Footer";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
@@ -29,9 +29,13 @@ const loginValidationSchema = Yup.object({
 
 function Login(): React.JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [submitError, setSubmitError] = useState<string>("");
+
+  // Get the intended destination from location state, default to dashboard
+  const from = location.state?.from?.pathname || "/dashboard";
 
   // Motion variants
   const containerVariants: Variants = {
@@ -63,7 +67,7 @@ function Login(): React.JSX.Element {
         })
       );
 
-      navigate("/dashboard");
+      navigate(from);
     } catch (error: any) {
       console.error("Login error:", error);
       const message =

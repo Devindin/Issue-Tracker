@@ -24,7 +24,12 @@ require('./models/Issue');
 // Routes
 app.use('/auth', require('./routes/AuthRoutes'));
 app.use('/issues', require('./routes/IssueRoutes'));
-app.use('/issues', require('./routes/IssueRoutes'));
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('Global error handler:', error);
+  res.status(500).json({ message: error?.message || "Server error" });
+});
 
 // Basic route
 app.get('/', (req, res) => {

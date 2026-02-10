@@ -13,12 +13,10 @@ router.post('/register-company', async (req, res) => {
   try {
     const { companyName, companyDescription, name, email, password } = req.body;
 
-    // Validate required fields
     if (!companyName || !name || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
@@ -28,7 +26,7 @@ router.post('/register-company', async (req, res) => {
     const company = new Company({
       name: companyName,
       description: companyDescription,
-      owner: null // Will set after creating user
+      owner: null 
     });
     await company.save();
 
@@ -56,7 +54,6 @@ router.post('/register-company', async (req, res) => {
     company.owner = user._id;
     await company.save();
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, companyId: company._id, role: user.role },
       process.env.JWT_SECRET,

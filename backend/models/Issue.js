@@ -48,7 +48,7 @@ const issueSchema = new mongoose.Schema({
 });
 
 // Update completedAt when status changes to Resolved or Closed
-issueSchema.pre('save', function(next) {
+issueSchema.pre('save', async function() {
   if (this.isModified('status') && (this.status === 'Resolved' || this.status === 'Closed')) {
     if (!this.completedAt) {
       this.completedAt = new Date();
@@ -56,7 +56,6 @@ issueSchema.pre('save', function(next) {
   } else if (this.isModified('status') && this.status !== 'Resolved' && this.status !== 'Closed') {
     this.completedAt = undefined;
   }
-  next();
 });
 
 module.exports = mongoose.model('Issue', issueSchema);

@@ -5,7 +5,7 @@ const authMiddleware = require("../middleware/authmiddleware");
 const Issue = require("../models/Issue");
 
 // Create issue
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", authMiddleware, async (req, res, next) => {
   try {
     const {
       title,
