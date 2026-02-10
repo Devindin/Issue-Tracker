@@ -14,6 +14,16 @@ interface ProfileResponse {
   };
 }
 
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+interface ChangePasswordResponse {
+  message: string;
+  success: boolean;
+}
+
 export const profileApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Get current user's profile
@@ -63,10 +73,31 @@ export const profileApi = apiSlice.injectEndpoints({
         }
       },
     }),
+
+    // Change password
+    changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordPayload>({
+      query: (passwordData) => {
+        console.log('🌐 PUT /auth/change-password request');
+        return {
+          url: '/auth/change-password',
+          method: 'PUT',
+          body: passwordData,
+        };
+      },
+      transformResponse: (response: ChangePasswordResponse) => {
+        console.log('🟢 PUT /auth/change-password success:', response);
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('🔴 PUT /auth/change-password error:', error);
+        return error;
+      },
+    }),
   }),
 });
 
 export const {
   useGetProfileQuery,
   useUpdateProfileMutation,
+  useChangePasswordMutation,
 } = profileApi;

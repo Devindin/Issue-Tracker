@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
@@ -12,17 +12,26 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import ProfileTab from "../Components/ProfileTab";
+import SecurityTab from "../Components/SecurityTab";
 import UserManagementTab from "../Components/UserManagementTab";
 import DeleteAccountModal from "../Components/DeleteAccountModal";
 import { useGetProfileQuery } from "../features/profile/profileApi";
 import {
   setActiveTab,
 } from "../features/settings/settingsSlice";
+import type { SecuritySettings } from "../types";
 
 const Settings: React.FC = () => {
   const dispatch = useDispatch();
   const [showDeleteModal, setShowDeleteModal] = React.useState<boolean>(false);
   const [showSuccessMessage, setShowSuccessMessage] = React.useState<boolean>(false);
+  
+  // Security settings state
+  const [security, setSecurity] = React.useState<SecuritySettings>({
+    twoFactorAuth: false,
+    sessionTimeout: 30,
+    loginAlerts: true,
+  });
   
   // Get active tab from Redux
   const { activeTab } = useSelector((state: RootState) => state.settings);
@@ -141,13 +150,20 @@ const Settings: React.FC = () => {
               )}
 
               {/* Security Tab */}
-              {/* {activeTab === "security" && (
+              {activeTab === "security" && (
                 <SecurityTab
                   security={security}
-                  setSecurity={(updates: Partial<SecuritySettings>) => dispatch(setSecurity(updates))}
-                  saveSettings={saveSettings}
+                  setSecurity={setSecurity}
+                  saveSettings={() => {
+                    // Save security settings to localStorage or API
+                    localStorage.setItem('securitySettings', JSON.stringify(security));
+                  }}
+                  onSuccess={() => {
+                    setShowSuccessMessage(true);
+                    setTimeout(() => setShowSuccessMessage(false), 3000);
+                  }}
                 />
-              )} */}
+              )}
 
               {/* Notifications Tab */}
               {/* {activeTab === "notifications" && (

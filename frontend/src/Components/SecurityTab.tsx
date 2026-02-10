@@ -5,17 +5,20 @@ import {
   FaSave,
 } from "react-icons/fa";
 import { type SecuritySettings } from "../types";
+import { useChangePasswordMutation } from "../features/profile/profileApi";
 
 interface SecurityTabProps {
   security: SecuritySettings;
   setSecurity: React.Dispatch<React.SetStateAction<SecuritySettings>>;
   saveSettings: () => void;
+  onSuccess?: () => void;
 }
 
 const SecurityTab: React.FC<SecurityTabProps> = ({
   security,
   setSecurity,
   saveSettings,
+  onSuccess,
 }) => {
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -23,6 +26,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
     confirmPassword: "",
   });
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+  const [changePassword, { isLoading, error }] = useChangePasswordMutation();
 
   const handlePasswordChange = (field: string, value: string) => {
     setPasswordData((prev) => ({ ...prev, [field]: value }));
@@ -32,7 +36,7 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
     }
   };
 
-  const updatePassword = () => {
+  const updatePassword = async () => {
     const errors: Record<string, string> = {};
 
     if (!passwordData.currentPassword) {
@@ -52,20 +56,43 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
       return;
     }
 
-    // TODO: API call to update password
-    alert("Password updated successfully!");
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-    setPasswordErrors({});
+    try {
+      await changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      }).unwrap();
+      
+      // Clear form on success
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setPasswordErrors({});
+      
+      // Trigger success message
+      onSuccess?.();
+    } catch (err: any) {
+      console.error('Password change failed:', err);
+      // Set error from API response
+      if (err?.data?.message) {
+        setPasswordErrors({ currentPassword: err.data.message });
+      }
+    }
   };
+  
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">
         Security Settings
       </h2>
+
+      {/* API Error Message */}
+      {error && (
+        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+          {(error as any)?.data?.message || "Failed to change password. Please try again."}
+        </div>
+      )}
 
       {/* Change Password */}
       <div className="border border-gray-200 rounded-xl p-6">
@@ -146,9 +173,10 @@ const SecurityTab: React.FC<SecurityTabProps> = ({
 
           <button
             onClick={updatePassword}
-            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            disabled={isLoading}
+            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            <FaSave /> Update Password
+            <FaSave /> {isLoading ? "Updating..." : "Update Password"}
           </button>
         </div>
       </div>
