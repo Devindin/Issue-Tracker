@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../app/stores";
 import {
   FaUser,
   FaLock,
@@ -17,61 +19,33 @@ import NotificationsTab from "../Components/NotificationsTab";
 import UserManagementTab from "../Components/UserManagementTab";
 import DeleteAccountModal from "../Components/DeleteAccountModal";
 import { type UserProfile, type NotificationSettings, type SecuritySettings, type PreferenceSettings } from "../types";
+import {
+  setProfile,
+  setNotifications,
+  setSecurity,
+  setPreferences,
+  setActiveTab,
+  setShowSuccessMessage,
+  loadSettingsFromStorage,
+} from "../features/settings/settingsSlice";
 
 const Settings: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>("profile");
-  const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-
-  // Profile State
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "Devindi Karunathilaka",
-    email: "devindi@example.com",
-    phone: "+1 234 567 8900",
-    location: "San Francisco, CA",
-    website: "https://example.com",
-    bio: "Passionate developer working on issue tracking systems.",
-    avatar: "",
-  });
-
-  // Notification State
-  const [notifications, setNotifications] = useState<NotificationSettings>({
-    emailNotifications: true,
-    pushNotifications: false,
-    issueCreated: true,
-    issueUpdated: true,
-    issueResolved: true,
-    issueAssigned: true,
-    weeklyReport: false,
-  });
-
-  // Security State
-  const [security, setSecurity] = useState<SecuritySettings>({
-    twoFactorAuth: false,
-    sessionTimeout: 30,
-    loginAlerts: true,
-  });
-
-  // Preferences State
-  const [preferences, setPreferences] = useState<PreferenceSettings>({
-    language: "en",
-    timezone: "America/Los_Angeles",
-    dateFormat: "MM/DD/YYYY",
-    itemsPerPage: 12,
-    defaultView: "list",
-  });
+  const dispatch = useDispatch();
+  const [showDeleteModal, setShowDeleteModal] = React.useState<boolean>(false);
+  
+  // Get state from Redux
+  const { profile, notifications, security, preferences, activeTab, showSuccessMessage } = useSelector(
+    (state: RootState) => state.settings
+  );
 
   // Load settings from localStorage on mount
   useEffect(() => {
     const savedSettings = localStorage.getItem("userSettings");
     if (savedSettings) {
       const parsed = JSON.parse(savedSettings);
-      setProfile(parsed.profile || profile);
-      setNotifications(parsed.notifications || notifications);
-      setSecurity(parsed.security || security);
-      setPreferences(parsed.preferences || preferences);
+      dispatch(loadSettingsFromStorage(parsed));
     }
-  }, []);
+  }, [dispatch]);
 
   // Save settings
   const saveSettings = () => {
@@ -88,8 +62,8 @@ const Settings: React.FC = () => {
     user.name = profile.name;
     localStorage.setItem("user", JSON.stringify(user));
 
-    setShowSuccessMessage(true);
-    setTimeout(() => setShowSuccessMessage(false), 3000);
+    dispatch(setShowSuccessMessage(true));
+    setTimeout(() => dispatch(setShowSuccessMessage(false)), 3000);
   };
 
   // Handle avatar upload
@@ -98,7 +72,7 @@ const Settings: React.FC = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfile((prev) => ({ ...prev, avatar: reader.result as string }));
+        dispatch(setProfile({ avatar: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
@@ -166,7 +140,7 @@ const Settings: React.FC = () => {
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => dispatch(setActiveTab(tab.id))}
                   className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all font-medium ${
                     activeTab === tab.id
                       ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
@@ -191,7 +165,7 @@ const Settings: React.FC = () => {
             {activeTab === "profile" && (
               <ProfileTab
                 profile={profile}
-                setProfile={setProfile}
+                setProfile={(updates: Partial<UserProfile>) => dispatch(setProfile(updates))}
                 handleAvatarUpload={handleAvatarUpload}
                 saveSettings={saveSettings}
               />
@@ -201,7 +175,7 @@ const Settings: React.FC = () => {
             {activeTab === "security" && (
               <SecurityTab
                 security={security}
-                setSecurity={setSecurity}
+                setSecurity={(updates: Partial<SecuritySettings>) => dispatch(setSecurity(updates))}
                 saveSettings={saveSettings}
               />
             )}
@@ -210,7 +184,7 @@ const Settings: React.FC = () => {
             {activeTab === "notifications" && (
               <NotificationsTab
                 notifications={notifications}
-                setNotifications={setNotifications}
+                setNotifications={(updates: Partial<NotificationSettings>) => dispatch(setNotifications(updates))}
                 saveSettings={saveSettings}
               />
             )}

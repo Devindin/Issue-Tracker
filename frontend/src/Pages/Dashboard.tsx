@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../app/stores";
 import {
   FaExclamationCircle,
   FaSpinner,
@@ -13,11 +15,13 @@ import IssueCard from "../Components/IssueCard";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import { useGetDashboardStatsQuery, useGetRecentIssuesQuery } from "../features/dashboard/dashboardApi";
+import { setSearchTerm, setFilterStatus, setFilterPriority } from "../features/issues/issuesFilterSlice";
 
 const Dashboard: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<string>("All");
-  const [filterPriority, setFilterPriority] = useState<string>("All");
+  const dispatch = useDispatch();
+  const { searchTerm, filterStatus, filterPriority } = useSelector(
+    (state: RootState) => state.issuesFilter
+  );
 
   // Fetch dashboard stats
   const { data: statsData, isLoading: statsLoading, isError: statsError } = useGetDashboardStatsQuery();
@@ -127,7 +131,7 @@ const Dashboard: React.FC = () => {
                 type="text"
                 placeholder="Search issues by title or description..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => dispatch(setSearchTerm(e.target.value))}
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -137,7 +141,7 @@ const Dashboard: React.FC = () => {
               <FaFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
+                onChange={(e) => dispatch(setFilterStatus(e.target.value))}
                 className="pl-12 pr-8 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[160px]"
               >
                 <option value="All">All Status</option>
@@ -153,7 +157,7 @@ const Dashboard: React.FC = () => {
               <FaFilter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <select
                 value={filterPriority}
-                onChange={(e) => setFilterPriority(e.target.value)}
+                onChange={(e) => dispatch(setFilterPriority(e.target.value))}
                 className="pl-12 pr-8 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white cursor-pointer min-w-[160px]"
               >
                 <option value="All">All Priority</option>
