@@ -20,11 +20,13 @@ mongoose.connect(process.env.MONGODB_URL)
 require('./models/Company');
 require('./models/User');
 require('./models/Issue');
+require('./models/Project');
 
 // Routes
 app.use('/auth', require('./routes/AuthRoutes'));
 app.use('/issues', require('./routes/IssueRoutes'));
 app.use('/users', require('./routes/UserRoutes'));
+app.use('/projects', require('./routes/ProjectRoutes'));
 
 // Error handling middleware
 app.use((error, req, res, next) => {
