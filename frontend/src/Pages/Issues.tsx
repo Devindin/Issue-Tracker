@@ -16,6 +16,7 @@ import DeleteModal from "../Components/DeleteModal";
 import Pagination from "../Components/Pagination";
 import { type SortField, type SortOrder } from "../types";
 import { useGetIssuesQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
+import { useGetProjectsQuery } from "../features/projects/projectApi";
 
 const Issues: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -23,6 +24,7 @@ const Issues: React.FC = () => {
   const [filterPriority, setFilterPriority] = useState<string>("All");
   const [filterSeverity, setFilterSeverity] = useState<string>("All");
   const [filterAssignee, setFilterAssignee] = useState<string>("All");
+  const [filterProject, setFilterProject] = useState<string>("All");
   const [filterCompletedDate, setFilterCompletedDate] = useState<string>("All");
   const [sortField, setSortField] = useState<SortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -44,6 +46,10 @@ const Issues: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Fetch projects for filter
+  const { data: projectsData } = useGetProjectsQuery({});
+  const projects = projectsData || [];
+
   // Fetch issues with search and filters
   const { data, isLoading, isError, error } = useGetIssuesQuery({
     search: debouncedSearch || undefined,
@@ -58,11 +64,15 @@ const Issues: React.FC = () => {
   // Get issues from API response
   const issues = data?.issues || [];
 
-  // Apply client-side filters for assignee and completedDate (not handled by API)
+  // Apply client-side filters for assignee, project and completedDate (not handled by API)
   const filteredAndSortedIssues = useCallback(() => {
     let filtered = issues.filter((issue) => {
       const matchesAssignee =
         filterAssignee === "All" || (issue.assignee && issue.assignee.name === filterAssignee);
+      const matchesProject =
+        filterProject === "All" || 
+        (issue.project && issue.project._id === filterProject) ||
+        (filterProject === "Unassigned" && !issue.project);
       const matchesCompletedDate = (() => {
         if (filterCompletedDate === "All") return true;
         if (!issue.completedAt) return filterCompletedDate === "Unassigned";
@@ -86,7 +96,7 @@ const Issues: React.FC = () => {
             return true;
         }
       })();
-      return matchesAssignee && matchesCompletedDate;
+      return matchesAssignee && matchesCompletedDate && matchesProject;
     });
 
     // Sort
@@ -109,7 +119,7 @@ const Issues: React.FC = () => {
     });
 
     return filtered;
-  }, [issues, filterAssignee, filterCompletedDate, sortField, sortOrder]);
+  }, [issues, filterAssignee, filterProject, filterCompletedDate, sortField, sortOrder]);
 
   const filteredIssues = filteredAndSortedIssues();
 
@@ -121,7 +131,7 @@ const Issues: React.FC = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterCompletedDate]);
+  }, [debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterProject, filterCompletedDate]);
 
   // Delete issue
   const handleDeleteClick = (id: number | string) => {
@@ -187,12 +197,13 @@ const Issues: React.FC = () => {
     setFilterPriority("All");
     setFilterSeverity("All");
     setFilterAssignee("All");
+    setFilterProject("All");
     setFilterCompletedDate("All");
     setSortField("createdAt");
     setSortOrder("desc");
   };
 
-  const hasActiveFilters = searchTerm || filterStatus !== "All" || filterPriority !== "All" || filterSeverity !== "All" || filterAssignee !== "All" || filterCompletedDate !== "All";
+  const hasActiveFilters = searchTerm || filterStatus !== "All" || filterPriority !== "All" || filterSeverity !== "All" || filterAssignee !== "All" || filterProject !== "All" || filterCompletedDate !== "All";
 
   return (
     <PageLayout>
@@ -342,6 +353,26 @@ const Issues: React.FC = () => {
                 <option value="David Brown">David Brown</option>
                 <option value="Lisa Garcia">Lisa Garcia</option>
                 <option value="Unassigned">Unassigned</option>
+              </select>
+            </div>
+
+            {/* Project Filter */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Project
+              </label>
+              <select
+                value={filterProject}
+                onChange={(e) => setFilterProject(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+              >
+                <option value="All">All Projects</option>
+                {projects.map((project) => (
+                  <option key={project._id} value={project._id}>
+                    {project.icon} {project.name} ({project.key})
+                  </option>
+                ))}
+                <option value="Unassigned">No Project</option>
               </select>
             </div>
 

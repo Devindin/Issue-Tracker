@@ -15,6 +15,7 @@ import {
   FaClock,
   FaUser,
   FaTag,
+  FaFolder,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
@@ -206,6 +207,12 @@ const ViewIssue: React.FC = () => {
                   <FaTag />
                   {issue.severity} Severity
                 </span>
+                {issue.project && (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    <FaFolder />
+                    {issue.project.icon} {issue.project.name} ({issue.project.key})
+                  </span>
+                )}
               </div>
             </div>
 

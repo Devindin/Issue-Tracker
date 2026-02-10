@@ -16,6 +16,7 @@ import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import StatusModal from "../Components/StatusModal";
 import { useGetIssueByIdQuery, useUpdateIssueMutation } from "../features/issues/issueApi";
+import { useGetProjectsQuery } from "../features/projects/projectApi";
 
 const EditIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,10 @@ const EditIssue: React.FC = () => {
     skip: !id, // Skip the query if id is undefined or empty
   });
   const [updateIssue, { isLoading: isUpdating }] = useUpdateIssueMutation();
+  
+  // Fetch projects for dropdown
+  const { data: projectsData } = useGetProjectsQuery({ status: "active" });
+  const projects = projectsData || [];
 
   // Character count limits
   const TITLE_MAX_LENGTH = 100;
@@ -84,6 +89,7 @@ const EditIssue: React.FC = () => {
       .oneOf(["Minor", "Major", "Critical"], "Invalid severity")
       .required("Severity is required"),
     assigneeId: Yup.string().optional(),
+    projectId: Yup.string().optional(),
   });
 
   const handleSubmit = async (values: any) => {
@@ -103,6 +109,11 @@ const EditIssue: React.FC = () => {
         payload.assigneeId = values.assigneeId;
       } else if (values.assigneeId === "") {
         payload.assigneeId = null;
+      }
+      
+      // Include projectId if provided
+      if (values.projectId) {
+        payload.projectId = values.projectId;
       }
       
       await updateIssue(payload).unwrap();
@@ -215,6 +226,7 @@ const EditIssue: React.FC = () => {
               priority: issue.priority,
               severity: issue.severity,
               assigneeId: issue.assigneeId || "",
+              projectId: issue.project?._id || "",
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
@@ -468,6 +480,58 @@ const EditIssue: React.FC = () => {
                       <p className="text-xs text-gray-500 mt-1">
                         Current: {issue.assignee ? issue.assignee.name : "Unassigned"}
                       </p>
+                    </div>
+
+                    {/* Project */}
+                    <div>
+                      <label
+                        htmlFor="projectId"
+                        className="block text-sm font-semibold text-gray-700 mb-2"
+                      >
+                        Project
+                      </label>
+                      <div className="relative">
+                        <Field
+                          as="select"
+                          id="projectId"
+                          name="projectId"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                        >
+                          <option value="">No Project</option>
+                          {projects.map((project) => (
+                            <option key={project._id} value={project._id}>
+                              {project.icon} {project.name} ({project.key})
+                            </option>
+                          ))}
+                        </Field>
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      {values.projectId && (
+                        <div className="mt-2">
+                          {(() => {
+                            const selectedProject = projects.find(p => p._id === values.projectId);
+                            return selectedProject ? (
+                              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                {selectedProject.icon} {selectedProject.name} ({selectedProject.key})
+                              </span>
+                            ) : null;
+                          })()}
+                        </div>
+                      )}
                     </div>
                   </div>
 

@@ -1,6 +1,13 @@
 // Common types used across the application
 import type { User } from "./user";
 
+interface ProjectRef {
+  _id: string;
+  name: string;
+  key: string;
+  icon?: string;
+}
+
 export interface Issue {
   id: number | string;
   title: string;
@@ -12,6 +19,8 @@ export interface Issue {
   assigneeId?: number | string | null;
   reporter?: User | null;
   reporterId?: string | null;
+  project?: ProjectRef | null;
+  projectId?: string | null;
   company?: string;
   completedAt?: string | null;
   createdAt: string;
