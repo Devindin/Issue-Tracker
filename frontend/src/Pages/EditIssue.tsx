@@ -17,6 +17,7 @@ import PageTitle from "../Components/PageTitle";
 import StatusModal from "../Components/StatusModal";
 import { useGetIssueByIdQuery, useUpdateIssueMutation } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
+import { useGetUsersQuery } from "../features/users/userApi";
 
 const EditIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,9 @@ const EditIssue: React.FC = () => {
   // Fetch projects for dropdown
   const { data: projectsData } = useGetProjectsQuery({ status: "active" });
   const projects = projectsData || [];
+  
+  // Fetch users for assignee dropdown
+  const { data: users = [] } = useGetUsersQuery();
 
   // Character count limits
   const TITLE_MAX_LENGTH = 100;
@@ -464,18 +468,45 @@ const EditIssue: React.FC = () => {
                       </label>
                       <div className="relative">
                         <Field
-                          as="input"
+                          as="select"
                           id="assigneeId"
                           name="assigneeId"
-                          type="text"
-                          placeholder="Enter assignee ID (optional)"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50"
-                          readOnly
-                        />
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                        >
+                          <option value="">Unassigned</option>
+                          {users.map((user) => (
+                            <option key={user.id} value={user.id}>
+                              {user.name} ({user.email})
+                            </option>
+                          ))}
+                        </Field>
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg
+                            className="w-4 h-4 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Current: {issue.assignee ? issue.assignee.name : "Unassigned"}
-                      </p>
+                      <div className="mt-2">
+                        <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                          values.assigneeId
+                            ? "bg-green-100 border-green-300 text-green-700"
+                            : "bg-gray-100 border-gray-300 text-gray-700"
+                        }`}>
+                          {values.assigneeId
+                            ? `Assigned to ${users.find(u => u.id === values.assigneeId)?.name || "User"}`
+                            : "Unassigned"}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Project */}

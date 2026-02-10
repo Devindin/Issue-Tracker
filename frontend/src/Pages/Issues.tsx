@@ -17,6 +17,7 @@ import Pagination from "../Components/Pagination";
 import { type SortField, type SortOrder } from "../types";
 import { useGetIssuesQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
+import { useGetUsersQuery } from "../features/users/userApi";
 
 const Issues: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -49,6 +50,9 @@ const Issues: React.FC = () => {
   // Fetch projects for filter
   const { data: projectsData } = useGetProjectsQuery({});
   const projects = projectsData || [];
+  
+  // Fetch users for assignee filter
+  const { data: users = [] } = useGetUsersQuery();
 
   // Fetch issues with search and filters
   const { data, isLoading, isError, error } = useGetIssuesQuery({
@@ -343,15 +347,11 @@ const Issues: React.FC = () => {
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white cursor-pointer"
               >
                 <option value="All">All Assignees</option>
-                <option value="Assign to me">👤 Assign to me</option>
-                <option value="John Doe">John Doe</option>
-                <option value="Jane Smith">Jane Smith</option>
-                <option value="Mike Johnson">Mike Johnson</option>
-                <option value="Sarah Wilson">Sarah Wilson</option>
-                <option value="Alex Chen">Alex Chen</option>
-                <option value="Emily Davis">Emily Davis</option>
-                <option value="David Brown">David Brown</option>
-                <option value="Lisa Garcia">Lisa Garcia</option>
+                {users.map((user) => (
+                  <option key={user.id} value={user.name}>
+                    {user.name}
+                  </option>
+                ))}
                 <option value="Unassigned">Unassigned</option>
               </select>
             </div>

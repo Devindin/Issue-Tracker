@@ -16,6 +16,7 @@ import StatusModal from "../Components/StatusModal";
 import { type IssueFormData } from "../types";
 import { useCreateIssueMutation } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
+import { useGetUsersQuery } from "../features/users/userApi";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -48,6 +49,7 @@ const CreateIssue: React.FC = () => {
   const [submitError, setSubmitError] = useState<string>("");
   const [createIssue, { isLoading }] = useCreateIssueMutation();
   const { data: projects = [] } = useGetProjectsQuery({ status: "active" });
+  const { data: users = [] } = useGetUsersQuery();
 
   // Character count limits
   const TITLE_MAX_LENGTH = 100;
@@ -57,14 +59,15 @@ const CreateIssue: React.FC = () => {
   const handleSubmit = async (values: IssueFormData) => {
     setSubmitError("");
     try {
-      // Only send assigneeId if it's "me" (current user) or empty
+      // Only send assigneeId if it's "me" (current user) or a valid user ID
       let assigneeId: string | undefined = undefined;
       if (values.assigneeId === "me" && user?.id) {
         assigneeId = user.id;
+      } else if (values.assigneeId && values.assigneeId !== "") {
+        assigneeId = values.assigneeId;
       }
-      // Ignore all other mock user IDs (1-8) as they're not real MongoDB ObjectIds
       
-      const payload = {
+      const payload: any = {
         title: values.title,
         description: values.description,
         status: values.status,
@@ -454,14 +457,11 @@ const CreateIssue: React.FC = () => {
                       >
                         <option value="">Unassigned</option>
                         <option value="me">👤 Assign to me</option>
-                        <option value="1">John Doe</option>
-                        <option value="2">Jane Smith</option>
-                        <option value="3">Mike Johnson</option>
-                        <option value="4">Sarah Wilson</option>
-                        <option value="5">Alex Chen</option>
-                        <option value="6">Emily Davis</option>
-                        <option value="7">David Brown</option>
-                        <option value="8">Lisa Garcia</option>
+                        {users.map((user) => (
+                          <option key={user.id} value={user.id}>
+                            {user.name} ({user.email})
+                          </option>
+                        ))}
                       </Field>
                       <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                         <svg
@@ -488,16 +488,7 @@ const CreateIssue: React.FC = () => {
                         {values.assigneeId === "me" 
                           ? "👤 Assigned to me" 
                           : values.assigneeId 
-                            ? `Assigned to ${{
-                                "1": "John Doe",
-                                "2": "Jane Smith", 
-                                "3": "Mike Johnson",
-                                "4": "Sarah Wilson",
-                                "5": "Alex Chen",
-                                "6": "Emily Davis",
-                                "7": "David Brown",
-                                "8": "Lisa Garcia"
-                              }[values.assigneeId]}` 
+                            ? `Assigned to ${users.find(u => u.id === values.assigneeId)?.name || "User"}` 
                             : "Unassigned"}
                       </span>
                     </div>
