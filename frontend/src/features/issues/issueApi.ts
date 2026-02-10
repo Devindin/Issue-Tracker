@@ -8,6 +8,7 @@ interface CreateIssuePayload {
   priority: string;
   severity: string;
   assigneeId?: string;
+  projectId: string;
 }
 
 interface IssueResponse {
@@ -24,6 +25,7 @@ interface SearchIssuesParams {
   status?: string;
   priority?: string;
   severity?: string;
+  project?: string;
 }
 
 interface UpdateIssuePayload {
@@ -34,6 +36,7 @@ interface UpdateIssuePayload {
   priority?: string;
   severity?: string;
   assigneeId?: string | null;
+  projectId?: string | null;
 }
 
 export const issueApi = apiSlice.injectEndpoints({
@@ -45,6 +48,7 @@ export const issueApi = apiSlice.injectEndpoints({
         if (params?.status) searchParams.append('status', params.status);
         if (params?.priority) searchParams.append('priority', params.priority);
         if (params?.severity) searchParams.append('severity', params.severity);
+        if (params?.project) searchParams.append('project', params.project);
         
         const queryString = searchParams.toString();
         console.log('[API] GET Issues - Request:', {

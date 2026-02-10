@@ -42,7 +42,8 @@ const issueSchema = new mongoose.Schema({
   },
   project: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Project'
+    ref: 'Project',
+    required: [true, 'Project is required - all issues must belong to a project']
   },
   completedAt: {
     type: Date

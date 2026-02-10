@@ -7,7 +7,7 @@ const Issue = require("../models/Issue");
 // Get all issues for the user's company with optional search and filters
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const { search, status, priority, severity } = req.query;
+    const { search, status, priority, severity, project } = req.query;
     
     // Build query
     const query = { company: req.user?.companyId };
@@ -34,10 +34,16 @@ router.get("/", authMiddleware, async (req, res) => {
     if (severity && severity !== 'All') {
       query.severity = severity;
     }
+    
+    // Add project filter
+    if (project && project !== 'All') {
+      query.project = project;
+    }
 
     const issues = await Issue.find(query)
       .populate("assignee", "name email")
       .populate("reporter", "name email")
+      .populate("project", "name key icon")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
@@ -61,6 +67,13 @@ router.get("/", authMiddleware, async (req, res) => {
           email: issue.reporter.email
         } : null,
         reporterId: issue.reporter?._id || null,
+        project: issue.project ? {
+          _id: issue.project._id,
+          name: issue.project.name,
+          key: issue.project.key,
+          icon: issue.project.icon
+        } : null,
+        projectId: issue.project?._id || null,
         company: issue.company,
         completedAt: issue.completedAt,
         createdAt: issue.createdAt,
@@ -83,15 +96,25 @@ router.post("/", authMiddleware, async (req, res, next) => {
       priority = "Medium",
       severity = "Minor",
       assigneeId,
+      projectId,
     } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ message: "Title and description are required" });
     }
 
+    if (!projectId) {
+      return res.status(400).json({ message: "Project is required - all issues must belong to a project" });
+    }
+
     // Validate assigneeId if provided (must be a valid MongoDB ObjectId or empty)
     if (assigneeId && assigneeId !== "" && !/^[0-9a-fA-F]{24}$/.test(assigneeId)) {
       return res.status(400).json({ message: "Invalid assignee ID format" });
+    }
+
+    // Validate projectId (must be a valid MongoDB ObjectId)
+    if (projectId && !/^[0-9a-fA-F]{24}$/.test(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID format" });
     }
 
     const issue = new Issue({
@@ -102,10 +125,14 @@ router.post("/", authMiddleware, async (req, res, next) => {
       severity,
       reporter: req.user?.userId,
       company: req.user?.companyId,
+      project: projectId,
       ...(assigneeId && assigneeId !== "" ? { assignee: assigneeId } : {}),
     });
 
     await issue.save();
+
+    // Populate project data
+    await issue.populate("project", "name key icon");
 
     return res.status(201).json({
       message: "Issue created successfully",
@@ -117,7 +144,16 @@ router.post("/", authMiddleware, async (req, res, next) => {
         priority: issue.priority,
         severity: issue.severity,
         assignee: issue.assignee || null,
+        assigneeId: issue.assignee || null,
         reporter: issue.reporter,
+        reporterId: issue.reporter,
+        project: issue.project ? {
+          _id: issue.project._id,
+          name: issue.project.name,
+          key: issue.project.key,
+          icon: issue.project.icon
+        } : null,
+        projectId: issue.project?._id || null,
         company: issue.company,
         createdAt: issue.createdAt,
         updatedAt: issue.updatedAt,
@@ -143,7 +179,8 @@ router.get("/:id", authMiddleware, async (req, res) => {
       company: req.user?.companyId 
     })
       .populate("assignee", "name email")
-      .populate("reporter", "name email");
+      .populate("reporter", "name email")
+      .populate("project", "name key icon");
 
     console.log("Found issue:", issue ? `Yes (ID: ${issue._id})` : "No");
 
@@ -174,6 +211,13 @@ router.get("/:id", authMiddleware, async (req, res) => {
           email: issue.reporter.email
         } : null,
         reporterId: issue.reporter?._id || null,
+        project: issue.project ? {
+          _id: issue.project._id,
+          name: issue.project.name,
+          key: issue.project.key,
+          icon: issue.project.icon
+        } : null,
+        projectId: issue.project?._id || null,
         company: issue.company,
         completedAt: issue.completedAt,
         createdAt: issue.createdAt,
@@ -197,6 +241,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
       priority,
       severity,
       assigneeId,
+      projectId,
     } = req.body;
 
     // Find issue and verify it belongs to user's company
@@ -214,6 +259,11 @@ router.put("/:id", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Invalid assignee ID format" });
     }
 
+    // Validate projectId if provided (must be a valid MongoDB ObjectId)
+    if (projectId !== undefined && projectId !== null && projectId !== "" && !/^[0-9a-fA-F]{24}$/.test(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID format" });
+    }
+
     // Update fields
     if (title !== undefined) issue.title = title;
     if (description !== undefined) issue.description = description;
@@ -223,12 +273,16 @@ router.put("/:id", authMiddleware, async (req, res) => {
     if (assigneeId !== undefined) {
       issue.assignee = (assigneeId && assigneeId !== "") ? assigneeId : null;
     }
+    if (projectId !== undefined && projectId !== "") {
+      issue.project = projectId;
+    }
 
     await issue.save();
 
     // Populate and return updated issue
     await issue.populate("assignee", "name email");
     await issue.populate("reporter", "name email");
+    await issue.populate("project", "name key icon");
 
     return res.status(200).json({
       message: "Issue updated successfully",
@@ -245,6 +299,13 @@ router.put("/:id", authMiddleware, async (req, res) => {
           email: issue.assignee.email
         } : null,
         assigneeId: issue.assignee?._id || null,
+        project: issue.project ? {
+          _id: issue.project._id,
+          name: issue.project.name,
+          key: issue.project.key,
+          icon: issue.project.icon
+        } : null,
+        projectId: issue.project?._id || null,
         reporter: issue.reporter ? {
           id: issue.reporter._id,
           name: issue.reporter.name,
