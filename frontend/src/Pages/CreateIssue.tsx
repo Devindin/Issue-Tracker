@@ -54,8 +54,12 @@ const CreateIssue: React.FC = () => {
   const handleSubmit = async (values: IssueFormData) => {
     setSubmitError("");
     try {
-      // Replace "me" with current user's ID
-      const assigneeId = values.assigneeId === "me" ? user?.id : values.assigneeId || undefined;
+      // Only send assigneeId if it's "me" (current user) or empty
+      let assigneeId: string | undefined = undefined;
+      if (values.assigneeId === "me" && user?.id) {
+        assigneeId = user.id;
+      }
+      // Ignore all other mock user IDs (1-8) as they're not real MongoDB ObjectIds
       
       const result = await createIssue({
         title: values.title,

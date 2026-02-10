@@ -50,6 +50,16 @@ interface SearchIssuesParams {
   severity?: string;
 }
 
+interface UpdateIssuePayload {
+  id: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  severity?: string;
+  assigneeId?: string | null;
+}
+
 export const issueApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getIssues: builder.query<IssuesListResponse, SearchIssuesParams | void>({
@@ -68,6 +78,13 @@ export const issueApi = apiSlice.injectEndpoints({
       },
       providesTags: ["Issue"],
     }),
+    getIssueById: builder.query<IssueResponse, string>({
+      query: (id) => ({
+        url: `/issues/${id}`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "Issue", id }],
+    }),
     createIssue: builder.mutation<IssueResponse, CreateIssuePayload>({
       query: (payload) => ({
         url: "/issues",
@@ -76,7 +93,20 @@ export const issueApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Issue"],
     }),
+    updateIssue: builder.mutation<IssueResponse, UpdateIssuePayload>({
+      query: ({ id, ...payload }) => ({
+        url: `/issues/${id}`,
+        method: "PUT",
+        body: payload,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Issue", id }, "Issue"],
+    }),
   }),
 });
 
-export const { useGetIssuesQuery, useCreateIssueMutation } = issueApi;
+export const { 
+  useGetIssuesQuery, 
+  useGetIssueByIdQuery, 
+  useCreateIssueMutation,
+  useUpdateIssueMutation 
+} = issueApi;
