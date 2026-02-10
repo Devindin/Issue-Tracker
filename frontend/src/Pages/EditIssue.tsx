@@ -14,12 +14,14 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
+import StatusModal from "../Components/StatusModal";
 import { useGetIssueByIdQuery, useUpdateIssueMutation } from "../features/issues/issueApi";
 
 const EditIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [submitError, setSubmitError] = useState<string>("");
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   
   const { data, isLoading, isError, error } = useGetIssueByIdQuery(id || "", {
     skip: !id, // Skip the query if id is undefined or empty
@@ -105,7 +107,7 @@ const EditIssue: React.FC = () => {
       
       await updateIssue(payload).unwrap();
 
-      navigate(`/issues/${id}`);
+      setShowSuccessModal(true);
     } catch (error: unknown) {
       console.error("Error updating issue:", error);
       const err = error as { data?: { message?: string; error?: string }; message?: string; error?: string };
@@ -542,6 +544,26 @@ const EditIssue: React.FC = () => {
           </Formik>
         </motion.div>
       </div>
+
+      {/* Success Modal */}
+      <StatusModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate("/issues");
+        }}
+        type="success"
+        title="Issue Updated Successfully!"
+        message={`Issue <span class="font-semibold text-indigo-600">#${id}</span> has been updated successfully.`}
+        primaryAction={{
+          label: "View Issue",
+          to: `/issues/${id}`,
+        }}
+        secondaryAction={{
+          label: "Back to Issues",
+          to: "/issues",
+        }}
+      />
     </PageLayout>
   );
 };
