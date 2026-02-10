@@ -3,6 +3,92 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authmiddleware");
 const User = require("../models/User");
 
+// Get current user's profile
+router.get("/profile", authMiddleware, async (req, res) => {
+  try {
+    console.log("=== GET /users/profile ===");
+    console.log("User ID:", req.user?.userId);
+
+    const user = await User.findById(req.user?.userId)
+      .select("-password")
+      .populate("company", "name description");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      message: "Profile fetched successfully",
+      profile: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        location: user.location || '',
+        website: user.website || '',
+        bio: user.bio || '',
+        avatar: user.avatar || '',
+        role: user.role,
+        company: {
+          id: user.company._id,
+          name: user.company.name,
+          description: user.company.description,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Fetch profile error:", error);
+    return res.status(500).json({ message: error?.message || "Server error" });
+  }
+});
+
+// Update current user's profile
+router.put("/profile", authMiddleware, async (req, res) => {
+  try {
+    const { name, phone, location, website, bio, avatar } = req.body;
+
+    console.log("=== PUT /users/profile ===");
+    console.log("User ID:", req.user?.userId);
+    console.log("Update data:", { name, phone, location, website, bio, avatar: avatar ? '[PROVIDED]' : '[NONE]' });
+
+    const user = await User.findById(req.user?.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update only the provided fields
+    if (name !== undefined) user.name = name.trim();
+    if (phone !== undefined) user.phone = phone.trim();
+    if (location !== undefined) user.location = location.trim();
+    if (website !== undefined) user.website = website.trim();
+    if (bio !== undefined) user.bio = bio.trim();
+    if (avatar !== undefined) user.avatar = avatar;
+
+    await user.save();
+
+    console.log("Profile updated successfully");
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      profile: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        location: user.location,
+        website: user.website,
+        bio: user.bio,
+        avatar: user.avatar,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return res.status(500).json({ message: error?.message || "Server error" });
+  }
+});
+
 // Get all users in the company
 router.get("/", authMiddleware, async (req, res) => {
   try {

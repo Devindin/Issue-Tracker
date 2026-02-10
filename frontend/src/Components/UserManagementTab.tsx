@@ -20,11 +20,9 @@ import {
 } from "../features/users/userApi";
 import DeleteUserModal from "./DeleteUserModal";
 
-interface UserManagementTabProps {
-  saveSettings: () => void;
-}
+interface UserManagementTabProps {}
 
-const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) => {
+const UserManagementTab: React.FC<UserManagementTabProps> = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [deletingUser, setDeletingUser] = useState<ManagedUser | null>(null);
@@ -138,7 +136,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
         setShowSuccessMessage(false);
         setSuccessUserName("");
       }, 3000);
-      saveSettings();
     } catch (err: any) {
       console.error('Failed to create user:', err);
       alert(`Failed to create user: ${err.data?.message || err.message || 'Unknown error'}`);
@@ -167,7 +164,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
         setShowSuccessMessage(false);
         setSuccessUserName("");
       }, 3000);
-      saveSettings();
     } catch (err: any) {
       console.error('Failed to update user:', err);
       alert(`Failed to update user: ${err.data?.message || err.message || 'Unknown error'}`);
@@ -186,7 +182,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
     try {
       await deleteUser(deletingUser.id).unwrap();
       setDeletingUser(null);
-      saveSettings();
     } catch (err: any) {
       console.error('Failed to delete user:', err);
       alert(`Failed to delete user: ${err.data?.message || err.message || 'Unknown error'}`);
@@ -202,7 +197,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
         id: user.id, 
         data: { status: newStatus } as any
       }).unwrap();
-      saveSettings();
     } catch (err: any) {
       console.error('Failed to toggle user status:', err);
       alert(`Failed to toggle user status: ${err.data?.message || err.message || 'Unknown error'}`);

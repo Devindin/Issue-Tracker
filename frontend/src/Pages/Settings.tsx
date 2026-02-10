@@ -14,62 +14,21 @@ import PageTitle from "../Components/PageTitle";
 import ProfileTab from "../Components/ProfileTab";
 import UserManagementTab from "../Components/UserManagementTab";
 import DeleteAccountModal from "../Components/DeleteAccountModal";
-import { type UserProfile } from "../types";
+import { useGetProfileQuery } from "../features/profile/profileApi";
 import {
-  setProfile,
   setActiveTab,
-  setShowSuccessMessage,
-  loadSettingsFromStorage,
 } from "../features/settings/settingsSlice";
 
 const Settings: React.FC = () => {
   const dispatch = useDispatch();
   const [showDeleteModal, setShowDeleteModal] = React.useState<boolean>(false);
+  const [showSuccessMessage, setShowSuccessMessage] = React.useState<boolean>(false);
   
-  // Get state from Redux
-  const { profile, notifications, security, preferences, activeTab, showSuccessMessage } = useSelector(
-    (state: RootState) => state.settings
-  );
-
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const savedSettings = localStorage.getItem("userSettings");
-    if (savedSettings) {
-      const parsed = JSON.parse(savedSettings);
-      dispatch(loadSettingsFromStorage(parsed));
-    }
-  }, [dispatch]);
-
-  // Save settings
-  const saveSettings = () => {
-    const settings = {
-      profile,
-      notifications,
-      security,
-      preferences,
-    };
-    localStorage.setItem("userSettings", JSON.stringify(settings));
-    
-    // Update user in localStorage for other components
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    user.name = profile.name;
-    localStorage.setItem("user", JSON.stringify(user));
-
-    dispatch(setShowSuccessMessage(true));
-    setTimeout(() => dispatch(setShowSuccessMessage(false)), 3000);
-  };
-
-  // Handle avatar upload
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        dispatch(setProfile({ avatar: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // Get active tab from Redux
+  const { activeTab } = useSelector((state: RootState) => state.settings);
+  
+  // Fetch profile from API
+  const { data: profile, isLoading: profileLoading, error: profileError } = useGetProfileQuery();
 
   // Delete account
   const deleteAccount = () => {
@@ -121,74 +80,89 @@ const Settings: React.FC = () => {
           )}
         </AnimatePresence>
 
-        <div className="space-y-6">
-          {/* Horizontal Tabs */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-white rounded-2xl shadow-md p-2"
-          >
-            <div className="flex flex-wrap gap-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => dispatch(setActiveTab(tab.id))}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all font-medium ${
-                    activeTab === tab.id
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
-                  }`}
-                >
-                  <span className="text-lg">{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </motion.div>
+        {/* Loading State */}
+        {profileLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          </div>
+        )}
 
-          {/* Content Area */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-md p-6"
-          >
-            {/* Profile Tab */}
-            {activeTab === "profile" && (
-              <ProfileTab
-                profile={profile}
-                setProfile={(updates: Partial<UserProfile>) => dispatch(setProfile(updates))}
-                handleAvatarUpload={handleAvatarUpload}
-                saveSettings={saveSettings}
-              />
-            )}
+        {/* Error State */}
+        {profileError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <p className="text-red-800">Failed to load profile. Please try again.</p>
+          </div>
+        )}
 
-            {/* Security Tab */}
-            {/* {activeTab === "security" && (
-              <SecurityTab
-                security={security}
-                setSecurity={(updates: Partial<SecuritySettings>) => dispatch(setSecurity(updates))}
-                saveSettings={saveSettings}
-              />
-            )} */}
+        {/* Content */}
+        {!profileLoading && profile && (
+          <div className="space-y-6">
+            {/* Horizontal Tabs */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="bg-white rounded-2xl shadow-md p-2"
+            >
+              <div className="flex flex-wrap gap-2">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => dispatch(setActiveTab(tab.id))}
+                    className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all font-medium ${
+                      activeTab === tab.id
+                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
+                    }`}
+                  >
+                    <span className="text-lg">{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
 
-            {/* Notifications Tab */}
-            {/* {activeTab === "notifications" && (
-              <NotificationsTab
-                notifications={notifications}
-                setNotifications={(updates: Partial<NotificationSettings>) => dispatch(setNotifications(updates))}
-                saveSettings={saveSettings}
-              />
-            )} */}
+            {/* Content Area */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="bg-white rounded-2xl shadow-md p-6"
+            >
+              {/* Profile Tab */}
+              {activeTab === "profile" && (
+                <ProfileTab
+                  profile={profile}
+                  onSuccess={() => {
+                    setShowSuccessMessage(true);
+                    setTimeout(() => setShowSuccessMessage(false), 3000);
+                  }}
+                />
+              )}
 
-            {/* User Management Tab */}
-            {activeTab === "users" && (
-              <UserManagementTab saveSettings={saveSettings} />
-            )}
+              {/* Security Tab */}
+              {/* {activeTab === "security" && (
+                <SecurityTab
+                  security={security}
+                  setSecurity={(updates: Partial<SecuritySettings>) => dispatch(setSecurity(updates))}
+                  saveSettings={saveSettings}
+                />
+              )} */}
 
-          </motion.div>
-        </div>
+              {/* Notifications Tab */}
+              {/* {activeTab === "notifications" && (
+                <NotificationsTab
+                  notifications={notifications}
+                  setNotifications={(updates: Partial<NotificationSettings>) => dispatch(setNotifications(updates))}
+                  saveSettings={saveSettings}
+                />
+              )} */}
+
+              {/* User Management Tab */}
+              {activeTab === "users" && <UserManagementTab />}
+            </motion.div>
+          </div>
+        )}
 
         {/* Delete Account Modal */}
         <DeleteAccountModal

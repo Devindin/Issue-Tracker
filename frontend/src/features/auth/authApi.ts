@@ -29,14 +29,6 @@ interface AuthResponse {
   };
 }
 
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  company: string;
-}
-
 interface VerifyEmailPayload {
   email: string;
 }
@@ -132,35 +124,6 @@ export const authApi = apiSlice.injectEndpoints({
       },
       invalidatesTags: ["Auth"],
     }),
-    getProfile: builder.query<UserProfile, void>({
-      query: () => {
-        console.log('[API] GET Profile - Request:', {
-          url: '/auth/me',
-          timestamp: new Date().toISOString()
-        });
-        return "/auth/me";
-      },
-      transformResponse: (response: UserProfile) => {
-        console.log('[API] GET Profile - Success:', {
-          userId: response.id,
-          userName: response.name,
-          email: response.email,
-          role: response.role,
-          company: response.company,
-          timestamp: new Date().toISOString()
-        });
-        return response;
-      },
-      transformErrorResponse: (error: any) => {
-        console.error('[API] GET Profile - Error:', {
-          status: error.status,
-          data: error.data,
-          timestamp: new Date().toISOString()
-        });
-        return error;
-      },
-      providesTags: ["Auth"],
-    }),
     verifyEmail: builder.mutation<VerifyEmailResponse, VerifyEmailPayload>({
       query: (payload) => {
         console.log('[API] VERIFY Email - Request:', {
@@ -227,7 +190,6 @@ export const authApi = apiSlice.injectEndpoints({
 export const {
   useRegisterCompanyMutation,
   useLoginMutation,
-  useGetProfileQuery,
   useVerifyEmailMutation,
   useResetPasswordMutation,
 } = authApi;
