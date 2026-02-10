@@ -18,7 +18,6 @@ import { type Issue, type SortField, type SortOrder } from "../types";
 import { useGetIssuesQuery } from "../features/issues/issueApi";
 
 const Issues: React.FC = () => {
-  const { data, isLoading, isError, error } = useGetIssuesQuery();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterPriority, setFilterPriority] = useState<string>("All");
@@ -45,21 +44,20 @@ const Issues: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Fetch issues with search and filters
+  const { data, isLoading, isError, error } = useGetIssuesQuery({
+    search: debouncedSearch || undefined,
+    status: filterStatus !== "All" ? filterStatus : undefined,
+    priority: filterPriority !== "All" ? filterPriority : undefined,
+    severity: filterSeverity !== "All" ? filterSeverity : undefined,
+  });
+
   // Get issues from API response
   const issues = data?.issues || [];
 
-  // Filter and sort issues
+  // Apply client-side filters for assignee and completedDate (not handled by API)
   const filteredAndSortedIssues = useCallback(() => {
     let filtered = issues.filter((issue) => {
-      const matchesSearch =
-        issue.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        issue.description.toLowerCase().includes(debouncedSearch.toLowerCase());
-      const matchesStatus =
-        filterStatus === "All" || issue.status === filterStatus;
-      const matchesPriority =
-        filterPriority === "All" || issue.priority === filterPriority;
-      const matchesSeverity =
-        filterSeverity === "All" || issue.severity === filterSeverity;
       const matchesAssignee =
         filterAssignee === "All" || (issue.assignee && issue.assignee.name === filterAssignee);
       const matchesCompletedDate = (() => {
@@ -85,7 +83,7 @@ const Issues: React.FC = () => {
             return true;
         }
       })();
-      return matchesSearch && matchesStatus && matchesPriority && matchesSeverity && matchesAssignee && matchesCompletedDate;
+      return matchesAssignee && matchesCompletedDate;
     });
 
     // Sort
@@ -108,7 +106,7 @@ const Issues: React.FC = () => {
     });
 
     return filtered;
-  }, [issues, debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterCompletedDate, sortField, sortOrder]);
+  }, [issues, filterAssignee, filterCompletedDate, sortField, sortOrder]);
 
   const filteredIssues = filteredAndSortedIssues();
 

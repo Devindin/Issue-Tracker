@@ -4,10 +4,38 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authmiddleware");
 const Issue = require("../models/Issue");
 
-// Get all issues for the user's company
+// Get all issues for the user's company with optional search and filters
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const issues = await Issue.find({ company: req.user?.companyId })
+    const { search, status, priority, severity } = req.query;
+    
+    // Build query
+    const query = { company: req.user?.companyId };
+    
+    // Add search filter (case-insensitive)
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Add status filter
+    if (status && status !== 'All') {
+      query.status = status;
+    }
+    
+    // Add priority filter
+    if (priority && priority !== 'All') {
+      query.priority = priority;
+    }
+    
+    // Add severity filter
+    if (severity && severity !== 'All') {
+      query.severity = severity;
+    }
+
+    const issues = await Issue.find(query)
       .populate("assignee", "name email")
       .populate("reporter", "name email")
       .sort({ createdAt: -1 });
