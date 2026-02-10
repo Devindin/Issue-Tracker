@@ -18,6 +18,7 @@ import {
   useUpdateUserMutation,
   useDeleteUserMutation
 } from "../features/users/userApi";
+import DeleteUserModal from "./DeleteUserModal";
 
 interface UserManagementTabProps {
   saveSettings: () => void;
@@ -26,6 +27,7 @@ interface UserManagementTabProps {
 const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
+  const [deletingUser, setDeletingUser] = useState<ManagedUser | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successUserName, setSuccessUserName] = useState("");
 
@@ -172,16 +174,23 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
     }
   };
 
-  // Handle delete user
-  const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user?')) return;
+  // Handle delete user - open modal
+  const handleDeleteUser = (user: ManagedUser) => {
+    setDeletingUser(user);
+  };
+
+  // Confirm delete user - actual deletion
+  const confirmDeleteUser = async () => {
+    if (!deletingUser) return;
 
     try {
-      await deleteUser(userId).unwrap();
+      await deleteUser(deletingUser.id).unwrap();
+      setDeletingUser(null);
       saveSettings();
     } catch (err: any) {
       console.error('Failed to delete user:', err);
       alert(`Failed to delete user: ${err.data?.message || err.message || 'Unknown error'}`);
+      setDeletingUser(null);
     }
   };
 
@@ -350,7 +359,7 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
                         {user.status === "active" ? <FaTimes /> : <FaCheck />}
                       </button>
                       <button
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => handleDeleteUser(user)}
                         disabled={isUpdating || isDeleting}
                         className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Delete user"
@@ -558,6 +567,15 @@ const UserManagementTab: React.FC<UserManagementTabProps> = ({ saveSettings }) =
           </motion.div>
         </div>
       )}
+
+      {/* Delete User Modal */}
+      <DeleteUserModal
+        isOpen={!!deletingUser}
+        onClose={() => setDeletingUser(null)}
+        onConfirm={confirmDeleteUser}
+        userName={deletingUser?.name || ''}
+        isDeleting={isDeleting}
+      />
     </motion.div>
   );
 };
