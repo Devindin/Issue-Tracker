@@ -14,8 +14,6 @@ import PageTitle from "../Components/PageTitle";
 import ProfileTab from "../Components/ProfileTab";
 import SecurityTab from "../Components/SecurityTab";
 import NotificationsTab from "../Components/NotificationsTab";
-import PreferencesTab from "../Components/PreferencesTab";
-import DataPrivacyTab from "../Components/DataPrivacyTab";
 import UserManagementTab from "../Components/UserManagementTab";
 import DeleteAccountModal from "../Components/DeleteAccountModal";
 import { type UserProfile, type NotificationSettings, type SecuritySettings, type PreferenceSettings } from "../types";
@@ -118,9 +116,7 @@ const Settings: React.FC = () => {
     { id: "profile", label: "Profile", icon: <FaUser /> },
     { id: "security", label: "Security", icon: <FaLock /> },
     { id: "notifications", label: "Notifications", icon: <FaBell /> },
-    { id: "preferences", label: "Preferences", icon: <FaPalette /> },
     { id: "users", label: "User Management", icon: <FaShieldAlt /> },
-    { id: "data", label: "Data & Privacy", icon: <FaDatabase /> },
   ];
 
   return (
@@ -219,24 +215,11 @@ const Settings: React.FC = () => {
               />
             )}
 
-            {/* Preferences Tab */}
-            {activeTab === "preferences" && (
-              <PreferencesTab
-                preferences={preferences}
-                setPreferences={setPreferences}
-                saveSettings={saveSettings}
-              />
-            )}
-
             {/* User Management Tab */}
             {activeTab === "users" && (
               <UserManagementTab saveSettings={saveSettings} />
             )}
 
-            {/* Data & Privacy Tab */}
-            {activeTab === "data" && (
-              <DataPrivacyTab setShowDeleteModal={setShowDeleteModal} />
-            )}
           </motion.div>
         </div>
 
