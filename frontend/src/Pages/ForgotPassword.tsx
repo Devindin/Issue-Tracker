@@ -2,15 +2,21 @@ import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import PrimaryButton from "../Components/PrimaryButton";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Footer from "../Components/Footer";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { FaArrowLeft, FaEnvelope, FaCheckCircle } from "react-icons/fa";
+import { FaArrowLeft, FaEnvelope, FaCheckCircle, FaLock } from "react-icons/fa";
 import AuthBackground from "../Components/AuthBackground";
+import { useVerifyEmailMutation, useResetPasswordMutation } from "../features/auth/authApi";
 
 interface ForgotPasswordFormValues {
   email: string;
+}
+
+interface ResetPasswordFormValues {
+  newPassword: string;
+  confirmPassword: string;
 }
 
 const forgotPasswordValidationSchema = Yup.object({
@@ -19,8 +25,23 @@ const forgotPasswordValidationSchema = Yup.object({
     .required("Email is required"),
 });
 
+const resetPasswordValidationSchema = Yup.object({
+  newPassword: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("New password is required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("newPassword")], "Passwords must match")
+    .required("Please confirm your password"),
+});
+
 function ForgotPassword(): React.JSX.Element {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [step, setStep] = useState<'verify' | 'reset' | 'success'>('verify');
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const [verifyEmail, { isLoading: isVerifying }] = useVerifyEmailMutation();
+  const [resetPassword, { isLoading: isResetting }] = useResetPasswordMutation();
 
   // Motion variants
   const containerVariants: Variants = {
@@ -39,22 +60,64 @@ function ForgotPassword(): React.JSX.Element {
 
   const handleSubmit = async (values: ForgotPasswordFormValues): Promise<void> => {
     try {
-      // TODO: Replace with actual API call
-      console.log("Forgot password request:", values);
+      setError('');
+      console.log('Verifying email:', values.email);
+      
+      const result = await verifyEmail({ email: values.email }).unwrap();
+      console.log('Verify email result:', result);
+      
+      if (result.exists) {
+        // Email exists, move to reset password step (clear any previous errors)
+        console.log('Email verified, moving to reset step');
+        setVerifiedEmail(values.email);
+        setError(''); // Clear errors before moving to next step
+        setStep('reset');
+      } else {
+        // Email doesn't exist
+        console.log('Email not found');
+        setError('No account found with this email address');
+      }
+    } catch (err: any) {
+      console.error("Verify email error:", err);
+      // Only show error in verify step
+      setError(err?.data?.message || 'No account found with this email address');
+    }
+  };
 
-      // Mock API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setIsSubmitted(true);
-    } catch (error) {
-      console.error("Forgot password error:", error);
-      // In a real app, you would show an error message here
+  const handleResetPassword = async (values: ResetPasswordFormValues): Promise<void> => {
+    try {
+      setError('');
+      
+      const result = await resetPassword({ 
+        email: verifiedEmail,
+        newPassword: values.newPassword 
+      }).unwrap();
+      
+      if (result.success) {
+        // Password reset successful (clear errors)
+        setError('');
+        setStep('success');
+        
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          navigate('/');
+        }, 3000);
+      }
+    } catch (err: any) {
+      console.error("Reset password error:", err);
+      // Only show error in reset step
+      setError(err?.data?.message || 'Failed to reset password. Please try again.');
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] relative overflow-hidden">
       <AuthBackground />
+
+      {/* Debug: Show current step */}
+      <div className="fixed top-4 left-4 bg-black text-white px-4 py-2 rounded text-sm z-50">
+        Current Step: {step}
+      </div>
 
       <motion.div
         className="w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border border-white/20 relative z-10"
@@ -73,64 +136,188 @@ function ForgotPassword(): React.JSX.Element {
             className="flex flex-col justify-center items-center flex-grow"
             variants={itemVariants}
           >
-            {!isSubmitted ? (
-              <Formik
-                initialValues={{ email: "" }}
-                validationSchema={forgotPasswordValidationSchema}
-                onSubmit={handleSubmit}
+            {/* Step 1: Verify Email */}
+            {step === 'verify' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full"
               >
-                {({ handleChange, values, errors, touched }) => (
-                  <Form className="flex flex-col w-full max-w-md space-y-4">
-                    <motion.div variants={itemVariants} className="text-center mb-6">
-                      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#00C6D7]/20 mb-4">
-                        <FaEnvelope className="h-8 w-8 text-[#00C6D7]" />
+                <Formik
+                  initialValues={{ email: "" }}
+                  validationSchema={forgotPasswordValidationSchema}
+                  onSubmit={handleSubmit}
+                >
+                  {({ handleChange, values, errors, touched }) => (
+                    <Form className="flex flex-col w-full max-w-md space-y-4">
+                      <div className="text-center mb-6">
+                        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#00C6D7]/20 mb-4">
+                          <FaEnvelope className="h-8 w-8 text-[#00C6D7]" />
+                        </div>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                          Forgot Password?
+                        </h1>
+                        <p className="text-gray-600">
+                          Enter your email address to verify your account.
+                        </p>
                       </div>
-                      <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                        Forgot Password?
-                      </h1>
-                      <p className="text-gray-600">
-                        Enter your email address and we'll send you a link to reset your password.
-                      </p>
-                    </motion.div>
 
-                    <motion.div variants={itemVariants}>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="example@email.com"
-                        value={values.email}
-                        onChange={handleChange}
-                        className={`w-full h-[36px] px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00C6D7] focus:border-transparent transition-colors ${
-                          errors.email && touched.email
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300"
-                        }`}
-                      />
-                      {errors.email && touched.email && (
-                        <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                      {/* Only show errors in verify step */}
+                      {error && (
+                        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                          {error}
+                        </div>
                       )}
-                    </motion.div>
 
-                    <motion.div variants={itemVariants}>
-                      <PrimaryButton label="Send Reset Link" type="submit" />
-                    </motion.div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="example@email.com"
+                          value={values.email}
+                          onChange={handleChange}
+                          className={`w-full h-[36px] px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00C6D7] focus:border-transparent transition-colors ${
+                            errors.email && touched.email
+                              ? "border-red-500 focus:ring-red-500"
+                              : "border-gray-300"
+                          }`}
+                        />
+                        {errors.email && touched.email && (
+                          <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                        )}
+                      </div>
 
-                    <motion.div variants={itemVariants} className="text-center">
-                      <Link
-                        to="/"
-                        className="inline-flex items-center gap-2 text-[#00C6D7] hover:text-[#1976D2] text-sm font-medium hover:underline transition-colors"
-                      >
-                        <FaArrowLeft className="text-xs" />
-                        Back to Sign In
-                      </Link>
-                    </motion.div>
-                  </Form>
-                )}
-              </Formik>
-            ) : (
+                      <PrimaryButton 
+                        label={isVerifying ? "Verifying..." : "Verify Email"} 
+                        type="submit"
+                        disabled={isVerifying}
+                      />
+
+                      <div className="text-center">
+                        <Link
+                          to="/"
+                          className="inline-flex items-center gap-2 text-[#00C6D7] hover:text-[#1976D2] text-sm font-medium hover:underline transition-colors"
+                        >
+                          <FaArrowLeft className="text-xs" />
+                          Back to Sign In
+                        </Link>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
+              </motion.div>
+            )}
+
+            {/* Step 2: Reset Password */}
+            {step === 'reset' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full"
+              >
+                <Formik
+                  initialValues={{ newPassword: "", confirmPassword: "" }}
+                  validationSchema={resetPasswordValidationSchema}
+                  onSubmit={handleResetPassword}
+                >
+                  {({ handleChange, values, errors, touched }) => (
+                    <Form className="flex flex-col w-full max-w-md space-y-4">
+                      <div className="text-center mb-6">
+                        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-[#00C6D7]/20 mb-4">
+                          <FaLock className="h-8 w-8 text-[#00C6D7]" />
+                        </div>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+                          Reset Password
+                        </h1>
+                        <p className="text-gray-600">
+                          Email verified! Now enter your new password.
+                        </p>
+                        <p className="text-sm text-gray-500 mt-2">
+                          Email: <span className="font-medium">{verifiedEmail}</span>
+                        </p>
+                      </div>
+
+                      {/* Only show errors in reset step */}
+                      {error && (
+                        <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                          {error}
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          New Password
+                        </label>
+                        <input
+                          type="password"
+                          name="newPassword"
+                          placeholder="Enter new password"
+                          value={values.newPassword}
+                          onChange={handleChange}
+                          className={`w-full h-[36px] px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00C6D7] focus:border-transparent transition-colors ${
+                            errors.newPassword && touched.newPassword
+                              ? "border-red-500 focus:ring-red-500"
+                              : "border-gray-300"
+                          }`}
+                        />
+                        {errors.newPassword && touched.newPassword && (
+                          <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Confirm Password
+                        </label>
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          placeholder="Confirm new password"
+                          value={values.confirmPassword}
+                          onChange={handleChange}
+                          className={`w-full h-[36px] px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00C6D7] focus:border-transparent transition-colors ${
+                            errors.confirmPassword && touched.confirmPassword
+                              ? "border-red-500 focus:ring-red-500"
+                              : "border-gray-300"
+                          }`}
+                        />
+                        {errors.confirmPassword && touched.confirmPassword && (
+                          <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                        )}
+                      </div>
+
+                      <PrimaryButton 
+                        label={isResetting ? "Resetting..." : "Reset Password"} 
+                        type="submit"
+                        disabled={isResetting}
+                      />
+
+                      <div className="text-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStep('verify');
+                            setError('');
+                          }}
+                          className="inline-flex items-center gap-2 text-[#00C6D7] hover:text-[#1976D2] text-sm font-medium hover:underline transition-colors"
+                        >
+                          <FaArrowLeft className="text-xs" />
+                          Back to Email Verification
+                        </button>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
+              </motion.div>
+            )}
+
+            {/* Step 3: Success */}
+            {step === 'success' && (
               <motion.div
                 className="text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -141,17 +328,20 @@ function ForgotPassword(): React.JSX.Element {
                   <FaCheckCircle className="h-8 w-8 text-green-600" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                  Check Your Email
+                  Password Reset Successfully!
                 </h1>
                 <p className="text-gray-600 mb-6">
-                  We've sent a password reset link to your email address. Please check your inbox and follow the instructions to reset your password.
+                  Your password has been reset successfully. You can now sign in with your new password.
+                </p>
+                <p className="text-sm text-gray-500 mb-6">
+                  Redirecting to sign in page in 3 seconds...
                 </p>
                 <Link
                   to="/"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0A3D91] to-[#00C6D7] hover:from-[#1976D2] hover:to-[#1976D2] text-white rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                 >
                   <FaArrowLeft className="text-sm" />
-                  Back to Sign In
+                  Sign In Now
                 </Link>
               </motion.div>
             )}
