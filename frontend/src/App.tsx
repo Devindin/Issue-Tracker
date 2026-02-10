@@ -7,7 +7,9 @@ import Issues from "./Pages/Issues";
 import ViewIssue from "./Pages/ViewIssue";
 import EditIssue from "./Pages/EditIssue";
 import CreateIssue from "./Pages/CreateIssue";
-import Reports from "./Pages/Reports";
+import ProjectsPage from "./Pages/ProjectsPage";
+import CreateProject from "./Pages/CreateProject";
+import EditProject from "./Pages/EditProject";
 import Settings from "./Pages/Settings";
 import ProtectedRoute from "./Components/ProtectedRoute";
 
@@ -24,7 +26,9 @@ function App() {
         <Route path="/issues/:id" element={<ProtectedRoute><ViewIssue /></ProtectedRoute>} />
         <Route path="/issues/:id/edit" element={<ProtectedRoute><EditIssue /></ProtectedRoute>} />
         <Route path="/issues/new" element={<ProtectedRoute><CreateIssue /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+        <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
+        <Route path="/projects/new" element={<ProtectedRoute><CreateProject /></ProtectedRoute>} />
+        <Route path="/projects/:id/edit" element={<ProtectedRoute><EditProject /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>

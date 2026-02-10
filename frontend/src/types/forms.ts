@@ -6,6 +6,7 @@ export interface IssueFormData {
   severity: string;
   status: string;
   assigneeId: string;
+  projectId?: string;
 }
 
 export interface LoginFormData {
