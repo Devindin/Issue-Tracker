@@ -14,23 +14,13 @@ import {
   FaTrash,
   FaMinus,
 } from "react-icons/fa";
-
-interface Issue {
-  id: number;
-  title: string;
-  description: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High" | "Critical";
-  severity: "Minor" | "Major" | "Critical";
-  createdAt: string;
-  updatedAt: string;
-}
+import type { Issue } from "../types";
 
 interface IssueCardProps {
   issue: Issue;
   viewMode?: "grid" | "list";
   index?: number;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number | string) => void;
 }
 
 const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index = 0, onDelete }) => {

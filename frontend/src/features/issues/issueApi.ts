@@ -127,7 +127,7 @@ export const issueApi = apiSlice.injectEndpoints({
         });
         return error;
       },
-      providesTags: (result, error, id) => [{ type: "Issue", id }],
+      providesTags: (_result, _error, id) => [{ type: "Issue", id }],
     }),
     createIssue: builder.mutation<IssueResponse, CreateIssuePayload>({
       query: (payload) => {
@@ -194,7 +194,7 @@ export const issueApi = apiSlice.injectEndpoints({
         });
         return error;
       },
-      invalidatesTags: (result, error, { id }) => [{ type: "Issue", id }, "Issue"],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Issue", id }, "Issue"],
     }),
   }),
 });
