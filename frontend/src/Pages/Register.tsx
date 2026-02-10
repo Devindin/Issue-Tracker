@@ -75,18 +75,13 @@ function Register(): React.JSX.Element {
       }
 
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Register error:", error);
-      const err = error as
-        | { data?: { message?: string; error?: string } }
-        | { message?: string }
-        | { error?: string }
-        | undefined;
       const message =
-        err?.data?.message ||
-        err?.data?.error ||
-        err?.message ||
-        err?.error ||
+        error?.data?.message ||
+        error?.data?.error ||
+        error?.message ||
+        error?.error ||
         "Registration failed. Please try again.";
       setSubmitError(message);
     }

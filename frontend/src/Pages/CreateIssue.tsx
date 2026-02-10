@@ -63,18 +63,13 @@ const CreateIssue: React.FC = () => {
 
       setCreatedIssueId(result?.issue?.id || null);
       setShowSuccessModal(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating issue:", error);
-      const err = error as
-        | { data?: { message?: string; error?: string } }
-        | { message?: string }
-        | { error?: string }
-        | undefined;
       const message =
-        err?.data?.message ||
-        err?.data?.error ||
-        err?.message ||
-        err?.error ||
+        error?.data?.message ||
+        error?.data?.error ||
+        error?.message ||
+        error?.error ||
         "Failed to create issue. Please try again.";
       setSubmitError(message);
     }

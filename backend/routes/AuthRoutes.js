@@ -24,16 +24,9 @@ router.post('/register-company', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Check if company email already exists
-    const existingCompany = await Company.findOne({ email });
-    if (existingCompany) {
-      return res.status(400).json({ message: 'Company email already exists' });
-    }
-
     // Create company
     const company = new Company({
       name: companyName,
-      email,
       description: companyDescription,
       owner: null // Will set after creating user
     });
