@@ -40,6 +40,10 @@ const issueSchema = new mongoose.Schema({
     ref: 'Company',
     required: true
   },
+  project: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project'
+  },
   completedAt: {
     type: Date
   }
