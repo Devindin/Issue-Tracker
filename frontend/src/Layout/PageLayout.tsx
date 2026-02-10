@@ -5,7 +5,7 @@ import {
   FaHome,
   FaCog,
   FaExclamationTriangle,
-  FaChartBar,
+  FaFolder,
   FaSignOutAlt,
   FaBars,
   FaPlus,
@@ -62,7 +62,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { icon: <FaHome />, label: "Dashboard", path: "/dashboard" },
     { icon: <FaExclamationTriangle />, label: "Issues", path: "/issues" },
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
-    { icon: <FaChartBar />, label: "Reports", path: "/reports" },
+    { icon: <FaFolder />, label: "Projects", path: "/projects" },
     { icon: <FaCog />, label: "Settings", path: "/settings" },
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];

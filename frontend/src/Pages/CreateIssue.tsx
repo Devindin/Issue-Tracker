@@ -15,6 +15,7 @@ import PageTitle from "../Components/PageTitle";
 import StatusModal from "../Components/StatusModal";
 import { type IssueFormData } from "../types";
 import { useCreateIssueMutation } from "../features/issues/issueApi";
+import { useGetProjectsQuery } from "../features/projects/projectApi";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -36,6 +37,7 @@ const validationSchema = Yup.object({
     .oneOf(["Minor", "Major", "Critical"], "Invalid severity")
     .required("Severity is required"),
   assigneeId: Yup.string(),
+  projectId: Yup.string(),
 });
 
 const CreateIssue: React.FC = () => {
@@ -45,6 +47,7 @@ const CreateIssue: React.FC = () => {
   const [createdIssueId, setCreatedIssueId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string>("");
   const [createIssue, { isLoading }] = useCreateIssueMutation();
+  const { data: projects = [] } = useGetProjectsQuery({ status: "active" });
 
   // Character count limits
   const TITLE_MAX_LENGTH = 100;
@@ -68,6 +71,7 @@ const CreateIssue: React.FC = () => {
         priority: values.priority,
         severity: values.severity,
         assigneeId,
+        projectId: values.projectId || undefined,
       }).unwrap();
 
       setCreatedIssueId(result?.issue?.id?.toString() || null);
@@ -143,6 +147,7 @@ const CreateIssue: React.FC = () => {
             priority: "Medium",
             severity: "Minor",
             assigneeId: "",
+            projectId: "",
           }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
@@ -374,6 +379,53 @@ const CreateIssue: React.FC = () => {
                         {values.severity}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Project */}
+                  <div>
+                    <label
+                      htmlFor="projectId"
+                      className="block text-sm font-semibold text-gray-700 mb-2"
+                    >
+                      Project
+                    </label>
+                    <div className="relative">
+                      <Field
+                        as="select"
+                        id="projectId"
+                        name="projectId"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
+                      >
+                        <option value="">No Project</option>
+                        {projects.map((project) => (
+                          <option key={project._id} value={project._id}>
+                            {project.icon} {project.name} ({project.key})
+                          </option>
+                        ))}
+                      </Field>
+                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg
+                          className="w-4 h-4 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    {values.projectId && (
+                      <div className="mt-2">
+                        <span className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border bg-indigo-100 border-indigo-300 text-indigo-700">
+                          {projects.find(p => p._id === values.projectId)?.icon} {projects.find(p => p._id === values.projectId)?.name}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Assignee */}
