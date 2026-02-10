@@ -110,11 +110,14 @@ router.post("/", authMiddleware, async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+    // Check if user already exists in THIS company only
+    const existingUser = await User.findOne({ 
+      email: email.toLowerCase().trim(),
+      company: req.user?.companyId  // Email must be unique per company, not globally
+    });
     if (existingUser) {
       return res.status(400).json({ 
-        message: "User with this email already exists" 
+        message: "User with this email already exists in your company" 
       });
     }
 
@@ -261,14 +264,15 @@ router.put("/:id", authMiddleware, async (req, res) => {
     // Update fields
     if (name !== undefined) user.name = name.trim();
     if (email !== undefined) {
-      // Check if email is being changed to an existing email
+      // Check if email is being changed to an existing email IN THIS COMPANY
       const existingUser = await User.findOne({ 
         email: email.toLowerCase().trim(),
+        company: req.user?.companyId,  // Email must be unique per company
         _id: { $ne: id }
       });
       if (existingUser) {
         return res.status(400).json({ 
-          message: "User with this email already exists" 
+          message: "User with this email already exists in your company" 
         });
       }
       user.email = email.toLowerCase().trim();

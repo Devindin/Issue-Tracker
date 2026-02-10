@@ -21,9 +21,9 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
     lowercase: true,
     trim: true
+    // Note: unique removed - will use compound index with company
   },
   password: {
     type: String,
@@ -59,12 +59,24 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving
-userSchema.pre('save', async function() {
-  if (!this.isModified('password')) return;
+// Compound index: Email must be unique per company
+// Same email can exist in different companies
+userSchema.index({ email: 1, company: 1 }, { unique: true });
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  try {
+    if (!this.isModified('password')) {
+      return next();
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    console.error('Password hashing error:', error);
+    next(error);
+  }
 });
 
 // Compare password method
