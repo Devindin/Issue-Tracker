@@ -14,11 +14,10 @@ import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
 import DeleteModal from "../Components/DeleteModal";
 import Pagination from "../Components/Pagination";
-import { type Issue, type SortField, type SortOrder } from "../types";
-import { useGetIssuesQuery } from "../features/issues/issueApi";
+import { type SortField, type SortOrder } from "../types";
+import { useGetIssuesQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
 
 const Issues: React.FC = () => {
-  const { data, isLoading, isError, error } = useGetIssuesQuery();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterPriority, setFilterPriority] = useState<string>("All");
@@ -29,7 +28,7 @@ const Issues: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [issueToDelete, setIssueToDelete] = useState<number | null>(null);
+  const [issueToDelete, setIssueToDelete] = useState<number | string | null>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
   const itemsPerPage = 6;
@@ -45,21 +44,23 @@ const Issues: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  // Fetch issues with search and filters
+  const { data, isLoading, isError, error } = useGetIssuesQuery({
+    search: debouncedSearch || undefined,
+    status: filterStatus !== "All" ? filterStatus : undefined,
+    priority: filterPriority !== "All" ? filterPriority : undefined,
+    severity: filterSeverity !== "All" ? filterSeverity : undefined,
+  });
+
+  // Delete mutation
+  const [deleteIssue] = useDeleteIssueMutation();
+
   // Get issues from API response
   const issues = data?.issues || [];
 
-  // Filter and sort issues
+  // Apply client-side filters for assignee and completedDate (not handled by API)
   const filteredAndSortedIssues = useCallback(() => {
     let filtered = issues.filter((issue) => {
-      const matchesSearch =
-        issue.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        issue.description.toLowerCase().includes(debouncedSearch.toLowerCase());
-      const matchesStatus =
-        filterStatus === "All" || issue.status === filterStatus;
-      const matchesPriority =
-        filterPriority === "All" || issue.priority === filterPriority;
-      const matchesSeverity =
-        filterSeverity === "All" || issue.severity === filterSeverity;
       const matchesAssignee =
         filterAssignee === "All" || (issue.assignee && issue.assignee.name === filterAssignee);
       const matchesCompletedDate = (() => {
@@ -85,7 +86,7 @@ const Issues: React.FC = () => {
             return true;
         }
       })();
-      return matchesSearch && matchesStatus && matchesPriority && matchesSeverity && matchesAssignee && matchesCompletedDate;
+      return matchesAssignee && matchesCompletedDate;
     });
 
     // Sort
@@ -94,10 +95,10 @@ const Issues: React.FC = () => {
 
       if (sortField === "priority") {
         const priorityOrder = { Low: 1, Medium: 2, High: 3, Critical: 4 };
-        comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+        comparison = priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder];
       } else if (sortField === "status") {
         const statusOrder = { Open: 1, "In Progress": 2, Resolved: 3, Closed: 4 };
-        comparison = statusOrder[a.status] - statusOrder[b.status];
+        comparison = statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
       } else if (sortField === "title") {
         comparison = a.title.localeCompare(b.title);
       } else {
@@ -108,7 +109,7 @@ const Issues: React.FC = () => {
     });
 
     return filtered;
-  }, [issues, debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterCompletedDate, sortField, sortOrder]);
+  }, [issues, filterAssignee, filterCompletedDate, sortField, sortOrder]);
 
   const filteredIssues = filteredAndSortedIssues();
 
@@ -123,7 +124,7 @@ const Issues: React.FC = () => {
   }, [debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterCompletedDate]);
 
   // Delete issue
-  const handleDeleteClick = (id: number) => {
+  const handleDeleteClick = (id: number | string) => {
     setIssueToDelete(id);
     setShowDeleteModal(true);
   };
@@ -131,18 +132,10 @@ const Issues: React.FC = () => {
   const confirmDelete = async () => {
     if (issueToDelete) {
       try {
-        // TODO: Replace with actual API call
-        await fetch(`/api/issues/${issueToDelete}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
-        setIssues(issues.filter((issue) => issue.id !== issueToDelete));
+        await deleteIssue(issueToDelete.toString()).unwrap();
+        console.log("Issue deleted successfully:", issueToDelete);
       } catch (error) {
         console.error("Error deleting issue:", error);
-        // Mock delete for development
-        setIssues(issues.filter((issue) => issue.id !== issueToDelete));
       }
     }
     setShowDeleteModal(false);

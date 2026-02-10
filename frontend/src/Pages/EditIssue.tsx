@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -14,28 +14,19 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import { type User } from "../types";
-
-interface Issue {
-  id: number;
-  title: string;
-  description: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High" | "Critical";
-  severity: "Minor" | "Major" | "Critical";
-  assignee?: User;
-  assigneeId?: number;
-  completedAt?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import StatusModal from "../Components/StatusModal";
+import { useGetIssueByIdQuery, useUpdateIssueMutation } from "../features/issues/issueApi";
 
 const EditIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [issue, setIssue] = useState<Issue | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>("");
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+  
+  const { data, isLoading, isError, error } = useGetIssueByIdQuery(id || "", {
+    skip: !id, // Skip the query if id is undefined or empty
+  });
+  const [updateIssue, { isLoading: isUpdating }] = useUpdateIssueMutation();
 
   // Character count limits
   const TITLE_MAX_LENGTH = 100;
@@ -71,108 +62,8 @@ const EditIssue: React.FC = () => {
     return colors[status as keyof typeof colors];
   };
 
-  // Mock data - replace with actual API call
-  const mockIssues: Issue[] = [
-    {
-      id: 1,
-      title: "Login page not responsive on mobile devices",
-      description: "The login page layout breaks on mobile devices with screen width less than 375px. The form elements overlap and the submit button is not accessible.",
-      status: "Open",
-      priority: "High",
-      severity: "Major",
-      assignee: { id: 1, name: "John Doe", email: "john@example.com" },
-      createdAt: "2026-02-05T10:30:00Z",
-      updatedAt: "2026-02-05T10:30:00Z",
-    },
-    {
-      id: 2,
-      title: "Database connection timeout on high load",
-      description: "The application experiences database connection timeouts when there are more than 100 concurrent users. This causes 503 errors and affects user experience.",
-      status: "In Progress",
-      priority: "Critical",
-      severity: "Critical",
-      assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
-      createdAt: "2026-02-04T14:20:00Z",
-      updatedAt: "2026-02-06T09:15:00Z",
-    },
-    {
-      id: 3,
-      title: "Add export to CSV feature",
-      description: "Users want to export issue lists to CSV format for reporting purposes.",
-      status: "Open",
-      priority: "Medium",
-      severity: "Minor",
-      assignee: { id: 3, name: "Mike Johnson", email: "mike@example.com" },
-      createdAt: "2026-02-03T16:45:00Z",
-      updatedAt: "2026-02-03T16:45:00Z",
-    },
-    {
-      id: 4,
-      title: "Fix typo in dashboard title",
-      description: "Spelling mistake in the dashboard header section.",
-      status: "Resolved",
-      priority: "Low",
-      severity: "Minor",
-      assignee: { id: 4, name: "Sarah Wilson", email: "sarah@example.com" },
-      completedAt: "2026-02-06T10:30:00Z",
-      createdAt: "2026-02-02T11:00:00Z",
-      updatedAt: "2026-02-06T10:30:00Z",
-    },
-    {
-      id: 5,
-      title: "Performance issues on large datasets",
-      description: "Application slows down significantly when handling more than 1000 issues.",
-      status: "In Progress",
-      priority: "High",
-      severity: "Major",
-      assignee: { id: 1, name: "John Doe", email: "john@example.com" },
-      createdAt: "2026-02-01T08:30:00Z",
-      updatedAt: "2026-02-07T08:00:00Z",
-    },
-    {
-      id: 6,
-      title: "User authentication not working",
-      description: "Some users cannot log in with correct credentials.",
-      status: "Open",
-      priority: "Critical",
-      severity: "Critical",
-      createdAt: "2026-01-31T15:20:00Z",
-      updatedAt: "2026-01-31T15:20:00Z",
-    },
-    {
-      id: 7,
-      title: "Add dark mode support",
-      description: "Implement dark mode theme for better user experience.",
-      status: "Open",
-      priority: "Low",
-      severity: "Minor",
-      assignee: { id: 2, name: "Jane Smith", email: "jane@example.com" },
-      createdAt: "2026-01-30T12:15:00Z",
-      updatedAt: "2026-01-30T12:15:00Z",
-    },
-  ];
-
-  useEffect(() => {
-    const fetchIssue = async () => {
-      try {
-        // TODO: Replace with actual API call
-        // const response = await fetch(`/api/issues/${id}`);
-        // const data = await response.json();
-
-        // Mock fetch for development
-        const issueData = mockIssues.find(issue => issue.id === parseInt(id || "0"));
-        setIssue(issueData || null);
-      } catch (error) {
-        console.error("Error fetching issue:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchIssue();
-    }
-  }, [id]);
+  // Get issue from API response
+  const issue = data?.issue || null;
 
   const validationSchema = Yup.object({
     title: Yup.string()
@@ -192,39 +83,73 @@ const EditIssue: React.FC = () => {
     severity: Yup.string()
       .oneOf(["Minor", "Major", "Critical"], "Invalid severity")
       .required("Severity is required"),
-    assignee: Yup.string().optional(),
+    assigneeId: Yup.string().optional(),
   });
 
   const handleSubmit = async (values: any) => {
-    setSaving(true);
+    setSubmitError("");
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/issues/${id}`, {
-      //   method: "PUT",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      //   },
-      //   body: JSON.stringify(values),
-      // });
+      const payload: any = {
+        id: id || "",
+        title: values.title,
+        description: values.description,
+        status: values.status,
+        priority: values.priority,
+        severity: values.severity,
+      };
+      
+      // Only include assigneeId if it's a valid MongoDB ObjectId format (24 hex chars)
+      if (values.assigneeId && /^[0-9a-fA-F]{24}$/.test(values.assigneeId)) {
+        payload.assigneeId = values.assigneeId;
+      } else if (values.assigneeId === "") {
+        payload.assigneeId = null;
+      }
+      
+      await updateIssue(payload).unwrap();
 
-      // Mock update for development
-      console.log("Issue updated:", { id, ...values });
-      navigate(`/issues/${id}`);
-    } catch (error) {
+      setShowSuccessModal(true);
+    } catch (error: unknown) {
       console.error("Error updating issue:", error);
-    } finally {
-      setSaving(false);
+      const err = error as { data?: { message?: string; error?: string }; message?: string; error?: string };
+      const message =
+        err?.data?.message ||
+        err?.data?.error ||
+        err?.message ||
+        err?.error ||
+        "Failed to update issue. Please try again.";
+      setSubmitError(message);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <PageLayout>
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center">
             <FaSpinner className="animate-spin text-4xl text-[#1976D2] mx-auto mb-4" />
             <p className="text-gray-600">Loading issue...</p>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageLayout>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <FaExclamationCircle className="text-6xl text-red-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Error Loading Issue</h2>
+            <p className="text-gray-600 mb-6">
+              {(error as any)?.data?.message || "Failed to load issue. Please try again."}
+            </p>
+            <Link
+              to="/issues"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#1976D2] text-white rounded-xl font-semibold hover:bg-[#1565C0] transition-colors"
+            >
+              <FaArrowLeft /> Back to Issues
+            </Link>
           </div>
         </div>
       </PageLayout>
@@ -289,14 +214,21 @@ const EditIssue: React.FC = () => {
               status: issue.status,
               priority: issue.priority,
               severity: issue.severity,
-              assignee: issue.assignee?.name || "",
+              assigneeId: issue.assigneeId || "",
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
             {({ isSubmitting, values }) => (
-              <Form className="space-y-6">
-                {/* Main Information Card */}
+              <Form className="space-y-6">              {submitError && (
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
+                >
+                  {submitError}
+                </div>
+              )}                {/* Main Information Card */}
                 <div className="bg-white rounded-2xl shadow-md p-6">
                   <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <FaInfoCircle className="text-indigo-600" />
@@ -517,56 +449,25 @@ const EditIssue: React.FC = () => {
                     {/* Assignee */}
                     <div>
                       <label
-                        htmlFor="assignee"
+                        htmlFor="assigneeId"
                         className="block text-sm font-semibold text-gray-700 mb-2"
                       >
                         Assignee
                       </label>
                       <div className="relative">
                         <Field
-                          as="select"
-                          id="assignee"
-                          name="assignee"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
-                        >
-                          <option value="">Unassigned</option>
-                          <option value="Assign to me">👤 Assign to me</option>
-                          <option value="John Doe">John Doe</option>
-                          <option value="Jane Smith">Jane Smith</option>
-                          <option value="Mike Johnson">Mike Johnson</option>
-                          <option value="Sarah Wilson">Sarah Wilson</option>
-                          <option value="Alex Chen">Alex Chen</option>
-                          <option value="Emily Davis">Emily Davis</option>
-                          <option value="David Brown">David Brown</option>
-                          <option value="Lisa Garcia">Lisa Garcia</option>
-                        </Field>
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg
-                            className="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
+                          as="input"
+                          id="assigneeId"
+                          name="assigneeId"
+                          type="text"
+                          placeholder="Enter assignee ID (optional)"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50"
+                          readOnly
+                        />
                       </div>
-                      <div className="mt-2">
-                        <span
-                          className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                            values.assignee
-                              ? "bg-green-100 border-green-300 text-green-700"
-                              : "bg-gray-100 border-gray-300 text-gray-700"
-                          }`}
-                        >
-                          {values.assignee || "Unassigned"}
-                        </span>
-                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Current: {issue.assignee ? issue.assignee.name : "Unassigned"}
+                      </p>
                     </div>
                   </div>
 
@@ -601,12 +502,12 @@ const EditIssue: React.FC = () => {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <motion.button
                     type="submit"
-                    disabled={isSubmitting || saving}
-                    whileHover={{ scale: (isSubmitting || saving) ? 1 : 1.02 }}
-                    whileTap={{ scale: (isSubmitting || saving) ? 1 : 0.98 }}
+                    disabled={isSubmitting || isUpdating}
+                    whileHover={{ scale: (isSubmitting || isUpdating) ? 1 : 1.02 }}
+                    whileTap={{ scale: (isSubmitting || isUpdating) ? 1 : 0.98 }}
                     className="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed transition-all"
                   >
-                    {saving || isSubmitting ? (
+                    {isUpdating || isSubmitting ? (
                       <>
                         <motion.div
                           animate={{ rotate: 360 }}
@@ -643,6 +544,26 @@ const EditIssue: React.FC = () => {
           </Formik>
         </motion.div>
       </div>
+
+      {/* Success Modal */}
+      <StatusModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate("/issues");
+        }}
+        type="success"
+        title="Issue Updated Successfully!"
+        message={`Issue <span class="font-semibold text-indigo-600">#${id}</span> has been updated successfully.`}
+        primaryAction={{
+          label: "View Issue",
+          to: `/issues/${id}`,
+        }}
+        secondaryAction={{
+          label: "Back to Issues",
+          to: "/issues",
+        }}
+      />
     </PageLayout>
   );
 };

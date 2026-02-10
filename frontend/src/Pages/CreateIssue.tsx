@@ -8,11 +8,11 @@ import {
   FaSave,
   FaTimes,
   FaExclamationTriangle,
-  FaCheckCircle,
   FaInfoCircle,
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
+import StatusModal from "../Components/StatusModal";
 import { type IssueFormData } from "../types";
 import { useCreateIssueMutation } from "../features/issues/issueApi";
 
@@ -54,8 +54,12 @@ const CreateIssue: React.FC = () => {
   const handleSubmit = async (values: IssueFormData) => {
     setSubmitError("");
     try {
-      // Replace "me" with current user's ID
-      const assigneeId = values.assigneeId === "me" ? user?.id : values.assigneeId || undefined;
+      // Only send assigneeId if it's "me" (current user) or empty
+      let assigneeId: string | undefined = undefined;
+      if (values.assigneeId === "me" && user?.id) {
+        assigneeId = user.id;
+      }
+      // Ignore all other mock user IDs (1-8) as they're not real MongoDB ObjectIds
       
       const result = await createIssue({
         title: values.title,
@@ -66,7 +70,7 @@ const CreateIssue: React.FC = () => {
         assigneeId,
       }).unwrap();
 
-      setCreatedIssueId(result?.issue?.id || null);
+      setCreatedIssueId(result?.issue?.id?.toString() || null);
       setShowSuccessModal(true);
     } catch (error: unknown) {
       console.error("Error creating issue:", error);
@@ -514,100 +518,31 @@ const CreateIssue: React.FC = () => {
       </div>
 
       {/* Success Modal */}
-      {showSuccessModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-          onClick={() => {
+      <StatusModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate("/issues");
+        }}
+        type="success"
+        title="Issue Created Successfully!"
+        message={`Your issue has been created with ID <span class="font-semibold text-indigo-600">#${createdIssueId}</span>`}
+        primaryAction={{
+          label: "View Issue",
+          to: `/issues/${createdIssueId}`,
+        }}
+        secondaryAction={{
+          label: "Back to Issues",
+          to: "/issues",
+        }}
+        tertiaryAction={{
+          label: "Create Another Issue",
+          onClick: () => {
             setShowSuccessModal(false);
-            navigate("/issues");
-          }}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="text-center">
-              {/* Success Icon */}
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 15,
-                  delay: 0.2,
-                }}
-                className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4"
-              >
-                <FaCheckCircle className="h-10 w-10 text-green-600" />
-              </motion.div>
-
-              {/* Title */}
-              <motion.h3
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-2xl font-bold text-gray-900 mb-2"
-              >
-                Issue Created Successfully!
-              </motion.h3>
-
-              {/* Message */}
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-gray-600 mb-6"
-              >
-                Your issue has been created with ID{" "}
-                <span className="font-semibold text-indigo-600">
-                  #{createdIssueId}
-                </span>
-              </motion.p>
-
-              {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="flex flex-col sm:flex-row gap-3"
-              >
-                <Link to={`/issues/${createdIssueId}`} className="flex-1">
-                  <button className="w-full px-4 py-3 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow-lg shadow-indigo-200">
-                    View Issue
-                  </button>
-                </Link>
-                <Link to="/issues" className="flex-1">
-                  <button className="w-full px-4 py-3 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
-                    Back to Issues
-                  </button>
-                </Link>
-              </motion.div>
-
-              {/* Create Another */}
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                onClick={() => {
-                  setShowSuccessModal(false);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                className="mt-4 text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                Create Another Issue
-              </motion.button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          },
+        }}
+      />
     </PageLayout>
   );
 };

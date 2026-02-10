@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -19,120 +19,22 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import DeleteModal from "../Components/DeleteModal";
-
-interface Issue {
-  id: number;
-  title: string;
-  description: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  priority: "Low" | "Medium" | "High" | "Critical";
-  severity: "Minor" | "Major" | "Critical";
-  createdAt: string;
-  updatedAt: string;
-}
+import { useGetIssueByIdQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
 
 const ViewIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [issue, setIssue] = useState<Issue | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
 
-  // Mock data - replace with actual API call
-  const mockIssues: Issue[] = [
-    {
-      id: 1,
-      title: "Login page not responsive on mobile devices",
-      description: "The login page layout breaks on mobile devices with screen width less than 375px. The form elements overlap and the submit button is not accessible.",
-      status: "Open",
-      priority: "High",
-      severity: "Major",
-      createdAt: "2026-02-05T10:30:00Z",
-      updatedAt: "2026-02-05T10:30:00Z",
-    },
-    {
-      id: 2,
-      title: "Database connection timeout on high load",
-      description: "The application experiences database connection timeouts when there are more than 100 concurrent users. This causes 503 errors and affects user experience.",
-      status: "In Progress",
-      priority: "Critical",
-      severity: "Critical",
-      createdAt: "2026-02-04T14:20:00Z",
-      updatedAt: "2026-02-06T09:15:00Z",
-    },
-    {
-      id: 3,
-      title: "Add export to CSV feature",
-      description: "Users want to export issue lists to CSV format for reporting purposes.",
-      status: "Open",
-      priority: "Medium",
-      severity: "Minor",
-      createdAt: "2026-02-03T16:45:00Z",
-      updatedAt: "2026-02-03T16:45:00Z",
-    },
-    {
-      id: 4,
-      title: "Fix typo in dashboard title",
-      description: "Spelling mistake in the dashboard header section.",
-      status: "Resolved",
-      priority: "Low",
-      severity: "Minor",
-      createdAt: "2026-02-02T11:00:00Z",
-      updatedAt: "2026-02-06T10:30:00Z",
-    },
-    {
-      id: 5,
-      title: "Performance issues on large datasets",
-      description: "Application slows down significantly when handling more than 1000 issues.",
-      status: "In Progress",
-      priority: "High",
-      severity: "Major",
-      createdAt: "2026-02-01T08:30:00Z",
-      updatedAt: "2026-02-07T08:00:00Z",
-    },
-    {
-      id: 6,
-      title: "User authentication not working",
-      description: "Some users cannot log in with correct credentials.",
-      status: "Open",
-      priority: "Critical",
-      severity: "Critical",
-      createdAt: "2026-01-31T15:20:00Z",
-      updatedAt: "2026-01-31T15:20:00Z",
-    },
-    {
-      id: 7,
-      title: "Add dark mode support",
-      description: "Implement dark mode theme for better user experience.",
-      status: "Open",
-      priority: "Low",
-      severity: "Minor",
-      createdAt: "2026-01-30T12:15:00Z",
-      updatedAt: "2026-01-30T12:15:00Z",
-    },
-  ];
+  // Fetch issue data from API
+  const { data, isLoading, error } = useGetIssueByIdQuery(id || "", {
+    skip: !id,
+  });
 
-  useEffect(() => {
-    const fetchIssue = async () => {
-      try {
-        // TODO: Replace with actual API call
-        // const response = await fetch(`/api/issues/${id}`);
-        // const data = await response.json();
+  // Delete mutation
+  const [deleteIssue] = useDeleteIssueMutation();
 
-        // Mock fetch for development
-        const issueData = mockIssues.find(issue => issue.id === parseInt(id || "0"));
-        setIssue(issueData || null);
-      } catch (error) {
-        console.error("Error fetching issue:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchIssue();
-    }
-  }, [id]);
+  const issue = data?.issue;
 
   const getStatusBadge = (status: string) => {
     const styles = {
@@ -193,23 +95,15 @@ const ViewIssue: React.FC = () => {
     if (!issue) return;
 
     try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/issues/${issue.id}`, {
-      //   method: "DELETE",
-      //   headers: {
-      //     Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      //   },
-      // });
-
-      // Mock delete for development
-      console.log("Issue deleted:", issue.id);
+      await deleteIssue(issue.id.toString()).unwrap();
+      console.log("Issue deleted successfully:", issue.id);
       navigate("/issues");
     } catch (error) {
       console.error("Error deleting issue:", error);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <PageLayout>
         <div className="flex items-center justify-center min-h-96">
@@ -222,7 +116,7 @@ const ViewIssue: React.FC = () => {
     );
   }
 
-  if (!issue) {
+  if (error || !issue) {
     return (
       <PageLayout>
         <div className="flex items-center justify-center min-h-96">
@@ -346,14 +240,14 @@ const ViewIssue: React.FC = () => {
                   <FaUser className="text-gray-400" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">Reporter</p>
-                    <p className="text-sm text-gray-800">John Doe</p>
+                    <p className="text-sm text-gray-800">{issue.reporter?.name || "Unassigned"}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <FaUser className="text-gray-400" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">Assignee</p>
-                    <p className="text-sm text-gray-800">Jane Smith</p>
+                    <p className="text-sm text-gray-800">{issue.assignee?.name || "Unassigned"}</p>
                   </div>
                 </div>
               </div>
