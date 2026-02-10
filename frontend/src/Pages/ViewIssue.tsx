@@ -19,7 +19,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import DeleteModal from "../Components/DeleteModal";
-import { useGetIssueByIdQuery } from "../features/issues/issueApi";
+import { useGetIssueByIdQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
 
 const ViewIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +30,9 @@ const ViewIssue: React.FC = () => {
   const { data, isLoading, error } = useGetIssueByIdQuery(id || "", {
     skip: !id,
   });
+
+  // Delete mutation
+  const [deleteIssue] = useDeleteIssueMutation();
 
   const issue = data?.issue;
 
@@ -92,8 +95,8 @@ const ViewIssue: React.FC = () => {
     if (!issue) return;
 
     try {
-      // TODO: Implement delete API call
-      console.log("Issue deleted:", issue.id);
+      await deleteIssue(issue.id.toString()).unwrap();
+      console.log("Issue deleted successfully:", issue.id);
       navigate("/issues");
     } catch (error) {
       console.error("Error deleting issue:", error);

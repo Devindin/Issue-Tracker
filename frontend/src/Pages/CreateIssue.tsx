@@ -70,7 +70,7 @@ const CreateIssue: React.FC = () => {
         assigneeId,
       }).unwrap();
 
-      setCreatedIssueId(result?.issue?.id || null);
+      setCreatedIssueId(result?.issue?.id?.toString() || null);
       setShowSuccessModal(true);
     } catch (error: unknown) {
       console.error("Error creating issue:", error);

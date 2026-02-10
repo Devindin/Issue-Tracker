@@ -1,4 +1,5 @@
 import { apiSlice } from "../../services/apiSlice";
+import type { Issue } from "../../types";
 
 interface CreateIssuePayload {
   title: string;
@@ -7,31 +8,6 @@ interface CreateIssuePayload {
   priority: string;
   severity: string;
   assigneeId?: string;
-}
-
-interface Issue {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  severity: string;
-  assignee?: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
-  assigneeId?: string | null;
-  reporter?: {
-    id: string;
-    name: string;
-    email: string;
-  } | null;
-  reporterId?: string | null;
-  company: string;
-  completedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface IssueResponse {
@@ -196,6 +172,35 @@ export const issueApi = apiSlice.injectEndpoints({
       },
       invalidatesTags: (_result, _error, { id }) => [{ type: "Issue", id }, "Issue"],
     }),
+    deleteIssue: builder.mutation<{ message: string }, string>({
+      query: (id) => {
+        console.log('[API] DELETE Issue - Request:', {
+          id,
+          url: `/issues/${id}`,
+          timestamp: new Date().toISOString()
+        });
+        return {
+          url: `/issues/${id}`,
+          method: "DELETE",
+        };
+      },
+      transformResponse: (response: { message: string }) => {
+        console.log('[API] DELETE Issue - Success:', {
+          message: response.message,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      },
+      transformErrorResponse: (error: any) => {
+        console.error('[API] DELETE Issue - Error:', {
+          status: error.status,
+          data: error.data,
+          timestamp: new Date().toISOString()
+        });
+        return error;
+      },
+      invalidatesTags: ["Issue"],
+    }),
   }),
 });
 
@@ -203,5 +208,6 @@ export const {
   useGetIssuesQuery, 
   useGetIssueByIdQuery, 
   useCreateIssueMutation,
-  useUpdateIssueMutation 
+  useUpdateIssueMutation,
+  useDeleteIssueMutation 
 } = issueApi;

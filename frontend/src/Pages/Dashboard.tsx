@@ -13,9 +13,9 @@ import IssueCard from "../Components/IssueCard";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import { type Issue, type IssueStats } from "../types";
+import { useGetIssuesQuery } from "../features/issues/issueApi";
 
 const Dashboard: React.FC = () => {
-  const [issues, setIssues] = useState<Issue[]>([]);
   const [stats, setStats] = useState<IssueStats>({
     open: 0,
     inProgress: 0,
@@ -23,89 +23,20 @@ const Dashboard: React.FC = () => {
     closed: 0,
     total: 0,
   });
-  const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterPriority, setFilterPriority] = useState<string>("All");
 
-  // Fetch issues and calculate stats
-  useEffect(() => {
-    fetchIssues();
-  }, []);
+  // Fetch issues using RTK Query
+  const { data, isLoading, isError } = useGetIssuesQuery();
+  const issues = data?.issues || [];
 
-  const fetchIssues = async () => {
-    try {
-      setLoading(true);
-      // TODO: Replace with actual API call
-      const response = await fetch("/api/issues", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      const data = await response.json();
-      setIssues(data.issues || []);
-      calculateStats(data.issues || []);
-    } catch (error) {
-      console.error("Error fetching issues:", error);
-      // Mock data for development
-      const mockIssues: Issue[] = [
-        {
-          id: 1,
-          title: "Login page not responsive on mobile",
-          description: "The login page layout breaks on mobile devices",
-          status: "Open",
-          priority: "High",
-          severity: "Major",
-          createdAt: "2026-02-05T10:30:00Z",
-          updatedAt: "2026-02-05T10:30:00Z",
-        },
-        {
-          id: 2,
-          title: "Database connection timeout",
-          description: "Users experiencing timeout errors",
-          status: "In Progress",
-          priority: "High",
-          severity: "Critical",
-          createdAt: "2026-02-04T14:20:00Z",
-          updatedAt: "2026-02-06T09:15:00Z",
-        },
-        {
-          id: 3,
-          title: "Add export to CSV feature",
-          description: "Users want to export issue lists",
-          status: "Open",
-          priority: "Medium",
-          severity: "Minor",
-          createdAt: "2026-02-03T16:45:00Z",
-          updatedAt: "2026-02-03T16:45:00Z",
-        },
-        {
-          id: 4,
-          title: "Fix typo in dashboard title",
-          description: "Spelling mistake in header",
-          status: "Resolved",
-          priority: "Low",
-          severity: "Minor",
-          createdAt: "2026-02-02T11:00:00Z",
-          updatedAt: "2026-02-06T10:30:00Z",
-        },
-        {
-          id: 5,
-          title: "Performance issues on large datasets",
-          description: "Application slows down with 1000+ issues",
-          status: "In Progress",
-          priority: "High",
-          severity: "Major",
-          createdAt: "2026-02-01T08:30:00Z",
-          updatedAt: "2026-02-07T08:00:00Z",
-        },
-      ];
-      setIssues(mockIssues);
-      calculateStats(mockIssues);
-    } finally {
-      setLoading(false);
+  // Calculate stats when issues change
+  useEffect(() => {
+    if (issues.length > 0) {
+      calculateStats(issues);
     }
-  };
+  }, [issues]);
 
   const calculateStats = (issueList: Issue[]) => {
     const stats: IssueStats = {
@@ -262,9 +193,17 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className="flex items-center justify-center p-12">
               <FaSpinner className="text-4xl text-indigo-600 animate-spin" />
+            </div>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center p-12 text-red-500">
+              <FaExclamationCircle className="text-6xl mb-4" />
+              <p className="text-lg font-medium">Error loading issues</p>
+              <p className="text-sm mt-1">
+                Please check your connection and try again
+              </p>
             </div>
           ) : filteredIssues.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-gray-500">
