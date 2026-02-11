@@ -17,6 +17,8 @@ import {
   ArcElement,
 } from "chart.js";
 
+import AuthWrapper from "./AuthWrapper.tsx";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -32,7 +34,9 @@ ChartJS.register(
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <App />
+      <AuthWrapper>
+        <App />
+      </AuthWrapper>
     </Provider>
-  </StrictMode>
+  </StrictMode>,
 );
