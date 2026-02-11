@@ -166,85 +166,95 @@ const IssueCard: React.FC<IssueCardProps> = ({
     );
   }
 
-  // List View (default)
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="p-6 hover:bg-gray-50 transition-colors"
-    >
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        {/* Left Section */}
-        <div className="flex-1 min-w-0">
-          <Link to={`/issues/${issue.id}`} className="block group">
-            <div className="flex items-start gap-3">
-              <div className="flex-1 min-w-0">
-                <span className="text-gray-400 font-mono text-sm mt-1 flex-shrink-0">
-                  #{issue.id}
-                </span>
-                <h3 className="font-semibold text-gray-800 group-hover:text-[#1976D2] transition-colors mb-1">
-                  {issue.title}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                  {issue.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
-                      issue.status,
-                    )}`}
-                  >
-                    {getStatusIcon(issue.status)}
-                    {issue.status}
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
-                      issue.priority,
-                    )}`}
-                  >
-                    {getPriorityIcon(issue.priority)}
-                    {issue.priority}
-                  </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
-                    {issue.severity}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </Link>
+return (
+  <motion.div
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.3, delay: index * 0.05 }}
+    className="p-4 sm:p-5 md:p-6 hover:bg-gray-50 transition-colors"
+  >
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      
+      {/* Left Section */}
+      <div className="flex-1 min-w-0">
+        <Link to={`/issues/${issue.id}`} className="block group">
+          <span className="text-gray-400 font-mono text-xs sm:text-sm">
+            #{issue.id}
+          </span>
+
+          <h3 className="font-semibold text-gray-800 group-hover:text-[#1976D2] transition-colors 
+                         text-base sm:text-lg mt-1 break-words">
+            {issue.title}
+          </h3>
+
+          <p className="text-gray-600 text-sm mt-1 line-clamp-2 break-words">
+            {issue.description}
+          </p>
+
+          {/* Badges */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
+                issue.status
+              )}`}
+            >
+              {getStatusIcon(issue.status)}
+              {issue.status}
+            </span>
+
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
+                issue.priority
+              )}`}
+            >
+              {getPriorityIcon(issue.priority)}
+              {issue.priority}
+            </span>
+
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+              {issue.severity}
+            </span>
+          </div>
+        </Link>
+      </div>
+
+      {/* Right Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        
+        {/* Date (visible on mobile now) */}
+        <div className="text-xs text-gray-500 flex items-center gap-2">
+          <FaClock />
+          {formatDate(issue.createdAt)}
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center gap-4 flex-shrink-0">
-          <div className="text-xs text-gray-500 hidden lg:flex items-center gap-2">
-            <FaClock />
-            {formatDate(issue.createdAt)}
-          </div>
-          <div className="flex gap-2">
-            <Link to={`/issues/${issue.id}`}>
-              <button className="p-2 text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors">
-                <FaEye />
-              </button>
-            </Link>
-            <Link to={`/issues/${issue.id}/edit`}>
-              <button className="p-2 text-[#00C6D7] hover:bg-[#00C6D7]/10 rounded-lg transition-colors">
-                <FaEdit />
-              </button>
-            </Link>
-            {onDelete && (
-              <button
-                onClick={() => onDelete(issue.id)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <FaTrash />
-              </button>
-            )}
-          </div>
+        {/* Actions */}
+        <div className="flex gap-2">
+          <Link to={`/issues/${issue.id}`}>
+            <button className="p-2 text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors">
+              <FaEye />
+            </button>
+          </Link>
+
+          <Link to={`/issues/${issue.id}/edit`}>
+            <button className="p-2 text-[#00C6D7] hover:bg-[#00C6D7]/10 rounded-lg transition-colors">
+              <FaEdit />
+            </button>
+          </Link>
+
+          {onDelete && (
+            <button
+              onClick={() => onDelete(issue.id)}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              <FaTrash />
+            </button>
+          )}
         </div>
       </div>
-    </motion.div>
-  );
+    </div>
+  </motion.div>
+);
+
 };
 
 export default IssueCard;
