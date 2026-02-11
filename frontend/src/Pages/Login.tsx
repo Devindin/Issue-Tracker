@@ -90,7 +90,7 @@ function Login(): React.JSX.Element {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Form Section */}
+        {/* Form */}
         <motion.div
           className="flex flex-col justify-between p-8 sm:p-10"
           variants={containerVariants}
@@ -109,15 +109,7 @@ function Login(): React.JSX.Element {
             >
               {({ handleChange, values, errors, touched }) => (
                 <Form className="flex flex-col w-full max-w-md space-y-2">
-                  {submitError && (
-                    <div
-                      role="alert"
-                      aria-live="assertive"
-                      className="mb-2 rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
-                    >
-                      {submitError}
-                    </div>
-                  )}
+                 
                   <motion.div variants={itemVariants}>
                     <InputField
                       label="Email"
@@ -152,7 +144,15 @@ function Login(): React.JSX.Element {
                       Forgot Password?
                     </Link>
                   </motion.div>
-
+                   {submitError && (
+                    <div
+                      role="alert"
+                      aria-live="assertive"
+                      className="mb-2 rounded-md px-3 py-2 text-sm text-red-700"
+                    >
+                      {submitError}
+                    </div>
+                  )}
                   <motion.div variants={itemVariants}>
                     <PrimaryButton
                       label={isLoading ? "Signing In..." : "Sign In"}
