@@ -42,7 +42,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   sessionStorage.clear();
   setShowLogoutModal(false);
 
-  navigate("/login", { replace: true });
+  navigate("/", { replace: true });
 };
 
 
