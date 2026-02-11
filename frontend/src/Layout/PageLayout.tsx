@@ -37,13 +37,14 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   };
 
   const confirmLogout = (): void => {
-    // Clear any stored authentication data
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    // Navigate to login page
-    navigate("/");
-    setShowLogoutModal(false);
-  };
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("user");
+  sessionStorage.clear();
+  setShowLogoutModal(false);
+
+  navigate("/login", { replace: true });
+};
+
 
   const cancelLogout = (): void => {
     setShowLogoutModal(false);
@@ -51,7 +52,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
 
   const isActivePath = (path: string): boolean => {
     if (path === "/issues") {
-      // Issues is active for /issues, /issues/:id, /issues/:id/edit but NOT /issues/new
       return location.pathname === "/issues" ||
              (location.pathname.startsWith("/issues/") && !location.pathname.includes("/new"));
     }
