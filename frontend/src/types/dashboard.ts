@@ -1,4 +1,3 @@
-// Dashboard and analytics types
 export interface IssueStats {
   total: number;
   open: number;

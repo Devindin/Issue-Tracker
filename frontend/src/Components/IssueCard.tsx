@@ -23,7 +23,12 @@ interface IssueCardProps {
   onDelete?: (id: number | string) => void;
 }
 
-const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index = 0, onDelete }) => {
+const IssueCard: React.FC<IssueCardProps> = ({
+  issue,
+  viewMode = "list",
+  index = 0,
+  onDelete,
+}) => {
   // Get status badge styles
   const getStatusBadge = (status: string) => {
     const styles = {
@@ -96,9 +101,7 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index =
         <div className="p-6">
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
-            <span className="text-gray-400 font-mono text-sm">
-              #{issue.id}
-            </span>
+            <span className="text-gray-400 font-mono text-sm">#{issue.id}</span>
             <div className="flex gap-2">
               <Link to={`/issues/${issue.id}`}>
                 <button className="p-2 text-[#1976D2] hover:bg-[#1976D2]/10 rounded-lg transition-colors">
@@ -137,7 +140,7 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index =
           <div className="flex flex-wrap gap-2 mb-4">
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
-                issue.status
+                issue.status,
               )}`}
             >
               {getStatusIcon(issue.status)}
@@ -145,7 +148,7 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index =
             </span>
             <span
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
-                issue.priority
+                issue.priority,
               )}`}
             >
               {getPriorityIcon(issue.priority)}
@@ -176,10 +179,10 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index =
         <div className="flex-1 min-w-0">
           <Link to={`/issues/${issue.id}`} className="block group">
             <div className="flex items-start gap-3">
-              <span className="text-gray-400 font-mono text-sm mt-1 flex-shrink-0">
-                #{issue.id}
-              </span>
               <div className="flex-1 min-w-0">
+                <span className="text-gray-400 font-mono text-sm mt-1 flex-shrink-0">
+                  #{issue.id}
+                </span>
                 <h3 className="font-semibold text-gray-800 group-hover:text-[#1976D2] transition-colors mb-1">
                   {issue.title}
                 </h3>
@@ -189,7 +192,7 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index =
                 <div className="flex flex-wrap gap-2">
                   <span
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getStatusBadge(
-                      issue.status
+                      issue.status,
                     )}`}
                   >
                     {getStatusIcon(issue.status)}
@@ -197,7 +200,7 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, viewMode = "list", index =
                   </span>
                   <span
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold border ${getPriorityBadge(
-                      issue.priority
+                      issue.priority,
                     )}`}
                   >
                     {getPriorityIcon(issue.priority)}

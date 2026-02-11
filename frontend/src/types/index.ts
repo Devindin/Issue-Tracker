@@ -1,4 +1,3 @@
-// Central export of all types
 export * from './issue';
 export * from './user';
 export * from './settings';

@@ -1,4 +1,3 @@
-// Form data types
 export interface IssueFormData {
   title: string;
   description: string;

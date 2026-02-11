@@ -1,4 +1,3 @@
-// Common types used across the application
 import type { User } from "./user";
 
 interface ProjectRef {
