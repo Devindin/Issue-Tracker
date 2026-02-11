@@ -8,6 +8,7 @@ import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import StatusModal from "../Components/StatusModal";
 import { useCreateProjectMutation } from "../features/projects/projectApi";
+import ErrorModal from "../Components/ErrorModal";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -30,7 +31,8 @@ const CreateProject: React.FC = () => {
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   const [createdProjectName, setCreatedProjectName] = useState<string>("");
-  const [submitError, setSubmitError] = useState<string>("");
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+const [errorMessage, setErrorMessage] = useState("");
   const [createProject, { isLoading }] = useCreateProjectMutation();
 
   const colors = [
@@ -47,25 +49,36 @@ const CreateProject: React.FC = () => {
   const icons = ["📁", "🚀", "💼", "🎯", "⚡", "🔥", "💡", "🌟", "🎨", "🔧", "📊", "🏆"];
 
   const handleSubmit = async (values: any) => {
-    setSubmitError("");
-    try {
-      const result = await createProject({
-        name: values.name,
-        key: values.key.toUpperCase(),
-        description: values.description || undefined,
-        color: values.color,
-        icon: values.icon,
-      }).unwrap();
+  try {
+    // Clear previous error
+    setErrorMessage("");
+    setErrorModalOpen(false);
 
-      setCreatedProjectId(result._id);
-      setCreatedProjectName(result.name);
-      setShowSuccessModal(true);
-    } catch (error: any) {
-      console.error("Error creating project:", error);
-      const message = error?.data?.message || error?.message || "Failed to create project. Please try again.";
-      setSubmitError(message);
-    }
-  };
+    const result = await createProject({
+      name: values.name,
+      key: values.key.toUpperCase(),
+      description: values.description || undefined,
+      color: values.color,
+      icon: values.icon,
+    }).unwrap();
+
+    setCreatedProjectId(result._id);
+    setCreatedProjectName(result.name);
+    setShowSuccessModal(true);
+
+  } catch (error: any) {
+    console.error("Error creating project:", error);
+
+    const message =
+      error?.data?.message ||
+      error?.message ||
+      "Failed to create project. Please try again.";
+
+    setErrorMessage(message);
+    setErrorModalOpen(true);
+  }
+};
+
 
   return (
     <PageLayout>
@@ -97,11 +110,6 @@ const CreateProject: React.FC = () => {
         >
           {({ values, setFieldValue }) => (
             <Form className="space-y-6">
-              {submitError && (
-                <div className="rounded-md border border-red-400 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {submitError}
-                </div>
-              )}
 
               {/* Basic Information Card */}
               <motion.div
@@ -296,6 +304,13 @@ const CreateProject: React.FC = () => {
           },
         }}
       />
+      <ErrorModal
+  isOpen={errorModalOpen}
+  onClose={() => setErrorModalOpen(false)}
+  title="Project Creation Failed"
+  message={errorMessage}
+/>
+
     </PageLayout>
   );
 };
