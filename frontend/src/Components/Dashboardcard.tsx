@@ -98,16 +98,42 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   const IconComponent = icon || getDefaultIcon();
 
   return (
-    <div className={`${styles.container} ${className}`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className={styles.title}>{title}</p>
-          <h3 className={styles.value}>{value}</h3>
-        </div>
-        <IconComponent className={styles.icon} />
+  <div
+    className={`
+      ${styles.container} 
+      ${className}
+      p-4 sm:p-5 lg:p-6
+      rounded-2xl lg:rounded-3xl
+    `}
+  >
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className={`${styles.title} text-xs sm:text-sm`}>
+          {title}
+        </p>
+
+        <h3
+          className={`
+            ${styles.value}
+            text-2xl sm:text-3xl lg:text-4xl xl:text-5xl
+            truncate
+          `}
+        >
+          {value}
+        </h3>
       </div>
+
+      <IconComponent
+        className={`
+          ${styles.icon}
+          text-3xl sm:text-4xl lg:text-5xl xl:text-6xl
+          shrink-0
+        `}
+      />
     </div>
-  );
+  </div>
+);
+
 };
 
 export default DashboardCard;
