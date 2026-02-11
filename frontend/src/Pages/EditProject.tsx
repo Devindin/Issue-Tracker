@@ -11,6 +11,7 @@ import {
   useGetProjectByIdQuery,
   useUpdateProjectMutation,
 } from "../features/projects/projectApi";
+import ErrorModal from "../Components/ErrorModal";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -21,9 +22,15 @@ const validationSchema = Yup.object({
   key: Yup.string()
     .min(2, "Key must be at least 2 characters")
     .max(10, "Key must be less than 10 characters")
-    .matches(/^[A-Z][A-Z0-9]*$/, "Key must start with a letter and contain only uppercase letters and numbers")
+    .matches(
+      /^[A-Z][A-Z0-9]*$/,
+      "Key must start with a letter and contain only uppercase letters and numbers",
+    )
     .required("Key is required"),
-  description: Yup.string().max(500, "Description must be less than 500 characters"),
+  description: Yup.string().max(
+    500,
+    "Description must be less than 500 characters",
+  ),
   color: Yup.string(),
   icon: Yup.string(),
   status: Yup.string().oneOf(["active", "archived", "completed"]),
@@ -33,9 +40,14 @@ const EditProject: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
-  const [submitError, setSubmitError] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isErrorModalOpen, setErrorModalOpen] = useState<boolean>(false);
 
-  const { data: project, isLoading: loadingProject, error: projectError } = useGetProjectByIdQuery(id!);
+  const {
+    data: project,
+    isLoading: loadingProject,
+    error: projectError,
+  } = useGetProjectByIdQuery(id!);
   const [updateProject, { isLoading: updating }] = useUpdateProjectMutation();
 
   const colors = [
@@ -49,11 +61,26 @@ const EditProject: React.FC = () => {
     { name: "Teal", value: "#14b8a6" },
   ];
 
-  const icons = ["📁", "🚀", "💼", "🎯", "⚡", "🔥", "💡", "🌟", "🎨", "🔧", "📊", "🏆"];
+  const icons = [
+    "📁",
+    "🚀",
+    "💼",
+    "🎯",
+    "⚡",
+    "🔥",
+    "💡",
+    "🌟",
+    "🎨",
+    "🔧",
+    "📊",
+    "🏆",
+  ];
 
   const handleSubmit = async (values: any) => {
-    setSubmitError("");
     try {
+      setErrorMessage("");
+      setErrorModalOpen(false);
+
       await updateProject({
         id: id!,
         data: {
@@ -69,8 +96,14 @@ const EditProject: React.FC = () => {
       setShowSuccessModal(true);
     } catch (error: any) {
       console.error("Error updating project:", error);
-      const message = error?.data?.message || error?.message || "Failed to update project. Please try again.";
-      setSubmitError(message);
+
+      const message =
+        error?.data?.message ||
+        error?.message ||
+        "Failed to update project. Please try again.";
+
+      setErrorMessage(message);
+      setErrorModalOpen(true);
     }
   };
 
@@ -92,7 +125,9 @@ const EditProject: React.FC = () => {
       <PageLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <p className="text-red-600 text-xl font-semibold mb-4">Failed to load project</p>
+            <p className="text-red-600 text-xl font-semibold mb-4">
+              Failed to load project
+            </p>
             <Link
               to="/projects"
               className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors inline-block"
@@ -137,12 +172,6 @@ const EditProject: React.FC = () => {
         >
           {({ values, setFieldValue }) => (
             <Form className="space-y-6">
-              {submitError && (
-                <div className="rounded-md border border-red-400 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {submitError}
-                </div>
-              )}
-
               {/* Basic Information Card */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -157,7 +186,10 @@ const EditProject: React.FC = () => {
 
                 {/* Project Name */}
                 <div className="mb-6">
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     Project Name <span className="text-red-500">*</span>
                   </label>
                   <Field
@@ -169,12 +201,19 @@ const EditProject: React.FC = () => {
                     placeholder="e.g., Website Redesign"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                   />
-                  <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage
+                    name="name"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
                 </div>
 
                 {/* Project Key */}
                 <div className="mb-6">
-                  <label htmlFor="key" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="key"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     Project Key <span className="text-red-500">*</span>
                   </label>
                   <Field
@@ -185,17 +224,27 @@ const EditProject: React.FC = () => {
                     maxLength={10}
                     placeholder="e.g., WEB"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all uppercase"
-                    onChange={(e: any) => setFieldValue("key", e.target.value.toUpperCase())}
+                    onChange={(e: any) =>
+                      setFieldValue("key", e.target.value.toUpperCase())
+                    }
                   />
-                  <ErrorMessage name="key" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage
+                    name="key"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
                   <p className="text-xs text-gray-500 mt-1">
-                    A unique identifier for your project (e.g., WEB, API, MOB). Must start with a letter.
+                    A unique identifier for your project (e.g., WEB, API, MOB).
+                    Must start with a letter.
                   </p>
                 </div>
 
                 {/* Description */}
                 <div className="mb-6">
-                  <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     Description
                   </label>
                   <Field
@@ -207,7 +256,11 @@ const EditProject: React.FC = () => {
                     placeholder="Describe the purpose and goals of this project..."
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
                   />
-                  <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage
+                    name="description"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
                   <div className="flex justify-end mt-1">
                     <span className="text-xs text-gray-500">
                       {values.description.length}/500
@@ -217,7 +270,10 @@ const EditProject: React.FC = () => {
 
                 {/* Status */}
                 <div className="mb-6">
-                  <label htmlFor="status" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label
+                    htmlFor="status"
+                    className="block text-sm font-semibold text-gray-700 mb-2"
+                  >
                     Status
                   </label>
                   <Field
@@ -230,7 +286,11 @@ const EditProject: React.FC = () => {
                     <option value="archived">Archived</option>
                     <option value="completed">Completed</option>
                   </Field>
-                  <ErrorMessage name="status" component="div" className="text-red-500 text-sm mt-1" />
+                  <ErrorMessage
+                    name="status"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
                 </div>
 
                 {/* Color Selection */}
@@ -281,7 +341,9 @@ const EditProject: React.FC = () => {
 
                 {/* Preview */}
                 <div className="mt-8 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Preview</p>
+                  <p className="text-sm font-semibold text-gray-700 mb-3">
+                    Preview
+                  </p>
                   <div className="flex items-center gap-4">
                     <div
                       className="w-16 h-16 rounded-xl flex items-center justify-center text-3xl"
@@ -306,11 +368,12 @@ const EditProject: React.FC = () => {
                           values.status === "active"
                             ? "bg-green-100 text-green-800"
                             : values.status === "archived"
-                            ? "bg-gray-100 text-gray-800"
-                            : "bg-blue-100 text-blue-800"
+                              ? "bg-gray-100 text-gray-800"
+                              : "bg-blue-100 text-blue-800"
                         }`}
                       >
-                        {values.status.charAt(0).toUpperCase() + values.status.slice(1)}
+                        {values.status.charAt(0).toUpperCase() +
+                          values.status.slice(1)}
                       </span>
                     </div>
                   </div>
@@ -361,6 +424,18 @@ const EditProject: React.FC = () => {
           label: "Back to Projects",
           to: "/projects",
           onClick: () => navigate("/projects"),
+        }}
+      />
+      {/* Error Modal */}
+      <StatusModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        type="error"
+        title="Update Failed"
+        message={errorMessage}
+        primaryAction={{
+          label: "Try Again",
+          onClick: () => setErrorModalOpen(false),
         }}
       />
     </PageLayout>
