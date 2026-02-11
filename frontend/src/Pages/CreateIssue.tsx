@@ -17,6 +17,7 @@ import { type IssueFormData } from "../types";
 import { useCreateIssueMutation } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
 import { useGetUsersQuery } from "../features/users/userApi";
+import ErrorModal from "../Components/ErrorModal";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -46,7 +47,8 @@ const CreateIssue: React.FC = () => {
   const { user } = useSelector((state: any) => state.auth);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [createdIssueId, setCreatedIssueId] = useState<string | null>(null);
-  const [submitError, setSubmitError] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isErrorModalOpen, setErrorModalOpen] = useState<boolean>(false);
   const [createIssue, { isLoading }] = useCreateIssueMutation();
   const { data: projects = [] } = useGetProjectsQuery({ status: "active" });
   const { data: users = [] } = useGetUsersQuery();
@@ -57,16 +59,18 @@ const CreateIssue: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = async (values: IssueFormData) => {
-    setSubmitError("");
     try {
-      // Only send assigneeId if it's "me" (current user) or a valid user ID
+      setErrorMessage("");
+      setErrorModalOpen(false);
+
       let assigneeId: string | undefined = undefined;
+
       if (values.assigneeId === "me" && user?.id) {
         assigneeId = user.id;
       } else if (values.assigneeId && values.assigneeId !== "") {
         assigneeId = values.assigneeId;
       }
-      
+
       const payload: any = {
         title: values.title,
         description: values.description,
@@ -74,30 +78,24 @@ const CreateIssue: React.FC = () => {
         priority: values.priority,
         severity: values.severity,
         assigneeId,
-        projectId: values.projectId,
+        projectId: values.projectId || undefined,
       };
-      
-      console.log("[CreateIssue] Form values:", values);
-      console.log("[CreateIssue] Payload to send:", payload);
-      console.log("[CreateIssue] ProjectId being sent:", payload.projectId);
-      
+
       const result = await createIssue(payload).unwrap();
-      
-      console.log("[CreateIssue] Response from API:", result);
-      console.log("[CreateIssue] Created issue project:", result.issue?.project);
 
       setCreatedIssueId(result?.issue?.id?.toString() || null);
       setShowSuccessModal(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error("Error creating issue:", error);
-      const err = error as { data?: { message?: string; error?: string }; message?: string; error?: string };
+
       const message =
-        err?.data?.message ||
-        err?.data?.error ||
-        err?.message ||
-        err?.error ||
+        error?.data?.message ||
+        error?.data?.error ||
+        error?.message ||
         "Failed to create issue. Please try again.";
-      setSubmitError(message);
+
+      setErrorMessage(message);
+      setErrorModalOpen(true);
     }
   };
 
@@ -166,15 +164,6 @@ const CreateIssue: React.FC = () => {
         >
           {({ isSubmitting, values }) => (
             <Form className="space-y-6">
-              {submitError && (
-                <div
-                  role="alert"
-                  aria-live="assertive"
-                  className="rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
-                >
-                  {submitError}
-                </div>
-              )}
               {/* Main Information Card */}
               <div className="bg-white rounded-2xl shadow-md p-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
@@ -199,7 +188,11 @@ const CreateIssue: React.FC = () => {
                     placeholder="e.g., Login page not responsive on mobile devices"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                   />
-                  <ErrorMessage name="title" component="div" className="text-red-500 text-sm mt-1 flex items-center gap-1" />
+                  <ErrorMessage
+                    name="title"
+                    component="div"
+                    className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                  />
                   <div className="flex justify-end mt-1">
                     <span
                       className={`text-xs ${
@@ -230,7 +223,11 @@ const CreateIssue: React.FC = () => {
                     placeholder="Provide a detailed description of the issue, including steps to reproduce, expected behavior, and actual behavior..."
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
                   />
-                  <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1 flex items-center gap-1" />
+                  <ErrorMessage
+                    name="description"
+                    component="div"
+                    className="text-red-500 text-sm mt-1 flex items-center gap-1"
+                  />
                   <div className="flex justify-end mt-1">
                     <span
                       className={`text-xs ${
@@ -292,7 +289,7 @@ const CreateIssue: React.FC = () => {
                     <div className="mt-2">
                       <span
                         className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getStatusColor(
-                          values.status
+                          values.status,
                         )}`}
                       >
                         {values.status}
@@ -339,7 +336,7 @@ const CreateIssue: React.FC = () => {
                     <div className="mt-2">
                       <span
                         className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getPriorityColor(
-                          values.priority
+                          values.priority,
                         )}`}
                       >
                         {values.priority}
@@ -385,7 +382,7 @@ const CreateIssue: React.FC = () => {
                     <div className="mt-2">
                       <span
                         className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getSeverityColor(
-                          values.severity
+                          values.severity,
                         )}`}
                       >
                         {values.severity}
@@ -434,7 +431,14 @@ const CreateIssue: React.FC = () => {
                     {values.projectId && (
                       <div className="mt-2">
                         <span className="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border bg-indigo-100 border-indigo-300 text-indigo-700">
-                          {projects.find(p => p._id === values.projectId)?.icon} {projects.find(p => p._id === values.projectId)?.name}
+                          {
+                            projects.find((p) => p._id === values.projectId)
+                              ?.icon
+                          }{" "}
+                          {
+                            projects.find((p) => p._id === values.projectId)
+                              ?.name
+                          }
                         </span>
                       </div>
                     )}
@@ -480,15 +484,17 @@ const CreateIssue: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-2">
-                      <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                        values.assigneeId
-                          ? "bg-green-100 border-green-300 text-green-700"
-                          : "bg-gray-100 border-gray-300 text-gray-700"
-                      }`}>
-                        {values.assigneeId === "me" 
-                          ? "👤 Assigned to me" 
-                          : values.assigneeId 
-                            ? `Assigned to ${users.find(u => u.id === values.assigneeId)?.name || "User"}` 
+                      <span
+                        className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                          values.assigneeId
+                            ? "bg-green-100 border-green-300 text-green-700"
+                            : "bg-gray-100 border-gray-300 text-gray-700"
+                        }`}
+                      >
+                        {values.assigneeId === "me"
+                          ? "👤 Assigned to me"
+                          : values.assigneeId
+                            ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
                             : "Unassigned"}
                       </span>
                     </div>
@@ -500,15 +506,17 @@ const CreateIssue: React.FC = () => {
                   <div className="flex gap-3">
                     <FaInfoCircle className="text-blue-600 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-blue-800">
-                      <p className="font-semibold mb-1">Classification Guide:</p>
+                      <p className="font-semibold mb-1">
+                        Classification Guide:
+                      </p>
                       <ul className="space-y-1 text-xs">
                         <li>
-                          <strong>Priority:</strong> How quickly the issue needs to
-                          be addressed
+                          <strong>Priority:</strong> How quickly the issue needs
+                          to be addressed
                         </li>
                         <li>
-                          <strong>Severity:</strong> The impact of the issue on the
-                          system
+                          <strong>Severity:</strong> The impact of the issue on
+                          the system
                         </li>
                         <li>
                           <strong>Status:</strong> Current state of the issue
@@ -591,8 +599,20 @@ const CreateIssue: React.FC = () => {
           label: "Create Another Issue",
           onClick: () => {
             setShowSuccessModal(false);
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            navigate("/issues/new");
           },
+        }}
+      />
+      {/* Error Modal */}
+      <StatusModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        type="error"
+        title="Issue Creation Failed"
+        message={errorMessage}
+        primaryAction={{
+          label: "Try Again",
+          onClick: () => setErrorModalOpen(false),
         }}
       />
     </PageLayout>
