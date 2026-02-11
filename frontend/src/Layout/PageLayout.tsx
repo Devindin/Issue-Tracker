@@ -14,6 +14,9 @@ import {
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import DeleteModal from "../Components/DeleteModal";
+import { useSelector } from "react-redux";
+import type { RootState } from "../app/stores";
+
 
 interface MenuItem {
   icon: React.JSX.Element;
@@ -68,8 +71,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   ];
 
   // Get user info from localStorage
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const userName = user?.name || "User";
+  const user = useSelector((state: RootState) => state.auth.user);
+const userName = user?.name ?? "User";
+
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">
