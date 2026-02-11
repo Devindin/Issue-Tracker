@@ -11,7 +11,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { token, user } = useSelector((state: any) => state.auth);
 
   if (!token || !user) {
-    // Redirect to login page with return url
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
