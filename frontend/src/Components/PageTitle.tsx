@@ -26,9 +26,10 @@ const PageTitle: React.FC<PageTitleProps> = ({
         className={`
           ${textColor}
           font-bold
-          text-2xl sm:text-3xl md:text-4xl lg:text-5xl
+          text-2xl sm:text-3xl md:text-4xl lg:text-5xl 
           leading-tight
           break-words
+          ml-16 md:ml-0
         `}
       >
         {title}
@@ -42,6 +43,7 @@ const PageTitle: React.FC<PageTitleProps> = ({
             text-sm sm:text-base md:text-lg
             opacity-80
             break-words
+            ml-16 md:ml-0
           `}
         >
           {subtitle}
