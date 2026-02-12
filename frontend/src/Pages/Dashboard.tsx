@@ -190,8 +190,8 @@ const Dashboard: React.FC = () => {
             </div>
           ) : (
             <>
-              <StatusChart data={statusChartData} />
-              <TrendChart data={trendChartData} />
+              {/* <StatusChart data={statusChartData} />
+              <TrendChart data={trendChartData} /> */}
             </>
           )}
         </motion.div>

@@ -131,7 +131,7 @@ const CreateIssue: React.FC = () => {
 
   return (
     <PageLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className=" mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
