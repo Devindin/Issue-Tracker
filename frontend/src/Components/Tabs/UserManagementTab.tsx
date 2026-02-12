@@ -393,9 +393,9 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
         <CreateUserModal
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
-          onCreate={handleCreateUser}
-          getDefaultPermissions={getDefaultPermissions}
+          onSubmit={handleCreateUser}
           isLoading={isCreating}
+          getDefaultPermissions={getDefaultPermissions}
         />
       )}
 

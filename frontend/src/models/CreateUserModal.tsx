@@ -1,15 +1,12 @@
+import React from "react";
 import { motion } from "framer-motion";
-import { Formik, Form, FormikHelpers } from "formik";
+import { Formik, Form } from "formik";
+import type { FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { CreateUserData, UserPermissions } from "../types/user";
+import type { CreateUserData, UserPermissions } from "../types/settings";
 import InputField from "../Components/InputField";
 
-export type UserRole =
-  | "admin"
-  | "manager"
-  | "developer"
-  | "qa"
-  | "viewer";
+export type UserRole = "admin" | "manager" | "developer" | "qa" | "viewer";
 
 interface CreateUserModalProps {
   isOpen: boolean;
@@ -22,13 +19,13 @@ interface CreateUserModalProps {
   getDefaultPermissions: (role: UserRole) => UserPermissions;
 }
 
-const validationSchema: Yup.Schema<CreateUserData> = Yup.object({
-  name: Yup.string().min(2).required(),
-  email: Yup.string().email().required(),
-  password: Yup.string().min(8).required(),
+const validationSchema = Yup.object({
+  name: Yup.string().min(2, "Minimum 2 characters").required("Name is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  password: Yup.string().min(8, "Minimum 8 characters").required("Password is required"),
   role: Yup.mixed<UserRole>()
     .oneOf(["admin", "manager", "developer", "qa", "viewer"])
-    .required(),
+    .required("Role is required"),
   permissions: Yup.object().required(),
 });
 
@@ -72,9 +69,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           onSubmit={onSubmit}
         >
           {({ values, errors, touched, handleChange, setFieldValue }) => (
-            <Form className="space-y-2">
-
-              {/* Name */}
+            <Form className="space-y-3">
               <InputField
                 label="Name"
                 name="name"
@@ -87,7 +82,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 touched={touched as Record<string, boolean>}
               />
 
-              {/* Email */}
               <InputField
                 label="Email"
                 name="email"
@@ -100,7 +94,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 touched={touched as Record<string, boolean>}
               />
 
-              {/* Password */}
               <InputField
                 label="Password"
                 name="password"
@@ -114,27 +107,22 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 touched={touched as Record<string, boolean>}
               />
 
-              {/* Role */}
               <InputField
                 label="Role"
                 name="role"
                 type="select"
                 options={roleOptions}
                 requiredfiled
-                handleChange={(e) => {
+                handleChange={(e: any) => {
                   const role = e.target.value as UserRole;
                   setFieldValue("role", role);
-                  setFieldValue(
-                    "permissions",
-                    getDefaultPermissions(role)
-                  );
+                  setFieldValue("permissions", getDefaultPermissions(role));
                 }}
                 values={values}
                 errors={errors as Record<string, string>}
                 touched={touched as Record<string, boolean>}
               />
 
-              {/* Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
@@ -153,7 +141,6 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                   {isLoading ? "Creating..." : "Create User"}
                 </button>
               </div>
-
             </Form>
           )}
         </Formik>
