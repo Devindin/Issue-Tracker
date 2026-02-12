@@ -26,7 +26,7 @@ import { useMemo } from "react";
 import { filterProjects } from "../utils/projectFilters";
 import { getProjectStatusColor } from "../utils/projectStatus";
 import { paginate } from "../utils/pagination";
-
+import CommonButton from "../Components/CommonButton";
 
 const ProjectsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,9 +49,9 @@ const ProjectsPage: React.FC = () => {
     useToggleProjectArchiveMutation();
 
   // Filter projects based on search
- const filteredProjects = useMemo(() => {
-  return filterProjects(projects, searchTerm);
-}, [projects, searchTerm]);
+  const filteredProjects = useMemo(() => {
+    return filterProjects(projects, searchTerm);
+  }, [projects, searchTerm]);
 
   const handleDeleteProject = async () => {
     if (!deletingProject) return;
@@ -99,9 +99,8 @@ const ProjectsPage: React.FC = () => {
   }, [searchTerm, statusFilter]);
 
   const { totalPages, paginatedItems: paginatedProjects } = useMemo(() => {
-  return paginate(filteredProjects, currentPage, itemsPerPage);
-}, [filteredProjects, currentPage]);
-
+    return paginate(filteredProjects, currentPage, itemsPerPage);
+  }, [filteredProjects, currentPage]);
 
   return (
     <PageLayout>
@@ -118,13 +117,7 @@ const ProjectsPage: React.FC = () => {
             textColor="text-white"
           />
           <Link to="/projects/new">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-colors"
-            >
-              <FaPlus /> Create Project
-            </motion.button>
+            <CommonButton icon={<FaPlus />}>Create Project</CommonButton>
           </Link>
         </motion.div>
 
@@ -247,7 +240,6 @@ const ProjectsPage: React.FC = () => {
                   <div className="mb-4">
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getProjectStatusColor(project.status)}`}
-
                     >
                       {project.status}
                     </span>

@@ -25,6 +25,7 @@ import { useMemo } from "react";
 import { filterIssues } from "../utils/issueFilters";
 import { exportIssuesToCSV, exportIssuesToJSON } from "../utils/exportUtils";
 import { sortIssues } from "../utils/issueSort";
+import CommonButton from "../Components/CommonButton";
 
 const Issues: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -197,14 +198,8 @@ const Issues: React.FC = () => {
               )}
             </div>
             <Link to="/issues/new">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-colors"
-              >
-                <FaPlus /> Create Issue
-              </motion.button>
-            </Link>
+            <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
+          </Link>
           </div>
         </motion.div>
 

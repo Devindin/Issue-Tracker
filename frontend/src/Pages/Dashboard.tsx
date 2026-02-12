@@ -15,6 +15,7 @@ import DashboardCard from "../Components/Dashboardcard";
 import IssueCard from "../Components/IssueCard";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
+import CommonButton from "../Components/CommonButton";
 
 import {
   useGetDashboardStatsQuery,
@@ -56,9 +57,7 @@ const Dashboard: React.FC = () => {
     total: 0,
   };
 
-  // ============================
   // Recent Issues
-  // ============================
   const {
     data: issuesData,
     isLoading: issuesLoading,
@@ -67,9 +66,7 @@ const Dashboard: React.FC = () => {
 
   const issues = issuesData?.issues || [];
 
-  // ============================
   // Analytics (Charts)
-  // ============================
   const {
     data: analyticsData,
     isLoading: analyticsLoading,
@@ -81,7 +78,7 @@ const Dashboard: React.FC = () => {
   const isError = statsError || issuesError || analyticsError;
 
   // Filter Issues
-  
+
   const filteredIssues = issues.filter((issue: any) => {
     const matchesSearch =
       issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,9 +93,7 @@ const Dashboard: React.FC = () => {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  // ============================
   // Chart Data
-  // ============================
 
   const statusChartData: ChartData<"doughnut"> = {
     labels: analyticsData?.statusStats?.map((item: any) => item._id) || [],
@@ -139,13 +134,7 @@ const Dashboard: React.FC = () => {
           />
 
           <Link to="/issues/new">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:bg-indigo-700 transition-colors"
-            >
-              <FaPlus /> Create Issue
-            </motion.button>
+            <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
           </Link>
         </motion.div>
 
