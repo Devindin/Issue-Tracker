@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { FaSave, FaTimes, FaInfoCircle } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import StatusModal from "../models/StatusModal";
+import StatusModal from "../modals/StatusModal";
 import { useCreateProjectMutation } from "../features/projects/projectApi";
 import ErrorModal from "../Components/ErrorModal";
 import InputField from "../Components/InputField";

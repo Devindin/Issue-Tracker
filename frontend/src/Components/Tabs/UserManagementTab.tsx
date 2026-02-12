@@ -22,8 +22,8 @@ import {
   useUpdateUserMutation,
   useDeleteUserMutation,
 } from "../../features/users/userApi";
-import ConfirmDeleteModal from "../../models/ConfirmDeleteModal";
-import CreateUserModal from "../../models/CreateUserModal";
+import ConfirmDeleteModal from "../../modals/ConfirmDeleteModal";
+import CreateUserModal from "../../modals/CreateUserModal";
 
 interface UserManagementTabProps {}
 

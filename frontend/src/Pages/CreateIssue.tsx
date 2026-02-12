@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import StatusModal from "../models/StatusModal";
+import StatusModal from "../modals/StatusModal";
 import { type IssueFormData } from "../types";
 import { useCreateIssueMutation } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";

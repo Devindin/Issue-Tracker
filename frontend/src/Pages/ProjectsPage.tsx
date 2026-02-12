@@ -21,7 +21,7 @@ import {
   type Project,
 } from "../features/projects/projectApi";
 import Pagination from "../Components/Pagination";
-import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
+import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useMemo } from "react";
 import { filterProjects } from "../utils/projectFilters";
 import { getProjectStatusColor } from "../utils/projectStatus";

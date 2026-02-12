@@ -20,7 +20,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import SecondaryPageTitle from "../Components/SecondaryPageTitle";
-import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
+import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import {
   useGetIssueByIdQuery,
   useDeleteIssueMutation,

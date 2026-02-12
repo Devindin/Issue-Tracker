@@ -12,7 +12,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
-import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
+import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import Pagination from "../Components/Pagination";
 import type { Issue, SortField, SortOrder } from "../types";
 import {

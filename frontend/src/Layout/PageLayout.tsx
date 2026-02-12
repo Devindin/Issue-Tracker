@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
+import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
 import { logout } from "../features/auth/authSlice";

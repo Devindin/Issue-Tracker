@@ -8,7 +8,7 @@ import PageTitle from "../Components/PageTitle";
 import ProfileTab from "../Components/Tabs/ProfileTab";
 import SecurityTab from "../Components/Tabs/SecurityTab";
 import UserManagementTab from "../Components/Tabs/UserManagementTab";
-import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
+import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useGetProfileQuery } from "../features/profile/profileApi";
 import { setActiveTab } from "../features/settings/settingsSlice";
 import type { SecuritySettings } from "../types";

@@ -3,7 +3,7 @@ import { FaLock, FaSave } from "react-icons/fa";
 import { type SecuritySettings } from "../../types";
 import { useChangePasswordMutation } from "../../features/profile/profileApi";
 import InputField from "../../Components/InputField";
-import StatusModal from "../../models/StatusModal";
+import StatusModal from "../../modals/StatusModal";
 
 interface SecurityTabProps {
   security: SecuritySettings;
