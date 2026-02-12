@@ -1,10 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Formik, Form } from "formik";
+import { Formik, Form, Field, ErrorMessage} from "formik";
 import type { FormikHelpers } from "formik";
 import * as Yup from "yup";
 import type { CreateUserData, UserPermissions } from "../types/settings";
-import InputField from "../Components/InputField";
 
 export type UserRole = "admin" | "manager" | "developer" | "qa" | "viewer";
 
@@ -53,9 +52,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         animate={{ opacity: 1, scale: 1 }}
         className="bg-white rounded-2xl p-6 w-full max-w-md mx-4"
       >
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Create New User
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Create New User</h3>
 
         <Formik<CreateUserData>
           initialValues={{
@@ -69,60 +66,88 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           onSubmit={onSubmit}
         >
           {({ values, errors, touched, handleChange, setFieldValue }) => (
-            <Form className="space-y-3">
-              <InputField
-                label="Name"
-                name="name"
-                type="text"
-                placeholder="Enter full name"
-                requiredfiled
-                handleChange={handleChange}
-                values={values}
-                errors={errors as Record<string, string>}
-                touched={touched as Record<string, boolean>}
-              />
+            <Form className="space-y-4">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={values.name}
+                  onChange={handleChange}
+                  placeholder="Enter full name"
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.name && touched.name ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                <ErrorMessage name="name" component="div" className="text-red-500 text-xs mt-1" />
+              </div>
 
-              <InputField
-                label="Email"
-                name="email"
-                type="email"
-                placeholder="Enter email"
-                requiredfiled
-                handleChange={handleChange}
-                values={values}
-                errors={errors as Record<string, string>}
-                touched={touched as Record<string, boolean>}
-              />
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={values.email}
+                  onChange={handleChange}
+                  placeholder="Enter email"
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.email && touched.email ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                <ErrorMessage name="email" component="div" className="text-red-500 text-xs mt-1" />
+              </div>
 
-              <InputField
-                label="Password"
-                name="password"
-                type="password"
-                placeholder="Enter password"
-                requiredfiled
-                showLockIcon
-                handleChange={handleChange}
-                values={values}
-                errors={errors as Record<string, string>}
-                touched={touched as Record<string, boolean>}
-              />
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={values.password}
+                  onChange={handleChange}
+                  placeholder="Enter password"
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.password && touched.password ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                <ErrorMessage name="password" component="div" className="text-red-500 text-xs mt-1" />
+              </div>
 
-              <InputField
-                label="Role"
-                name="role"
-                type="select"
-                options={roleOptions}
-                requiredfiled
-                handleChange={(e: any) => {
-                  const role = e.target.value as UserRole;
-                  setFieldValue("role", role);
-                  setFieldValue("permissions", getDefaultPermissions(role));
-                }}
-                values={values}
-                errors={errors as Record<string, string>}
-                touched={touched as Record<string, boolean>}
-              />
+              {/* Role */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="role"
+                  value={values.role}
+                  onChange={(e) => {
+                    const role = e.target.value as UserRole;
+                    setFieldValue("role", role);
+                    setFieldValue("permissions", getDefaultPermissions(role));
+                  }}
+                  className={`w-full px-3 py-2 border rounded-md ${
+                    errors.role && touched.role ? "border-red-500" : "border-gray-300"
+                  }`}
+                >
+                  {roleOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <ErrorMessage name="role" component="div" className="text-red-500 text-xs mt-1" />
+              </div>
 
+              {/* Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
