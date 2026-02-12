@@ -120,7 +120,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, onSuccess }) => {
             </button>
           </div>
 
-          {/* Error Message */}
+        
           {error && (
             <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
               {(error as any)?.data?.message || "Failed to update profile"}
