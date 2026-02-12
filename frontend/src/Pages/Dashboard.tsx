@@ -30,6 +30,7 @@ import {
 
 import StatusChart from "../Components/StatusChart";
 import TrendChart from "../Components/TrendChart";
+import ChartErrorBoundary from "../Components/ChartErrorBoundary";
 
 import type { ChartData } from "chart.js";
 import { useGetIssueAnalyticsQuery } from "../features/issues/issueApi";
@@ -47,6 +48,7 @@ const Dashboard: React.FC = () => {
     data: statsData,
     isLoading: statsLoading,
     isError: statsError,
+    error: statsErrorMsg,
   } = useGetDashboardStatsQuery();
 
   const stats = statsData?.stats || {
@@ -62,6 +64,7 @@ const Dashboard: React.FC = () => {
     data: issuesData,
     isLoading: issuesLoading,
     isError: issuesError,
+    error: issuesErrorMsg,
   } = useGetRecentIssuesQuery({ limit: 5 });
 
   const issues = issuesData?.issues || [];
@@ -71,7 +74,22 @@ const Dashboard: React.FC = () => {
     data: analyticsData,
     isLoading: analyticsLoading,
     isError: analyticsError,
+    error: analyticsErrorMsg,
   } = useGetIssueAnalyticsQuery();
+
+  // Log errors for debugging
+  React.useEffect(() => {
+    if (statsError) console.error("Stats Error:", statsErrorMsg);
+    if (issuesError) console.error("Issues Error:", issuesErrorMsg);
+    if (analyticsError) console.error("Analytics Error:", analyticsErrorMsg);
+  }, [statsError, issuesError, analyticsError, statsErrorMsg, issuesErrorMsg, analyticsErrorMsg]);
+
+  // Debug analytics data
+  React.useEffect(() => {
+    console.log("Analytics Data:", analyticsData);
+    console.log("Status Stats:", analyticsData?.statusStats);
+    console.log("Stats:", stats);
+  }, [analyticsData, stats]);
 
   // Combined Loading & Error
   const isLoading = statsLoading || issuesLoading || analyticsLoading;
@@ -95,24 +113,47 @@ const Dashboard: React.FC = () => {
 
   // Chart Data
 
-  const statusChartData: ChartData<"doughnut"> = {
-    labels: analyticsData?.statusStats?.map((item: any) => item._id) || [],
+  // Status chart with safe data handling
+  const statusLabels = analyticsData?.statusStats && Array.isArray(analyticsData.statusStats) && analyticsData.statusStats.length > 0
+    ? analyticsData.statusStats.map((item: any) => item._id || "Unknown")
+    : ["Open", "In Progress", "Resolved", "Closed"];
+
+  const statusData = analyticsData?.statusStats && Array.isArray(analyticsData.statusStats) && analyticsData.statusStats.length > 0
+    ? analyticsData.statusStats.map((item: any) => item.count || 0)
+    : [0, 0, 0, 0];
+
+  console.log("Status Labels:", statusLabels);
+  console.log("Status Data:", statusData);
+
+  const statusChartData: ChartData<"pie"> = {
+    labels: statusLabels,
     datasets: [
       {
         label: "Issues by Status",
-        data: analyticsData?.statusStats?.map((item: any) => item.count) || [],
+        data: statusData,
         backgroundColor: ["#6366F1", "#F59E0B", "#10B981", "#EF4444"],
+        borderColor: "#fff",
+        borderWidth: 2,
       },
     ],
   };
 
-  const trendChartData: ChartData<"bar"> = {
+  const trendChartData: ChartData<"line"> = {
     labels: ["Open", "In Progress", "Resolved", "Closed"],
     datasets: [
       {
         label: "Issues",
         data: [stats.open, stats.inProgress, stats.resolved, stats.closed],
         backgroundColor: "#6366F1",
+        borderColor: "#6366F1",
+        fill: false,
+        tension: 0.3,
+        borderWidth: 2,
+        pointRadius: 5,
+        pointBackgroundColor: "#6366F1",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointHoverRadius: 7,
       },
     ],
   };
@@ -161,26 +202,28 @@ const Dashboard: React.FC = () => {
         </motion.div>
 
         {/* Charts */}
-        {/* Charts */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+         className="grid grid-cols-1 gap-6"
+
         >
           {analyticsLoading ? (
             <div className="col-span-2 flex justify-center p-12">
               <FaSpinner className="text-4xl animate-spin text-indigo-600" />
             </div>
           ) : analyticsError ? (
-            <div className="col-span-2 flex flex-col items-center p-12 text-red-500">
+            <div className="  items-center p-12 text-red-500 bg-red-50 rounded-2xl">
               <FaExclamationCircle className="text-5xl mb-4" />
-              Error loading analytics
+              <p className="font-semibold mb-2">Error loading analytics</p>
+              <p className="text-sm text-red-600">{String(analyticsErrorMsg || "Please try refreshing the page")}</p>
             </div>
           ) : (
             <>
-              {/* <StatusChart data={statusChartData} />
-              <TrendChart data={trendChartData} /> */}
+              <ChartErrorBoundary chartName="Trend Chart">
+                <TrendChart data={trendChartData} />
+              </ChartErrorBoundary>
             </>
           )}
         </motion.div>

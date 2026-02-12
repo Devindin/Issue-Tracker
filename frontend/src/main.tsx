@@ -15,6 +15,9 @@ import {
   Legend,
   BarElement,
   ArcElement,
+  PieController,
+  LineController,
+  BarController,
 } from "chart.js";
 
 import AuthWrapper from "./AuthWrapper.tsx";
@@ -29,6 +32,9 @@ ChartJS.register(
   Legend,
   BarElement,
   ArcElement,
+  PieController,
+  LineController,
+  BarController,
 );
 
 createRoot(document.getElementById("root")!).render(
