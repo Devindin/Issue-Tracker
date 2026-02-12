@@ -14,8 +14,9 @@ import {
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
+import { logout } from "../features/auth/authSlice";
 
 interface MenuItem {
   icon: React.JSX.Element;
@@ -33,18 +34,16 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const handleLogout = (): void => {
     setShowLogoutModal(true);
   };
 
   const confirmLogout = (): void => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    sessionStorage.clear();
+    dispatch(logout());
     setShowLogoutModal(false);
-
-    navigate("/", { replace: true });
+    navigate("/login", { replace: true });
   };
 
   const cancelLogout = (): void => {

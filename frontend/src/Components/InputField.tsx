@@ -1,6 +1,7 @@
 import { useState } from "react"; 
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { MdLockOutline } from "react-icons/md";
+import { FaChevronDown } from "react-icons/fa";
 
 interface Option {
   value: string | number;
@@ -66,20 +67,23 @@ function InputField({
         }`}
       >
         {isDropdown ? (
-          <select
-            name={name}
-            value={value}
-            onChange={handleChange}
-            disabled={disabled}
-            className={`w-full h-[43px] 3xl:h-[52px] p-2 outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 bg-transparent appearance-none`}
-          >
-            <option value="">{placeholder || "Select an option"}</option>
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <>
+            <select
+              name={name}
+              value={value}
+              onChange={handleChange}
+              disabled={disabled}
+              className={`w-full h-[43px] 3xl:h-[52px] p-2 outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 bg-transparent appearance-none pr-8`}
+            >
+              <option value="">{placeholder || "Select an option"}</option>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <FaChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none" size={12} />
+          </>
         ) : (
           <>
             {showLockIcon && (
