@@ -22,6 +22,11 @@ import {
 } from "../features/projects/projectApi";
 import Pagination from "../Components/Pagination";
 import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
+import { useMemo } from "react";
+import { filterProjects } from "../utils/projectFilters";
+import { getProjectStatusColor } from "../utils/projectStatus";
+import { paginate } from "../utils/pagination";
+
 
 const ProjectsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,12 +49,9 @@ const ProjectsPage: React.FC = () => {
     useToggleProjectArchiveMutation();
 
   // Filter projects based on search
-  const filteredProjects = projects.filter(
-    (project) =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+ const filteredProjects = useMemo(() => {
+  return filterProjects(projects, searchTerm);
+}, [projects, searchTerm]);
 
   const handleDeleteProject = async () => {
     if (!deletingProject) return;
@@ -96,13 +98,10 @@ const ProjectsPage: React.FC = () => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter]);
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+  const { totalPages, paginatedItems: paginatedProjects } = useMemo(() => {
+  return paginate(filteredProjects, currentPage, itemsPerPage);
+}, [filteredProjects, currentPage]);
 
-  const paginatedProjects = filteredProjects.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
 
   return (
     <PageLayout>
@@ -247,9 +246,8 @@ const ProjectsPage: React.FC = () => {
                   {/* Status Badge */}
                   <div className="mb-4">
                     <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                        project.status,
-                      )}`}
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getProjectStatusColor(project.status)}`}
+
                     >
                       {project.status}
                     </span>
