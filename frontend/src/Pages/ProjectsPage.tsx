@@ -21,7 +21,7 @@ import {
   type Project,
 } from "../features/projects/projectApi";
 import Pagination from "../Components/Pagination";
-import DeleteModal from "../models/DeleteModal";
+import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
 
 const ProjectsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -344,17 +344,17 @@ const ProjectsPage: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteModal
+      <ConfirmDeleteModal
         isOpen={!!deletingProject}
         onClose={() => setDeletingProject(null)}
         onConfirm={handleDeleteProject}
-        title="Delete Project"
+        entityName="Project"
         itemName={
           deletingProject
             ? `${deletingProject.name} (${deletingProject.key})`
             : undefined
         }
-        confirmText={isDeleting ? "Deleting..." : "Delete Project"}
+        isLoading={isDeleting}
       />
     </PageLayout>
   );
