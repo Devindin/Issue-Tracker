@@ -375,4 +375,52 @@ router.delete("/:id", authMiddleware, requirePermission('canDeleteIssues'), asyn
   }
 });
 
+// Get issue analytics (for charts)
+router.get("/analytics/summary", authMiddleware, async (req, res) => {
+  try {
+    const companyId = req.user?.companyId;
+
+    // Group by Status
+    const statusStats = await Issue.aggregate([
+      { $match: { company: companyId } },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+    ]);
+
+    // Group by Priority
+    const priorityStats = await Issue.aggregate([
+      { $match: { company: companyId } },
+      { $group: { _id: "$priority", count: { $sum: 1 } } },
+    ]);
+
+    // Group by Severity
+    const severityStats = await Issue.aggregate([
+      { $match: { company: companyId } },
+      { $group: { _id: "$severity", count: { $sum: 1 } } },
+    ]);
+
+    // Group by Project
+    const projectStats = await Issue.aggregate([
+      { $match: { company: companyId } },
+      {
+        $group: {
+          _id: "$project",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "Analytics fetched successfully",
+      statusStats,
+      priorityStats,
+      severityStats,
+      projectStats,
+    });
+  } catch (error) {
+    console.error("Analytics error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 module.exports = router;
