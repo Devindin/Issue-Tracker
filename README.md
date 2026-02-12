@@ -133,6 +133,7 @@ Issue-Tracker/
 │   │   │   ├── user.ts
 │   │   │   ├── issue.ts
 │   │   │   └── settings.ts
+|   |   ├── utils/
 │   │   ├── App.tsx          # Main app component
 │   │   ├── main.tsx         # App entry point
 │   │   └── index.css        # Global styles
