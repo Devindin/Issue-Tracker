@@ -21,6 +21,7 @@ import {
   type Project,
 } from "../features/projects/projectApi";
 import Pagination from "../Components/Pagination";
+import DeleteModal from "../Components/DeleteModal";
 
 const ProjectsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,6 +56,12 @@ const ProjectsPage: React.FC = () => {
 
     try {
       await deleteProject(deletingProject._id).unwrap();
+
+      // Adjust page if last item deleted
+      if ((currentPage - 1) * itemsPerPage >= filteredProjects.length - 1) {
+        setCurrentPage((prev) => Math.max(prev - 1, 1));
+      }
+
       setDeletingProject(null);
     } catch (error: any) {
       console.error("Failed to delete project:", error);
@@ -319,8 +326,7 @@ const ProjectsPage: React.FC = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-center text-gray-600"
-          >
-          </motion.div>
+          ></motion.div>
         )}
 
         {/* Pagination */}
@@ -338,59 +344,18 @@ const ProjectsPage: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {deletingProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <FaExclamationCircle className="text-red-600 text-xl" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-800">
-                Delete Project
-              </h3>
-            </div>
-
-            <p className="text-gray-600 mb-2">
-              Are you sure you want to delete the project:
-            </p>
-            <p className="font-semibold text-gray-800 mb-4">
-              {deletingProject.name} ({deletingProject.key})
-            </p>
-            <p className="text-sm text-gray-500 mb-6">
-              This action cannot be undone. You can only delete projects with no
-              issues.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeletingProject(null)}
-                disabled={isDeleting}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteProject}
-                disabled={isDeleting}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {isDeleting ? (
-                  <>
-                    <FaSpinner className="animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  "Delete Project"
-                )}
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      <DeleteModal
+        isOpen={!!deletingProject}
+        onClose={() => setDeletingProject(null)}
+        onConfirm={handleDeleteProject}
+        title="Delete Project"
+        itemName={
+          deletingProject
+            ? `${deletingProject.name} (${deletingProject.key})`
+            : undefined
+        }
+        confirmText={isDeleting ? "Deleting..." : "Delete Project"}
+      />
     </PageLayout>
   );
 };
