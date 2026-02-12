@@ -12,10 +12,13 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
-import DeleteModal from "../models/DeleteModal";
+import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
 import Pagination from "../Components/Pagination";
 import { type SortField, type SortOrder } from "../types";
-import { useGetIssuesQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
+import {
+  useGetIssuesQuery,
+  useDeleteIssueMutation,
+} from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
 import { useGetUsersQuery } from "../features/users/userApi";
 
@@ -31,7 +34,7 @@ const Issues: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [issueToDelete, setIssueToDelete] = useState<number | string | null>(null);
+  const [issueToDelete, setIssueToDelete] = useState<any | null>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
   const itemsPerPage = 6;
@@ -50,7 +53,7 @@ const Issues: React.FC = () => {
   // Fetch projects for filter
   const { data: projectsData } = useGetProjectsQuery({});
   const projects = projectsData || [];
-  
+
   // Fetch users for assignee filter
   const { data: users = [] } = useGetUsersQuery();
 
@@ -62,9 +65,6 @@ const Issues: React.FC = () => {
     severity: filterSeverity !== "All" ? filterSeverity : undefined,
   });
 
-  // Delete mutation
-  const [deleteIssue] = useDeleteIssueMutation();
-
   // Get issues from API response
   const issues = data?.issues || [];
 
@@ -72,9 +72,10 @@ const Issues: React.FC = () => {
   const filteredAndSortedIssues = useCallback(() => {
     let filtered = issues.filter((issue) => {
       const matchesAssignee =
-        filterAssignee === "All" || (issue.assignee && issue.assignee.name === filterAssignee);
+        filterAssignee === "All" ||
+        (issue.assignee && issue.assignee.name === filterAssignee);
       const matchesProject =
-        filterProject === "All" || 
+        filterProject === "All" ||
         (issue.project && issue.project._id === filterProject) ||
         (filterProject === "Unassigned" && !issue.project);
       const matchesCompletedDate = (() => {
@@ -109,56 +110,97 @@ const Issues: React.FC = () => {
 
       if (sortField === "priority") {
         const priorityOrder = { Low: 1, Medium: 2, High: 3, Critical: 4 };
-        comparison = priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder];
+        comparison =
+          priorityOrder[a.priority as keyof typeof priorityOrder] -
+          priorityOrder[b.priority as keyof typeof priorityOrder];
       } else if (sortField === "status") {
-        const statusOrder = { Open: 1, "In Progress": 2, Resolved: 3, Closed: 4 };
-        comparison = statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder];
+        const statusOrder = {
+          Open: 1,
+          "In Progress": 2,
+          Resolved: 3,
+          Closed: 4,
+        };
+        comparison =
+          statusOrder[a.status as keyof typeof statusOrder] -
+          statusOrder[b.status as keyof typeof statusOrder];
       } else if (sortField === "title") {
         comparison = a.title.localeCompare(b.title);
       } else {
-        comparison = new Date(a[sortField]).getTime() - new Date(b[sortField]).getTime();
+        comparison =
+          new Date(a[sortField]).getTime() - new Date(b[sortField]).getTime();
       }
 
       return sortOrder === "asc" ? comparison : -comparison;
     });
 
     return filtered;
-  }, [issues, filterAssignee, filterProject, filterCompletedDate, sortField, sortOrder]);
+  }, [
+    issues,
+    filterAssignee,
+    filterProject,
+    filterCompletedDate,
+    sortField,
+    sortOrder,
+  ]);
 
   const filteredIssues = filteredAndSortedIssues();
 
   // Pagination
   const totalPages = Math.ceil(filteredIssues.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedIssues = filteredIssues.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedIssues = filteredIssues.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, filterStatus, filterPriority, filterSeverity, filterAssignee, filterProject, filterCompletedDate]);
+  }, [
+    debouncedSearch,
+    filterStatus,
+    filterPriority,
+    filterSeverity,
+    filterAssignee,
+    filterProject,
+    filterCompletedDate,
+  ]);
 
   // Delete issue
-  const handleDeleteClick = (id: number | string) => {
-    setIssueToDelete(id);
+  const handleDeleteClick = (issue: any) => {
+    setIssueToDelete(issue);
     setShowDeleteModal(true);
   };
 
+  const [deleteIssue, { isLoading: isDeleting }] = useDeleteIssueMutation();
+
   const confirmDelete = async () => {
-    if (issueToDelete) {
-      try {
-        await deleteIssue(issueToDelete.toString()).unwrap();
-        console.log("Issue deleted successfully:", issueToDelete);
-      } catch (error) {
-        console.error("Error deleting issue:", error);
-      }
+    if (!issueToDelete) return;
+
+    try {
+      await deleteIssue(issueToDelete.id.toString()).unwrap();
+    } catch (error) {
+      console.error("Error deleting issue:", error);
+    } finally {
+      setShowDeleteModal(false);
+      setIssueToDelete(null);
     }
-    setShowDeleteModal(false);
-    setIssueToDelete(null);
   };
 
   // Export functionality
   const exportToCSV = () => {
-    const headers = ["ID", "Title", "Description", "Status", "Priority", "Severity", "Assignee", "Completed At", "Created At", "Updated At"];
+    const headers = [
+      "ID",
+      "Title",
+      "Description",
+      "Status",
+      "Priority",
+      "Severity",
+      "Assignee",
+      "Completed At",
+      "Created At",
+      "Updated At",
+    ];
     const csvData = filteredIssues.map((issue) => [
       issue.id,
       `"${issue.title}"`,
@@ -207,7 +249,14 @@ const Issues: React.FC = () => {
     setSortOrder("desc");
   };
 
-  const hasActiveFilters = searchTerm || filterStatus !== "All" || filterPriority !== "All" || filterSeverity !== "All" || filterAssignee !== "All" || filterProject !== "All" || filterCompletedDate !== "All";
+  const hasActiveFilters =
+    searchTerm ||
+    filterStatus !== "All" ||
+    filterPriority !== "All" ||
+    filterSeverity !== "All" ||
+    filterAssignee !== "All" ||
+    filterProject !== "All" ||
+    filterCompletedDate !== "All";
 
   return (
     <PageLayout>
@@ -443,7 +492,8 @@ const Issues: React.FC = () => {
               Error Loading Issues
             </h3>
             <p className="text-red-600 mb-6">
-              {(error as any)?.data?.message || "Failed to load issues. Please try again."}
+              {(error as any)?.data?.message ||
+                "Failed to load issues. Please try again."}
             </p>
             <button
               onClick={() => window.location.reload()}
@@ -490,7 +540,7 @@ const Issues: React.FC = () => {
                     issue={issue}
                     viewMode="list"
                     index={index}
-                    onDelete={handleDeleteClick}
+                    onDelete={() => handleDeleteClick(issue)}
                   />
                 ))}
               </div>
@@ -524,12 +574,16 @@ const Issues: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteModal
+      <ConfirmDeleteModal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setIssueToDelete(null);
+        }}
         onConfirm={confirmDelete}
         title="Delete Issue"
-        message="Are you sure you want to delete this issue? This action cannot be undone."
+        message={`Are you sure you want to delete "${issueToDelete?.title}"? This action cannot be undone.`}
+        confirmText={isDeleting ? "Deleting..." : "Delete"}
       />
     </PageLayout>
   );
