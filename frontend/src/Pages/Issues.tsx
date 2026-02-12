@@ -12,7 +12,7 @@ import {
 import PageLayout from "../Layout/PageLayout";
 import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
-import DeleteModal from "../Components/DeleteModal";
+import DeleteModal from "../models/DeleteModal";
 import Pagination from "../Components/Pagination";
 import { type SortField, type SortOrder } from "../types";
 import { useGetIssuesQuery, useDeleteIssueMutation } from "../features/issues/issueApi";

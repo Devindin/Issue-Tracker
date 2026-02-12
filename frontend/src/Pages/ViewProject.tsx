@@ -14,8 +14,8 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import DeleteModal from "../Components/DeleteModal";
-import StatusModal from "../Components/StatusModal";
+import DeleteModal from "../models/DeleteModal";
+import StatusModal from "../models/StatusModal";
 import {
   useGetProjectByIdQuery,
   useDeleteProjectMutation,

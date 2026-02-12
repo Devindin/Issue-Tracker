@@ -21,7 +21,7 @@ import {
   type Project,
 } from "../features/projects/projectApi";
 import Pagination from "../Components/Pagination";
-import DeleteModal from "../Components/DeleteModal";
+import DeleteModal from "../models/DeleteModal";
 
 const ProjectsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");

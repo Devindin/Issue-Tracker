@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import StatusModal from "../Components/StatusModal";
+import StatusModal from "../models/StatusModal";
 import { useGetIssueByIdQuery, useUpdateIssueMutation } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
 import { useGetUsersQuery } from "../features/users/userApi";

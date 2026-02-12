@@ -3,7 +3,7 @@ import {
   FaBell,
   FaSave,
 } from "react-icons/fa";
-import { type NotificationSettings } from "../types";
+import { type NotificationSettings } from "../../types";
 
 interface NotificationsTabProps {
   notifications: NotificationSettings;

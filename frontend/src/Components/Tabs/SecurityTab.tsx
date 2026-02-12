@@ -4,8 +4,8 @@ import {
   FaShieldAlt,
   FaSave,
 } from "react-icons/fa";
-import { type SecuritySettings } from "../types";
-import { useChangePasswordMutation } from "../features/profile/profileApi";
+import { type SecuritySettings } from "../../types";
+import { useChangePasswordMutation } from "../../features/profile/profileApi";
 
 interface SecurityTabProps {
   security: SecuritySettings;

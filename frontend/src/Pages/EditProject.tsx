@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { FaSave, FaTimes, FaInfoCircle, FaSpinner } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import StatusModal from "../Components/StatusModal";
+import StatusModal from "../models/StatusModal";
 import {
   useGetProjectByIdQuery,
   useUpdateProjectMutation,

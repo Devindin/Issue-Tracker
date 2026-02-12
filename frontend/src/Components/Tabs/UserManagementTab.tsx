@@ -11,14 +11,14 @@ import {
   FaTimes,
   FaUser,
 } from "react-icons/fa";
-import { type ManagedUser, type CreateUserData, type UserPermissions } from "../types";
+import { type ManagedUser, type CreateUserData, type UserPermissions } from "../../types";
 import { 
   useGetUsersQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation
-} from "../features/users/userApi";
-import DeleteUserModal from "./DeleteUserModal";
+} from "../../features/users/userApi";
+import DeleteUserModal from "../../models/DeleteUserModal";
 
 interface UserManagementTabProps {}
 

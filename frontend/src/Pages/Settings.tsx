@@ -11,10 +11,10 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import ProfileTab from "../Components/ProfileTab";
-import SecurityTab from "../Components/SecurityTab";
-import UserManagementTab from "../Components/UserManagementTab";
-import DeleteAccountModal from "../Components/DeleteAccountModal";
+import ProfileTab from "../Components/Tabs/ProfileTab";
+import SecurityTab from "../Components/Tabs/SecurityTab";
+import UserManagementTab from "../Components/Tabs/UserManagementTab";
+import DeleteAccountModal from "../models/DeleteAccountModal";
 import { useGetProfileQuery } from "../features/profile/profileApi";
 import {
   setActiveTab,

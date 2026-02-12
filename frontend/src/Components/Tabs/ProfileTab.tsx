@@ -12,9 +12,9 @@ import {
   FaGlobe,
   FaSave,
 } from "react-icons/fa";
-import { type UserProfile } from "../types";
-import { useUpdateProfileMutation } from "../features/profile/profileApi";
-import { setCredentials } from "../features/auth/authSlice";
+import { type UserProfile } from "../../types";
+import { useUpdateProfileMutation } from "../../features/profile/profileApi";
+import { setCredentials } from "../../features/auth/authSlice";
 
 interface ProfileTabProps {
   profile: UserProfile;

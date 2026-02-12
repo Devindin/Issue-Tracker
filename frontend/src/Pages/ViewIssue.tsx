@@ -19,7 +19,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import DeleteModal from "../Components/DeleteModal";
+import DeleteModal from "../models/DeleteModal";
 import { useGetIssueByIdQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
 
 const ViewIssue: React.FC = () => {
