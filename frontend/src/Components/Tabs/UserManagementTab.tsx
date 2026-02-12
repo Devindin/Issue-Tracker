@@ -23,6 +23,7 @@ import {
   useDeleteUserMutation,
 } from "../../features/users/userApi";
 import ConfirmDeleteModal from "../../models/ConfirmDeleteModal";
+import CreateUserModal from "../../models/CreateUserModal";
 
 interface UserManagementTabProps {}
 
@@ -112,22 +113,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
         return basePermissions;
     }
   };
-
-  // Create user validation schema
-  const createUserSchema = Yup.object({
-    name: Yup.string()
-      .min(2, "Name must be at least 2 characters")
-      .required("Name is required"),
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    password: Yup.string()
-      .min(8, "Password must be at least 8 characters")
-      .required("Password is required"),
-    role: Yup.string()
-      .oneOf(["admin", "manager", "developer", "qa", "viewer"], "Invalid role")
-      .required("Role is required"),
-  });
 
   // Handle create user
   const handleCreateUser = async (values: CreateUserData) => {
@@ -405,123 +390,13 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
 
       {/* Create User Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md mx-4"
-          >
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Create New User
-            </h3>
-            <Formik
-              initialValues={{
-                name: "",
-                email: "",
-                password: "",
-                role: "viewer" as const,
-                permissions: getDefaultPermissions("viewer"),
-              }}
-              validationSchema={createUserSchema}
-              onSubmit={handleCreateUser}
-            >
-              {({ setFieldValue }) => (
-                <Form className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
-                    </label>
-                    <Field
-                      name="name"
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <ErrorMessage
-                      name="name"
-                      component="div"
-                      className="text-red-500 text-sm mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <Field
-                      name="email"
-                      type="email"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <ErrorMessage
-                      name="email"
-                      component="div"
-                      className="text-red-500 text-sm mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Password
-                    </label>
-                    <Field
-                      name="password"
-                      type="password"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <ErrorMessage
-                      name="password"
-                      component="div"
-                      className="text-red-500 text-sm mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Role
-                    </label>
-                    <Field
-                      as="select"
-                      name="role"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                        const role = e.target.value;
-                        setFieldValue("role", role);
-                        setFieldValue(
-                          "permissions",
-                          getDefaultPermissions(role),
-                        );
-                      }}
-                    >
-                      <option value="viewer">Viewer</option>
-                      <option value="developer">Developer</option>
-                      <option value="qa">QA</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
-                    </Field>
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowCreateModal(false)}
-                      disabled={isCreating}
-                      className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isCreating}
-                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isCreating ? "Creating..." : "Create User"}
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </motion.div>
-        </div>
+        <CreateUserModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateUser}
+          getDefaultPermissions={getDefaultPermissions}
+          isLoading={isCreating}
+        />
       )}
 
       {/* Edit User Modal */}
