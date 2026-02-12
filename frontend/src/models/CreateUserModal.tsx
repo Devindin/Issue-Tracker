@@ -53,9 +53,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
         animate={{ opacity: 1, scale: 1 }}
         className="bg-white rounded-2xl p-6 w-full max-w-md mx-4"
       >
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Create New User
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Create New User</h3>
 
         <Formik<CreateUserData>
           initialValues={{
@@ -123,6 +121,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 touched={touched as Record<string, boolean>}
               />
 
+              {/* Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
