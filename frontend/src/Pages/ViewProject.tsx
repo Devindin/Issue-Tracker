@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import DeleteModal from "../models/DeleteModal";
+import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
 import StatusModal from "../models/StatusModal";
 import {
   useGetProjectByIdQuery,
@@ -29,11 +29,16 @@ const ViewProject: React.FC = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { data: project, isLoading, error } = useGetProjectByIdQuery(id!, {
+  const {
+    data: project,
+    isLoading,
+    error,
+  } = useGetProjectByIdQuery(id!, {
     skip: !id,
   });
   const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
-  const [toggleArchive, { isLoading: isToggling }] = useToggleProjectArchiveMutation();
+  const [toggleArchive, { isLoading: isToggling }] =
+    useToggleProjectArchiveMutation();
 
   React.useEffect(() => {
     console.log("ViewProject Component - ID:", id);
@@ -49,7 +54,9 @@ const ViewProject: React.FC = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <FaExclamationTriangle className="text-5xl text-red-500 mx-auto mb-4" />
-            <p className="text-red-600 text-xl font-semibold mb-4">No project ID provided</p>
+            <p className="text-red-600 text-xl font-semibold mb-4">
+              No project ID provided
+            </p>
             <Link
               to="/projects"
               className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors inline-block"
@@ -68,7 +75,10 @@ const ViewProject: React.FC = () => {
       navigate("/projects");
     } catch (error: any) {
       console.error("Error deleting project:", error);
-      setErrorMessage(error?.data?.message || "Failed to delete project. It may have associated issues.");
+      setErrorMessage(
+        error?.data?.message ||
+          "Failed to delete project. It may have associated issues.",
+      );
       setShowErrorModal(true);
       setShowDeleteModal(false);
     }
@@ -79,7 +89,9 @@ const ViewProject: React.FC = () => {
       await toggleArchive(id!).unwrap();
     } catch (error: any) {
       console.error("Error toggling archive status:", error);
-      setErrorMessage(error?.data?.message || "Failed to update project status.");
+      setErrorMessage(
+        error?.data?.message || "Failed to update project status.",
+      );
       setShowErrorModal(true);
     }
   };
@@ -103,7 +115,9 @@ const ViewProject: React.FC = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <FaExclamationTriangle className="text-5xl text-red-500 mx-auto mb-4" />
-            <p className="text-red-600 text-xl font-semibold mb-4">Failed to load project</p>
+            <p className="text-red-600 text-xl font-semibold mb-4">
+              Failed to load project
+            </p>
             <Link
               to="/projects"
               className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors inline-block"
@@ -122,7 +136,9 @@ const ViewProject: React.FC = () => {
     completed: { color: "blue", label: "Completed" },
   };
 
-  const status = statusConfig[project.status as keyof typeof statusConfig] || statusConfig.active;
+  const status =
+    statusConfig[project.status as keyof typeof statusConfig] ||
+    statusConfig.active;
 
   return (
     <PageLayout>
@@ -163,7 +179,8 @@ const ViewProject: React.FC = () => {
               disabled={isToggling}
               className="px-4 py-2 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-md disabled:opacity-50"
             >
-              <FaArchive /> {project.status === "archived" ? "Unarchive" : "Archive"}
+              <FaArchive />{" "}
+              {project.status === "archived" ? "Unarchive" : "Archive"}
             </button>
             <button
               onClick={() => setShowDeleteModal(true)}
@@ -181,11 +198,15 @@ const ViewProject: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="bg-white rounded-2xl shadow-md p-6"
         >
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Project Details</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Project Details
+          </h2>
 
           {project.description && (
             <div className="mb-6">
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">Description</h3>
+              <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                Description
+              </h3>
               <p className="text-gray-700">{project.description}</p>
             </div>
           )}
@@ -201,8 +222,12 @@ const ViewProject: React.FC = () => {
                   {project.lead?.name?.charAt(0).toUpperCase() || "?"}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-800">{project.lead?.name || "Not assigned"}</p>
-                  <p className="text-sm text-gray-500">{project.lead?.email || ""}</p>
+                  <p className="font-medium text-gray-800">
+                    {project.lead?.name || "Not assigned"}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {project.lead?.email || ""}
+                  </p>
                 </div>
               </div>
             </div>
@@ -234,7 +259,9 @@ const ViewProject: React.FC = () => {
           {/* Team Members */}
           {project.members && project.members.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-sm font-semibold text-gray-600 mb-3">Team Members</h3>
+              <h3 className="text-sm font-semibold text-gray-600 mb-3">
+                Team Members
+              </h3>
               <div className="flex flex-wrap gap-3">
                 {project.members.map((member: any) => (
                   <div
@@ -245,7 +272,9 @@ const ViewProject: React.FC = () => {
                       {member.name?.charAt(0).toUpperCase() || "?"}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-800">{member.name}</p>
+                      <p className="text-sm font-medium text-gray-800">
+                        {member.name}
+                      </p>
                       <p className="text-xs text-gray-500">{member.email}</p>
                     </div>
                   </div>
@@ -262,14 +291,18 @@ const ViewProject: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="bg-white rounded-2xl shadow-md p-6"
         >
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Issue Statistics</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Issue Statistics
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Total Issues */}
             <div className="p-4 bg-indigo-50 rounded-xl border-2 border-indigo-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-indigo-600 font-medium">Total Issues</p>
+                  <p className="text-sm text-indigo-600 font-medium">
+                    Total Issues
+                  </p>
                   <p className="text-3xl font-bold text-indigo-700 mt-1">
                     {project.issueCount || 0}
                   </p>
@@ -282,7 +315,9 @@ const ViewProject: React.FC = () => {
             <div className="p-4 bg-green-50 rounded-xl border-2 border-green-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-green-600 font-medium">Open Issues</p>
+                  <p className="text-sm text-green-600 font-medium">
+                    Open Issues
+                  </p>
                   <p className="text-3xl font-bold text-green-700 mt-1">
                     {project.openIssueCount || 0}
                   </p>
@@ -295,7 +330,9 @@ const ViewProject: React.FC = () => {
             <div className="p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium">Closed Issues</p>
+                  <p className="text-sm text-gray-600 font-medium">
+                    Closed Issues
+                  </p>
                   <p className="text-3xl font-bold text-gray-700 mt-1">
                     {(project.issueCount || 0) - (project.openIssueCount || 0)}
                   </p>
@@ -331,17 +368,15 @@ const ViewProject: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Delete Modal */}
-      <DeleteModal
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
-        title="Delete Project"
-        message={`Are you sure you want to delete the project "${project.name}"? This action cannot be undone.${
-          project.issueCount > 0
-            ? " This project has issues associated with it and cannot be deleted."
-            : ""
-        }`}
+        entityName="Project"
+        itemName={project.name}
+        confirmText="Delete Project"
+        isLoading={isDeleting}
       />
 
       {/* Error Modal */}
