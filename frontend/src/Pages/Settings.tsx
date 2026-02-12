@@ -2,47 +2,45 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
-import {
-  FaUser,
-  FaLock,
-  FaBell,
-  FaCheck,
-  FaShieldAlt,
-} from "react-icons/fa";
+import { FaUser, FaLock, FaBell, FaCheck, FaShieldAlt } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import ProfileTab from "../Components/Tabs/ProfileTab";
 import SecurityTab from "../Components/Tabs/SecurityTab";
 import UserManagementTab from "../Components/Tabs/UserManagementTab";
-import DeleteAccountModal from "../models/DeleteAccountModal";
+import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
 import { useGetProfileQuery } from "../features/profile/profileApi";
-import {
-  setActiveTab,
-} from "../features/settings/settingsSlice";
+import { setActiveTab } from "../features/settings/settingsSlice";
 import type { SecuritySettings } from "../types";
 
 const Settings: React.FC = () => {
   const dispatch = useDispatch();
   const [showDeleteModal, setShowDeleteModal] = React.useState<boolean>(false);
-  const [showSuccessMessage, setShowSuccessMessage] = React.useState<boolean>(false);
-  
+  const [showSuccessMessage, setShowSuccessMessage] =
+    React.useState<boolean>(false);
+
   // Security settings state
   const [security, setSecurity] = React.useState<SecuritySettings>({
     twoFactorAuth: false,
     sessionTimeout: 30,
     loginAlerts: true,
   });
-  
+
   // Get active tab from Redux
   const { activeTab } = useSelector((state: RootState) => state.settings);
-  
+
   // Fetch profile from API
-  const { data: profile, isLoading: profileLoading, error: profileError } = useGetProfileQuery();
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    error: profileError,
+  } = useGetProfileQuery();
 
   // Delete account
   const deleteAccount = () => {
-    // TODO: API call to delete account
     localStorage.clear();
+    sessionStorage.clear();
+    setShowDeleteModal(false);
     window.location.href = "/login";
   };
 
@@ -99,7 +97,9 @@ const Settings: React.FC = () => {
         {/* Error State */}
         {profileError && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-            <p className="text-red-800">Failed to load profile. Please try again.</p>
+            <p className="text-red-800">
+              Failed to load profile. Please try again.
+            </p>
           </div>
         )}
 
@@ -156,7 +156,10 @@ const Settings: React.FC = () => {
                   setSecurity={setSecurity}
                   saveSettings={() => {
                     // Save security settings to localStorage or API
-                    localStorage.setItem('securitySettings', JSON.stringify(security));
+                    localStorage.setItem(
+                      "securitySettings",
+                      JSON.stringify(security),
+                    );
                   }}
                   onSuccess={() => {
                     setShowSuccessMessage(true);
@@ -181,10 +184,14 @@ const Settings: React.FC = () => {
         )}
 
         {/* Delete Account Modal */}
-        <DeleteAccountModal
+        <ConfirmDeleteModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
           onConfirm={deleteAccount}
+          entityName="Account"
+          title="Delete Account"
+          message="Are you sure you want to permanently delete your account? This action cannot be undone."
+          confirmText="Delete Account"
         />
       </div>
     </PageLayout>
