@@ -7,8 +7,6 @@ import {
   FaExclamationCircle,
   FaSpinner,
   FaPlus,
-  FaSearch,
-  FaFilter,
 } from "react-icons/fa";
 
 import DashboardCard from "../Components/Dashboardcard";
@@ -22,13 +20,6 @@ import {
   useGetRecentIssuesQuery,
 } from "../features/dashboard/dashboardApi";
 
-import {
-  setSearchTerm,
-  setFilterStatus,
-  setFilterPriority,
-} from "../features/issues/issuesFilterSlice";
-
-import StatusChart from "../Components/StatusChart";
 import TrendChart from "../Components/TrendChart";
 import ChartErrorBoundary from "../Components/ChartErrorBoundary";
 
@@ -111,8 +102,6 @@ const Dashboard: React.FC = () => {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  // Chart Data
-
   // Status chart with safe data handling
   const statusLabels = analyticsData?.statusStats && Array.isArray(analyticsData.statusStats) && analyticsData.statusStats.length > 0
     ? analyticsData.statusStats.map((item: any) => item._id || "Unknown")
@@ -124,19 +113,6 @@ const Dashboard: React.FC = () => {
 
   console.log("Status Labels:", statusLabels);
   console.log("Status Data:", statusData);
-
-  const statusChartData: ChartData<"pie"> = {
-    labels: statusLabels,
-    datasets: [
-      {
-        label: "Issues by Status",
-        data: statusData,
-        backgroundColor: ["#6366F1", "#F59E0B", "#10B981", "#EF4444"],
-        borderColor: "#fff",
-        borderWidth: 2,
-      },
-    ],
-  };
 
   const trendChartData: ChartData<"line"> = {
     labels: ["Open", "In Progress", "Resolved", "Closed"],
