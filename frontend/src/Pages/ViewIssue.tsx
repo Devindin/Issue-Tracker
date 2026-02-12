@@ -19,8 +19,11 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
-import DeleteModal from "../models/DeleteModal";
-import { useGetIssueByIdQuery, useDeleteIssueMutation } from "../features/issues/issueApi";
+import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
+import {
+  useGetIssueByIdQuery,
+  useDeleteIssueMutation,
+} from "../features/issues/issueApi";
 
 const ViewIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +36,7 @@ const ViewIssue: React.FC = () => {
   });
 
   // Delete mutation
-  const [deleteIssue] = useDeleteIssueMutation();
+  const [deleteIssue, { isLoading: isDeleting }] = useDeleteIssueMutation();
 
   const issue = data?.issue;
 
@@ -97,7 +100,7 @@ const ViewIssue: React.FC = () => {
 
     try {
       await deleteIssue(issue.id.toString()).unwrap();
-      console.log("Issue deleted successfully:", issue.id);
+      setShowDeleteModal(false);
       navigate("/issues");
     } catch (error) {
       console.error("Error deleting issue:", error);
@@ -123,8 +126,12 @@ const ViewIssue: React.FC = () => {
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center">
             <FaExclamationCircle className="text-6xl text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Issue Not Found</h2>
-            <p className="text-gray-600 mb-6">The issue you're looking for doesn't exist.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Issue Not Found
+            </h2>
+            <p className="text-gray-600 mb-6">
+              The issue you're looking for doesn't exist.
+            </p>
             <Link
               to="/issues"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#1976D2] text-white rounded-xl font-semibold hover:bg-[#1565C0] transition-colors"
@@ -185,11 +192,13 @@ const ViewIssue: React.FC = () => {
           <div className="space-y-6">
             {/* Title */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">{issue.title}</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                {issue.title}
+              </h2>
               <div className="flex flex-wrap gap-3">
                 <span
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border ${getStatusBadge(
-                    issue.status
+                    issue.status,
                   )}`}
                 >
                   {getStatusIcon(issue.status)}
@@ -197,7 +206,7 @@ const ViewIssue: React.FC = () => {
                 </span>
                 <span
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border ${getPriorityBadge(
-                    issue.priority
+                    issue.priority,
                   )}`}
                 >
                   {getPriorityIcon(issue.priority)}
@@ -210,7 +219,8 @@ const ViewIssue: React.FC = () => {
                 {issue.project && (
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
                     <FaFolder />
-                    {issue.project.icon} {issue.project.name} ({issue.project.key})
+                    {issue.project.icon} {issue.project.name} (
+                    {issue.project.key})
                   </span>
                 )}
               </div>
@@ -218,9 +228,13 @@ const ViewIssue: React.FC = () => {
 
             {/* Description */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Description
+              </h3>
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{issue.description}</p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {issue.description}
+                </p>
               </div>
             </div>
 
@@ -231,14 +245,20 @@ const ViewIssue: React.FC = () => {
                   <FaClock className="text-gray-400" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">Created</p>
-                    <p className="text-sm text-gray-800">{formatDate(issue.createdAt)}</p>
+                    <p className="text-sm text-gray-800">
+                      {formatDate(issue.createdAt)}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <FaClock className="text-gray-400" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Last Updated</p>
-                    <p className="text-sm text-gray-800">{formatDate(issue.updatedAt)}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Last Updated
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {formatDate(issue.updatedAt)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -246,15 +266,23 @@ const ViewIssue: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <FaUser className="text-gray-400" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Reporter</p>
-                    <p className="text-sm text-gray-800">{issue.reporter?.name || "Unassigned"}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Reporter
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {issue.reporter?.name || "Unassigned"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <FaUser className="text-gray-400" />
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Assignee</p>
-                    <p className="text-sm text-gray-800">{issue.assignee?.name || "Unassigned"}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Assignee
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {issue.assignee?.name || "Unassigned"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -264,12 +292,14 @@ const ViewIssue: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteModal
+      <ConfirmDeleteModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
-        title="Delete Issue"
-        itemName={`issue #${issue.id}`}
+        entityName="Issue"
+        itemName={`#${issue.id}`}
+        confirmText="Delete Issue"
+        isLoading={isDeleting}
       />
     </PageLayout>
   );
