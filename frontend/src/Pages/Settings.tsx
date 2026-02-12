@@ -117,13 +117,13 @@ const Settings: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => dispatch(setActiveTab(tab.id))}
-                    className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all font-medium ${
+                    className={`flex md:flex-row flex-col items-center gap-1 md:gap-3 md:px-6 md:py-3 px-3 py-2 rounded-xl transition-all font-small md:font-medium ${
                       activeTab === tab.id
                         ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
                         : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600"
                     }`}
                   >
-                    <span className="text-lg">{tab.icon}</span>
+                    <span className=" text-md md:text-lg">{tab.icon}</span>
                     <span>{tab.label}</span>
                   </button>
                 ))}
