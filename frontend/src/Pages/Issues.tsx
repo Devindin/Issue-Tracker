@@ -14,13 +14,17 @@ import IssueCard from "../Components/IssueCard";
 import PageTitle from "../Components/PageTitle";
 import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
 import Pagination from "../Components/Pagination";
-import { type SortField, type SortOrder } from "../types";
+import type { Issue, SortField, SortOrder } from "../types";
 import {
   useGetIssuesQuery,
   useDeleteIssueMutation,
 } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
 import { useGetUsersQuery } from "../features/users/userApi";
+import { useMemo } from "react";
+import { filterIssues } from "../utils/issueFilters";
+import { exportIssuesToCSV, exportIssuesToJSON } from "../utils/exportUtils";
+import { sortIssues } from "../utils/issueSort";
 
 const Issues: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -34,7 +38,7 @@ const Issues: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [issueToDelete, setIssueToDelete] = useState<any | null>(null);
+  const [issueToDelete, setIssueToDelete] = useState<Issue | null>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
   const itemsPerPage = 6;
@@ -68,72 +72,14 @@ const Issues: React.FC = () => {
   // Get issues from API response
   const issues = data?.issues || [];
 
-  // Apply client-side filters for assignee, project and completedDate (not handled by API)
-  const filteredAndSortedIssues = useCallback(() => {
-    let filtered = issues.filter((issue) => {
-      const matchesAssignee =
-        filterAssignee === "All" ||
-        (issue.assignee && issue.assignee.name === filterAssignee);
-      const matchesProject =
-        filterProject === "All" ||
-        (issue.project && issue.project._id === filterProject) ||
-        (filterProject === "Unassigned" && !issue.project);
-      const matchesCompletedDate = (() => {
-        if (filterCompletedDate === "All") return true;
-        if (!issue.completedAt) return filterCompletedDate === "Unassigned";
-        const completedDate = new Date(issue.completedAt);
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const lastWeek = new Date(today);
-        lastWeek.setDate(lastWeek.getDate() - 7);
-
-        switch (filterCompletedDate) {
-          case "Today":
-            return completedDate.toDateString() === today.toDateString();
-          case "Yesterday":
-            return completedDate.toDateString() === yesterday.toDateString();
-          case "Last Week":
-            return completedDate >= lastWeek;
-          case "Unassigned":
-            return !issue.completedAt;
-          default:
-            return true;
-        }
-      })();
-      return matchesAssignee && matchesCompletedDate && matchesProject;
+  const filteredIssues = useMemo(() => {
+    const filtered = filterIssues(issues, {
+      filterAssignee,
+      filterProject,
+      filterCompletedDate,
     });
 
-    // Sort
-    filtered.sort((a, b) => {
-      let comparison = 0;
-
-      if (sortField === "priority") {
-        const priorityOrder = { Low: 1, Medium: 2, High: 3, Critical: 4 };
-        comparison =
-          priorityOrder[a.priority as keyof typeof priorityOrder] -
-          priorityOrder[b.priority as keyof typeof priorityOrder];
-      } else if (sortField === "status") {
-        const statusOrder = {
-          Open: 1,
-          "In Progress": 2,
-          Resolved: 3,
-          Closed: 4,
-        };
-        comparison =
-          statusOrder[a.status as keyof typeof statusOrder] -
-          statusOrder[b.status as keyof typeof statusOrder];
-      } else if (sortField === "title") {
-        comparison = a.title.localeCompare(b.title);
-      } else {
-        comparison =
-          new Date(a[sortField]).getTime() - new Date(b[sortField]).getTime();
-      }
-
-      return sortOrder === "asc" ? comparison : -comparison;
-    });
-
-    return filtered;
+    return sortIssues(filtered, sortField, sortOrder);
   }, [
     issues,
     filterAssignee,
@@ -142,8 +88,6 @@ const Issues: React.FC = () => {
     sortField,
     sortOrder,
   ]);
-
-  const filteredIssues = filteredAndSortedIssues();
 
   // Pagination
   const totalPages = Math.ceil(filteredIssues.length / itemsPerPage);
@@ -167,7 +111,7 @@ const Issues: React.FC = () => {
   ]);
 
   // Delete issue
-  const handleDeleteClick = (issue: any) => {
+  const handleDeleteClick = (issue: Issue) => {
     setIssueToDelete(issue);
     setShowDeleteModal(true);
   };
@@ -187,55 +131,8 @@ const Issues: React.FC = () => {
     }
   };
 
-  // Export functionality
-  const exportToCSV = () => {
-    const headers = [
-      "ID",
-      "Title",
-      "Description",
-      "Status",
-      "Priority",
-      "Severity",
-      "Assignee",
-      "Completed At",
-      "Created At",
-      "Updated At",
-    ];
-    const csvData = filteredIssues.map((issue) => [
-      issue.id,
-      `"${issue.title}"`,
-      `"${issue.description}"`,
-      issue.status,
-      issue.priority,
-      issue.severity,
-      issue.assignee ? issue.assignee.name : "Unassigned",
-      issue.completedAt || "",
-      issue.createdAt,
-      issue.updatedAt,
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `issues-export-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-  };
-
-  const exportToJSON = () => {
-    const jsonContent = JSON.stringify(filteredIssues, null, 2);
-    const blob = new Blob([jsonContent], { type: "application/json" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `issues-export-${new Date().toISOString().split("T")[0]}.json`;
-    a.click();
-  };
+  const exportToCSV = () => exportIssuesToCSV(filteredIssues);
+  const exportToJSON = () => exportIssuesToJSON(filteredIssues);
 
   const clearFilters = () => {
     setSearchTerm("");
