@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -20,24 +20,34 @@ import {
   useToggleProjectArchiveMutation,
   type Project,
 } from "../features/projects/projectApi";
+import Pagination from "../Components/Pagination";
 
 const ProjectsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("active");
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   // Fetch projects
-  const { data: projects = [], isLoading, isError, refetch } = useGetProjectsQuery({ 
-    status: statusFilter === "all" ? undefined : statusFilter 
+  const {
+    data: projects = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetProjectsQuery({
+    status: statusFilter === "all" ? undefined : statusFilter,
   });
   const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
-  const [toggleArchive, { isLoading: isToggling }] = useToggleProjectArchiveMutation();
+  const [toggleArchive, { isLoading: isToggling }] =
+    useToggleProjectArchiveMutation();
 
   // Filter projects based on search
-  const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProjects = projects.filter(
+    (project) =>
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleDeleteProject = async () => {
@@ -75,10 +85,21 @@ const ProjectsPage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+
+  const paginatedProjects = filteredProjects.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   return (
     <PageLayout>
       <div className="space-y-6">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,7 +201,7 @@ const ProjectsPage: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project, index) => (
+              {paginatedProjects.map((project, index) => (
                 <motion.div
                   key={project._id}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -220,7 +241,7 @@ const ProjectsPage: React.FC = () => {
                   <div className="mb-4">
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                        project.status
+                        project.status,
                       )}`}
                     >
                       {project.status}
@@ -230,7 +251,10 @@ const ProjectsPage: React.FC = () => {
                   {/* Stats */}
                   <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
                     <div>
-                      <span className="font-semibold">{project.issueCount || 0}</span> total issues
+                      <span className="font-semibold">
+                        {project.issueCount || 0}
+                      </span>{" "}
+                      total issues
                     </div>
                     <div>
                       <span className="font-semibold text-green-600">
@@ -243,7 +267,8 @@ const ProjectsPage: React.FC = () => {
                   {/* Lead */}
                   {project.lead && (
                     <div className="text-sm text-gray-600 mb-4">
-                      Lead: <span className="font-medium">{project.lead.name}</span>
+                      Lead:{" "}
+                      <span className="font-medium">{project.lead.name}</span>
                     </div>
                   )}
 
@@ -259,7 +284,9 @@ const ProjectsPage: React.FC = () => {
                       onClick={() => handleToggleArchive(project._id)}
                       disabled={isToggling}
                       className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-                      title={project.status === "archived" ? "Restore" : "Archive"}
+                      title={
+                        project.status === "archived" ? "Restore" : "Archive"
+                      }
                     >
                       <FaArchive />
                     </button>
@@ -293,8 +320,20 @@ const ProjectsPage: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="text-center text-gray-600"
           >
-            Showing {filteredProjects.length} of {projects.length} projects
           </motion.div>
+        )}
+
+        {/* Pagination */}
+        {filteredProjects.length > itemsPerPage && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={filteredProjects.length}
+            itemsPerPage={itemsPerPage}
+            variant="rounded"
+            size="md"
+          />
         )}
       </div>
 
@@ -310,7 +349,9 @@ const ProjectsPage: React.FC = () => {
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <FaExclamationCircle className="text-red-600 text-xl" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">Delete Project</h3>
+              <h3 className="text-lg font-semibold text-gray-800">
+                Delete Project
+              </h3>
             </div>
 
             <p className="text-gray-600 mb-2">
@@ -320,7 +361,8 @@ const ProjectsPage: React.FC = () => {
               {deletingProject.name} ({deletingProject.key})
             </p>
             <p className="text-sm text-gray-500 mb-6">
-              This action cannot be undone. You can only delete projects with no issues.
+              This action cannot be undone. You can only delete projects with no
+              issues.
             </p>
 
             <div className="flex gap-3">
