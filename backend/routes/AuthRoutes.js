@@ -8,7 +8,7 @@ const Company = require('../models/Company');
 const User = require('../models/User');
 require("dotenv").config();
 
-// Register company and owner
+/////////////////////Register company and owner////////////////////////////////
 router.post('/register-company', async (req, res) => {
   try {
     const { companyName, companyDescription, name, email, password } = req.body;
@@ -22,7 +22,7 @@ router.post('/register-company', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create company
+   ////////////////////////////////// Create company ///////////////////////////////
     const company = new Company({
       name: companyName,
       description: companyDescription,
@@ -30,7 +30,7 @@ router.post('/register-company', async (req, res) => {
     });
     await company.save();
 
-    // Create user as company owner
+    /////////////////////////////// Create user as company owner ///////////////////////////////
     const user = new User({
       name,
       email,
@@ -50,7 +50,7 @@ router.post('/register-company', async (req, res) => {
     });
     await user.save();
 
-    // Update company owner
+    //////////////////////////////////// Update company owner ////////////////////////////////
     company.owner = user._id;
     await company.save();
 
@@ -84,7 +84,7 @@ router.post('/register-company', async (req, res) => {
   }
 });
 
-// Login
+/////////////////////////////////// Login ///////////////////////////////////////
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -132,7 +132,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Verify email for password reset
+//////////////////////////////////// Verify email for password reset /////////////////////////////
 router.post('/verify-email', async (req, res) => {
   try {
     const { email } = req.body;
@@ -164,7 +164,8 @@ router.post('/verify-email', async (req, res) => {
   }
 });
 
-// Reset password
+/////////////////////////////////////////// Reset password//////////////////////////////////
+
 router.post('/reset-password', async (req, res) => {
   try {
     const { email, newPassword } = req.body;
@@ -200,7 +201,7 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-// Get current authenticated user
+/////////////////////////////////////////// Get current authenticated user /////////////////////////////////
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user?.userId).populate('company').select('-password');
@@ -229,7 +230,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-// Change password (Authenticated user)
+///////////////////////////// Change password (Authenticated user) //////////////////////////////////////
 router.put('/change-password', authMiddleware, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;

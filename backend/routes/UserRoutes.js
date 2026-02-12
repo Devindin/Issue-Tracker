@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware = require("../middleware/authmiddleware");
 const User = require("../models/User");
 
-// Get current user's profile
+//////////////////////////////// Get current user's profile ///////////////////////////////
 router.get("/profile", authMiddleware, async (req, res) => {
   try {
     console.log("=== GET /users/profile ===");
@@ -42,7 +42,7 @@ router.get("/profile", authMiddleware, async (req, res) => {
   }
 });
 
-// Update current user's profile
+//////////////////////////////// Update current user's profile ////////////////////////////////
 router.put("/profile", authMiddleware, async (req, res) => {
   try {
     const { name, phone, location, website, bio, avatar } = req.body;
@@ -89,7 +89,7 @@ router.put("/profile", authMiddleware, async (req, res) => {
   }
 });
 
-// Get all users in the company
+///////////////////////////////////// Get all users in the company //////////////////////////
 router.get("/", authMiddleware, async (req, res) => {
   try {
     console.log("=== GET /users ===");
@@ -123,7 +123,7 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// Get single user by ID
+/////////////////////// Get single user by ID /////////////////////////////////
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -173,7 +173,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// Create a new user under the logged-in company
+//////////////////////////////// Create a new user under the logged-in company ///////////////////////////
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const {
@@ -304,7 +304,7 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-// Update user by ID
+///////////////////////////////////////////// Update user by ID //////////////////////////////////////////
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -393,7 +393,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// Delete user by ID
+///////////////////////////////////////// Delete user by ID //////////////////////////////////////
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;

@@ -23,7 +23,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     lowercase: true,
     trim: true
-    // Note: unique removed - will use compound index with company
   },
   password: {
     type: String,

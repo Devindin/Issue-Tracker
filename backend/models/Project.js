@@ -48,7 +48,7 @@ const projectSchema = new mongoose.Schema(
     },
     color: {
       type: String,
-      default: "#6366f1", // indigo-500
+      default: "#6366f1", 
     },
     icon: {
       type: String,

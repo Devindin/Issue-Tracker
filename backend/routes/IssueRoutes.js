@@ -5,7 +5,7 @@ const authMiddleware = require("../middleware/authmiddleware");
 const { requirePermission } = require("../middleware/permissionMiddleware");
 const Issue = require("../models/Issue");
 
-// Get all issues for the user's company with optional search and filters
+/////////////////////////////////// Get all issues for the user's company with optional search and filters ///////////////////
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const { search, status, priority, severity, project } = req.query;
@@ -87,7 +87,7 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// Create issue
+///////////////////////////////////////// Create issue ///////////////////////////////////////
 router.post("/", authMiddleware, requirePermission('canCreateIssues'), async (req, res, next) => {
   try {
     console.log("\n=== CREATE ISSUE ===");
@@ -184,7 +184,7 @@ router.post("/", authMiddleware, requirePermission('canCreateIssues'), async (re
   }
 });
 
-// Get single issue by ID
+/////////////////////////// Get single issue by ID ////////////////////////////////////
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -249,7 +249,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// Update issue by ID
+//////////////////////////////////////// Update issue by ID ////////////////////////////////////////
 router.put("/:id", authMiddleware, requirePermission('canEditIssues'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -343,7 +343,7 @@ router.put("/:id", authMiddleware, requirePermission('canEditIssues'), async (re
   }
 });
 
-// Delete issue by ID
+//////////////////////////////////////////// Delete issue by ID ///////////////////////////////////////
 router.delete("/:id", authMiddleware, requirePermission('canDeleteIssues'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -375,7 +375,7 @@ router.delete("/:id", authMiddleware, requirePermission('canDeleteIssues'), asyn
   }
 });
 
-// Get issue analytics (for charts)
+//////////////////////////////////////// Get issue analytics (for charts) ////////////////////////////
 router.get("/analytics/summary", authMiddleware, async (req, res) => {
   try {
     const companyId = req.user?.companyId;

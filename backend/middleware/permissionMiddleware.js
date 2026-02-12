@@ -1,9 +1,5 @@
 const User = require('../models/User');
 
-/**
- * Permission middleware factory
- * Creates middleware that checks if user has specific permission
- */
 const requirePermission = (permissionName) => {
   return async (req, res, next) => {
     try {
@@ -36,9 +32,8 @@ const requirePermission = (permissionName) => {
   };
 };
 
-/**
- * Check multiple permissions (user needs at least one)
- */
+//  Check multiple permissions (user needs at least one)
+ 
 const requireAnyPermission = (permissionNames) => {
   return async (req, res, next) => {
     try {
@@ -73,9 +68,8 @@ const requireAnyPermission = (permissionNames) => {
   };
 };
 
-/**
- * Check multiple permissions (user needs all of them)
- */
+//Check multiple permissions (user needs all of them)
+ 
 const requireAllPermissions = (permissionNames) => {
   return async (req, res, next) => {
     try {
@@ -110,9 +104,9 @@ const requireAllPermissions = (permissionNames) => {
   };
 };
 
-/**
- * Require specific role
- */
+
+ //Require specific role
+ 
 const requireRole = (roles) => {
   const roleArray = Array.isArray(roles) ? roles : [roles];
   
@@ -139,9 +133,9 @@ const requireRole = (roles) => {
   };
 };
 
-/**
- * Attach user permissions to request for later use
- */
+
+ // Attach user permissions to request for later use
+ 
 const attachPermissions = async (req, res, next) => {
   try {
     if (req.user?.userId) {
