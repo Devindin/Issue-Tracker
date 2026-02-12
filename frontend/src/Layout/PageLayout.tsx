@@ -13,10 +13,9 @@ import {
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import DeleteModal from "../models/DeleteModal";
+import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/stores";
-
 
 interface MenuItem {
   icon: React.JSX.Element;
@@ -40,14 +39,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   };
 
   const confirmLogout = (): void => {
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
-  sessionStorage.clear();
-  setShowLogoutModal(false);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    sessionStorage.clear();
+    setShowLogoutModal(false);
 
-  navigate("/", { replace: true });
-};
-
+    navigate("/", { replace: true });
+  };
 
   const cancelLogout = (): void => {
     setShowLogoutModal(false);
@@ -55,8 +53,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
 
   const isActivePath = (path: string): boolean => {
     if (path === "/issues") {
-      return location.pathname === "/issues" ||
-             (location.pathname.startsWith("/issues/") && !location.pathname.includes("/new"));
+      return (
+        location.pathname === "/issues" ||
+        (location.pathname.startsWith("/issues/") &&
+          !location.pathname.includes("/new"))
+      );
     }
     return location.pathname === path;
   };
@@ -72,8 +73,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
 
   // Get user info from localStorage
   const user = useSelector((state: RootState) => state.auth.user);
-const userName = user?.name ?? "User";
-
+  const userName = user?.name ?? "User";
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">
@@ -132,9 +132,11 @@ const userName = user?.name ?? "User";
                       : "hover:bg-[#1976D2]/10 text-[#0A3D91] hover:text-[#1976D2]"
                   }`}
                 >
-                  <span className={`text-lg group-hover:scale-110 transition-transform ${
-                    isActive ? "text-white" : "text-[#1976D2]"
-                  }`}>
+                  <span
+                    className={`text-lg group-hover:scale-110 transition-transform ${
+                      isActive ? "text-white" : "text-[#1976D2]"
+                    }`}
+                  >
                     {item.icon}
                   </span>
                   {!collapsed && <span>{item.label}</span>}
@@ -189,7 +191,8 @@ const userName = user?.name ?? "User";
             >
               <div className="flex justify-between items-center mb-6">
                 <h2 className="font-bold text-xl text-[#0A3D91]">
-                  Issue<span className="text-[#00C6D7]">Desk</span><span className="text-[#0A3D91] font-bold">X</span>
+                  Issue<span className="text-[#00C6D7]">Desk</span>
+                  <span className="text-[#0A3D91] font-bold">X</span>
                 </h2>
                 <button
                   onClick={() => setSidebarOpen(false)}
@@ -222,7 +225,9 @@ const userName = user?.name ?? "User";
                             : "hover:bg-[#1976D2]/10 text-[#0A3D91] hover:text-[#1976D2]"
                         }`}
                       >
-                        <span className={`text-lg ${isActive ? "text-white" : "text-[#1976D2]"}`}>
+                        <span
+                          className={`text-lg ${isActive ? "text-white" : "text-[#1976D2]"}`}
+                        >
                           {item.icon}
                         </span>
                         <span className="font-medium">{item.label}</span>
@@ -238,7 +243,9 @@ const userName = user?.name ?? "User";
                         }}
                         className="w-full flex items-center gap-3 p-3 rounded-xl transition-colors hover:bg-red-50 text-gray-700 hover:text-red-600"
                       >
-                        <span className="text-lg text-red-500">{item.icon}</span>
+                        <span className="text-lg text-red-500">
+                          {item.icon}
+                        </span>
                         <span className="font-medium">{item.label}</span>
                       </button>
                     );
@@ -260,25 +267,24 @@ const userName = user?.name ?? "User";
             className="flex items-center justify-center h-full"
           >
             <h1 className="text-3xl font-bold text-white">
-              Welcome to <span className="text-[#00C6D7]">Issue</span><span className="text-white font-bold">Desk</span><span className="text-[#00C6D7] font-bold">X</span>
+              Welcome to <span className="text-[#00C6D7]">Issue</span>
+              <span className="text-white font-bold">Desk</span>
+              <span className="text-[#00C6D7] font-bold">X</span>
             </h1>
           </motion.div>
         )}
       </div>
 
       {/* Logout Confirmation Modal */}
-      <AnimatePresence>
-        {showLogoutModal && (
-          <DeleteModal
-            isOpen={showLogoutModal}
-            onClose={cancelLogout}
-            onConfirm={confirmLogout}
-            title="Sign Out"
-            message="Are you sure you want to sign out? You'll need to sign in again to access your account."
-            confirmText="Sign Out"
-          />
-        )}
-      </AnimatePresence>
+      <ConfirmDeleteModal
+        isOpen={showLogoutModal}
+        onClose={cancelLogout}
+        onConfirm={confirmLogout}
+        title="Sign Out"
+        message="Are you sure you want to sign out? You'll need to sign in again to access your account."
+        entityName="Session"
+        confirmText="Sign Out"
+      />
     </div>
   );
 };
