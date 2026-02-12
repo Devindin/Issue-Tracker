@@ -19,6 +19,7 @@ import {
 } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
+import SecondaryPageTitle from "../Components/SecondaryPageTitle";
 import ConfirmDeleteModal from "../models/ConfirmDeleteModal";
 import {
   useGetIssueByIdQuery,
@@ -160,7 +161,7 @@ const ViewIssue: React.FC = () => {
             >
               <FaArrowLeft />
             </Link>
-            <PageTitle
+            <SecondaryPageTitle
               title={`Issue #${issue.id}`}
               subtitle="View issue details"
               textColor="text-white"
