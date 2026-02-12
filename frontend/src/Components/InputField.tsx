@@ -1,5 +1,4 @@
 import { useState } from "react"; 
-import Select from "react-select";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { MdLockOutline } from "react-icons/md";
 
@@ -14,7 +13,7 @@ interface InputFieldProps {
   type: 'text' | 'password' | 'textarea' | 'select' | 'email' | 'number' | 'tel' | 'url';
   placeholder?: string;
   handleChange: (event: { target: { name: string; value: string } }) => void;
-  requiredfiled?: boolean;
+  required?: boolean;
   disabled?: boolean;
   options?: Option[];
   values?: Record<string, string>;
@@ -29,7 +28,7 @@ function InputField({
   type,
   placeholder,
   handleChange,
-  requiredfiled,
+  required,
   disabled = false,
   options = [],
   values = {},
@@ -53,7 +52,7 @@ function InputField({
           htmlFor={name}
           className="text-input_label text-[11px] md:text-[15px] 3xl:text-[28px] text-gray-900 dark:text-gray-100"
         >
-          {label} {requiredfiled && <span className="text-star_mark_color">*</span>}
+          {label} {required && <span className="text-star_mark_color">*</span>}
         </label>
       </div>
 
@@ -67,33 +66,20 @@ function InputField({
         }`}
       >
         {isDropdown ? (
-          <Select
+          <select
             name={name}
-            options={options}
-            isDisabled={disabled}
-            value={options.find((opt) => opt.value === value) || null}
-            onChange={(selected) =>
-              handleChange({ target: { name, value: String(selected?.value || "") } })
-            }
-            placeholder={placeholder || "Select"}
-            classNames={{
-              control: () =>
-                `h-[52px] text-[14px] 3xl:text-[30px] bg-transparent border-none dark:text-gray-100`,
-              menu: () => "bg-white dark:bg-gray-800",
-              menuList: () => "bg-white dark:bg-gray-800",
-              singleValue: () => "text-gray-900 dark:text-gray-100",
-            }}
-            styles={{
-              menu: (provided) => ({ ...provided, maxHeight: "unset", overflowY: "unset" }),
-              menuList: (provided) => ({ ...provided, maxHeight: 150, overflowY: "auto" }),
-              control: (provided) => ({
-                ...provided,
-                border: "none",
-                boxShadow: "none",
-                backgroundColor: "transparent",
-              }),
-            }}
-          />
+            value={value}
+            onChange={handleChange}
+            disabled={disabled}
+            className={`w-full h-[43px] 3xl:h-[52px] p-2 outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 bg-transparent appearance-none`}
+          >
+            <option value="">{placeholder || "Select an option"}</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         ) : (
           <>
             {showLockIcon && (

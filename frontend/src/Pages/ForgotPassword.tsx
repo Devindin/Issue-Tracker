@@ -9,6 +9,7 @@ import type { Variants } from "framer-motion";
 import { FaArrowLeft, FaEnvelope, FaCheckCircle, FaLock } from "react-icons/fa";
 import AuthBackground from "../Components/AuthBackground";
 import { useVerifyEmailMutation, useResetPasswordMutation } from "../features/auth/authApi";
+import InputField from "../Components/InputField";
 
 interface ForgotPasswordFormValues {
   email: string;
@@ -165,26 +166,17 @@ function ForgotPassword(): React.JSX.Element {
                         </div>
                       )}
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email Address
-                        </label>
-                        <input
-                          type="email"
-                          name="email"
-                          placeholder="example@email.com"
-                          value={values.email}
-                          onChange={handleChange}
-                          className={`w-full h-[36px] px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00C6D7] focus:border-transparent transition-colors ${
-                            errors.email && touched.email
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300"
-                          }`}
-                        />
-                        {errors.email && touched.email && (
-                          <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                        )}
-                      </div>
+                      <InputField
+                        label="Email Address"
+                        name="email"
+                        type="email"
+                        placeholder="example@email.com"
+                        required
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
 
                       <PrimaryButton 
                         label={isVerifying ? "Verifying..." : "Verify Email"} 
@@ -244,47 +236,29 @@ function ForgotPassword(): React.JSX.Element {
                         </div>
                       )}
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          New Password
-                        </label>
-                        <input
-                          type="password"
-                          name="newPassword"
-                          placeholder="Enter new password"
-                          value={values.newPassword}
-                          onChange={handleChange}
-                          className={`w-full h-[36px] px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00C6D7] focus:border-transparent transition-colors ${
-                            errors.newPassword && touched.newPassword
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300"
-                          }`}
-                        />
-                        {errors.newPassword && touched.newPassword && (
-                          <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
-                        )}
-                      </div>
+                      <InputField
+                        label="New Password"
+                        name="newPassword"
+                        type="password"
+                        placeholder="Enter new password"
+                        required
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Confirm Password
-                        </label>
-                        <input
-                          type="password"
-                          name="confirmPassword"
-                          placeholder="Confirm new password"
-                          value={values.confirmPassword}
-                          onChange={handleChange}
-                          className={`w-full h-[36px] px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00C6D7] focus:border-transparent transition-colors ${
-                            errors.confirmPassword && touched.confirmPassword
-                              ? "border-red-500 focus:ring-red-500"
-                              : "border-gray-300"
-                          }`}
-                        />
-                        {errors.confirmPassword && touched.confirmPassword && (
-                          <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-                        )}
-                      </div>
+                      <InputField
+                        label="Confirm Password"
+                        name="confirmPassword"
+                        type="password"
+                        placeholder="Confirm new password"
+                        required
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
 
                       <PrimaryButton 
                         label={isResetting ? "Resetting..." : "Reset Password"} 

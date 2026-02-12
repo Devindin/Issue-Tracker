@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { FaSave, FaTimes, FaInfoCircle } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
@@ -9,6 +9,7 @@ import PageTitle from "../Components/PageTitle";
 import StatusModal from "../models/StatusModal";
 import { useCreateProjectMutation } from "../features/projects/projectApi";
 import ErrorModal from "../Components/ErrorModal";
+import InputField from "../Components/InputField";
 
 // Validation schema
 const validationSchema = Yup.object({
@@ -32,7 +33,7 @@ const CreateProject: React.FC = () => {
   const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   const [createdProjectName, setCreatedProjectName] = useState<string>("");
   const [errorModalOpen, setErrorModalOpen] = useState(false);
-const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [createProject, { isLoading }] = useCreateProjectMutation();
 
   const colors = [
@@ -108,7 +109,7 @@ const [errorMessage, setErrorMessage] = useState("");
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, setFieldValue }) => (
+          {({ values, setFieldValue, errors, touched, handleChange }) => (
             <Form className="space-y-6">
 
               {/* Basic Information Card */}
@@ -123,60 +124,45 @@ const [errorMessage, setErrorMessage] = useState("");
                   Basic Information
                 </h2>
 
-                {/* Project Name */}
-                <div className="mb-6">
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Project Name <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    as="input"
-                    id="name"
+                <div className="space-y-4">
+                  <InputField
+                    label="Project Name"
                     name="name"
                     type="text"
-                    maxLength={100}
                     placeholder="e.g., Website Redesign"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    required
+                    handleChange={handleChange}
+                    values={values}
+                    errors={errors as Record<string, string>}
+                    touched={touched as Record<string, boolean>}
                   />
-                  <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
-                </div>
 
-                {/* Project Key */}
-                <div className="mb-6">
-                  <label htmlFor="key" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Project Key <span className="text-red-500">*</span>
-                  </label>
-                  <Field
-                    as="input"
-                    id="key"
+                  <InputField
+                    label="Project Key"
                     name="key"
                     type="text"
-                    maxLength={10}
                     placeholder="e.g., WEB"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all uppercase"
-                    onChange={(e: any) => setFieldValue("key", e.target.value.toUpperCase())}
+                    required
+                    handleChange={(e) => setFieldValue("key", (e.target as HTMLInputElement).value.toUpperCase())}
+                    values={values}
+                    errors={errors as Record<string, string>}
+                    touched={touched as Record<string, boolean>}
                   />
-                  <ErrorMessage name="key" component="div" className="text-red-500 text-sm mt-1" />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 -mt-2">
                     A unique identifier for your project (e.g., WEB, API, MOB). Must start with a letter.
                   </p>
-                </div>
 
-                {/* Description */}
-                <div className="mb-6">
-                  <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <Field
-                    as="textarea"
-                    id="description"
+                  <InputField
+                    label="Description"
                     name="description"
-                    rows={4}
-                    maxLength={500}
+                    type="textarea"
                     placeholder="Describe the purpose and goals of this project..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+                    handleChange={handleChange}
+                    values={values}
+                    errors={errors as Record<string, string>}
+                    touched={touched as Record<string, boolean>}
                   />
-                  <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1" />
-                  <div className="flex justify-end mt-1">
+                  <div className="flex justify-end -mt-2">
                     <span className="text-xs text-gray-500">
                       {values.description.length}/500
                     </span>

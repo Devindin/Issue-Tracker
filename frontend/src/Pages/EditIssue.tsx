@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import {
   FaArrowLeft,
@@ -18,6 +18,7 @@ import StatusModal from "../models/StatusModal";
 import { useGetIssueByIdQuery, useUpdateIssueMutation } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
 import { useGetUsersQuery } from "../features/users/userApi";
+import InputField from "../Components/InputField";
 
 const EditIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -231,41 +232,70 @@ const EditIssue: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ isSubmitting, values }) => (
-              <Form className="space-y-6">              {submitError && (
-                <div
-                  role="alert"
-                  aria-live="assertive"
-                  className="rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
-                >
-                  {submitError}
-                </div>
-              )}                {/* Main Information Card */}
+            {({ isSubmitting, values, errors, touched, handleChange }) => {
+              const statusOptions = [
+                { value: "Open", label: "Open" },
+                { value: "In Progress", label: "In Progress" },
+                { value: "Resolved", label: "Resolved" },
+                { value: "Closed", label: "Closed" },
+              ];
+
+              const priorityOptions = [
+                { value: "Low", label: "Low" },
+                { value: "Medium", label: "Medium" },
+                { value: "High", label: "High" },
+                { value: "Critical", label: "Critical" },
+              ];
+
+              const severityOptions = [
+                { value: "Minor", label: "Minor" },
+                { value: "Major", label: "Major" },
+                { value: "Critical", label: "Critical" },
+              ];
+
+              const projectOptions = projects.map((project) => ({
+                value: project._id,
+                label: `${project.icon} ${project.name} (${project.key})`,
+              }));
+
+              const assigneeOptions = [
+                ...users.map((user) => ({
+                  value: user.id,
+                  label: `${user.name} (${user.email})`,
+                })),
+              ];
+
+              return (
+              <Form className="space-y-6">
+                {submitError && (
+                  <div
+                    role="alert"
+                    aria-live="assertive"
+                    className="rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
+                  >
+                    {submitError}
+                  </div>
+                )}
+                {/* Main Information Card */}
                 <div className="bg-white rounded-2xl shadow-md p-6">
                   <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <FaInfoCircle className="text-indigo-600" />
                     Main Information
                   </h2>
 
-                  {/* Title */}
-                  <div className="mb-6">
-                    <label
-                      htmlFor="title"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                      Title <span className="text-red-500">*</span>
-                    </label>
-                    <Field
-                      as="input"
-                      id="title"
+                  <div className="space-y-4">
+                    <InputField
+                      label="Title"
                       name="title"
                       type="text"
-                      maxLength={TITLE_MAX_LENGTH}
                       placeholder="Enter a clear, concise title for the issue"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                      required
+                      handleChange={handleChange}
+                      values={values}
+                      errors={errors as Record<string, string>}
+                      touched={touched as Record<string, boolean>}
                     />
-                    <ErrorMessage name="title" component="div" className="text-red-500 text-sm mt-1 flex items-center gap-1" />
-                    <div className="flex justify-end mt-1">
+                    <div className="flex justify-end -mt-2">
                       <span
                         className={`text-xs ${
                           values.title.length > TITLE_MAX_LENGTH * 0.9
@@ -276,27 +306,19 @@ const EditIssue: React.FC = () => {
                         {values.title.length}/{TITLE_MAX_LENGTH}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Description */}
-                  <div className="mb-6">
-                    <label
-                      htmlFor="description"
-                      className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                      Description <span className="text-red-500">*</span>
-                    </label>
-                    <Field
-                      as="textarea"
-                      id="description"
+                    <InputField
+                      label="Description"
                       name="description"
-                      maxLength={DESCRIPTION_MAX_LENGTH}
-                      rows={6}
+                      type="textarea"
                       placeholder="Provide a detailed description of the issue, including steps to reproduce, expected behavior, and actual behavior..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+                      required
+                      handleChange={handleChange}
+                      values={values}
+                      errors={errors as Record<string, string>}
+                      touched={touched as Record<string, boolean>}
                     />
-                    <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1 flex items-center gap-1" />
-                    <div className="flex justify-end mt-1">
+                    <div className="flex justify-end -mt-2">
                       <span
                         className={`text-xs ${
                           values.description.length > DESCRIPTION_MAX_LENGTH * 0.9
@@ -320,40 +342,16 @@ const EditIssue: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Status */}
                     <div>
-                      <label
-                        htmlFor="status"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
-                        Status
-                      </label>
-                      <div className="relative">
-                        <Field
-                          as="select"
-                          id="status"
-                          name="status"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
-                        >
-                          <option value="Open">Open</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Resolved">Resolved</option>
-                          <option value="Closed">Closed</option>
-                        </Field>
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg
-                            className="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
+                      <InputField
+                        label="Status"
+                        name="status"
+                        type="select"
+                        options={statusOptions}
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
                       <div className="mt-2">
                         <span
                           className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getStatusColor(
@@ -367,40 +365,16 @@ const EditIssue: React.FC = () => {
 
                     {/* Priority */}
                     <div>
-                      <label
-                        htmlFor="priority"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
-                        Priority
-                      </label>
-                      <div className="relative">
-                        <Field
-                          as="select"
-                          id="priority"
-                          name="priority"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
-                        >
-                          <option value="Low">Low</option>
-                          <option value="Medium">Medium</option>
-                          <option value="High">High</option>
-                          <option value="Critical">Critical</option>
-                        </Field>
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg
-                            className="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
+                      <InputField
+                        label="Priority"
+                        name="priority"
+                        type="select"
+                        options={priorityOptions}
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
                       <div className="mt-2">
                         <span
                           className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getPriorityColor(
@@ -414,39 +388,16 @@ const EditIssue: React.FC = () => {
 
                     {/* Severity */}
                     <div>
-                      <label
-                        htmlFor="severity"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
-                        Severity
-                      </label>
-                      <div className="relative">
-                        <Field
-                          as="select"
-                          id="severity"
-                          name="severity"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
-                        >
-                          <option value="Minor">Minor</option>
-                          <option value="Major">Major</option>
-                          <option value="Critical">Critical</option>
-                        </Field>
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg
-                            className="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
+                      <InputField
+                        label="Severity"
+                        name="severity"
+                        type="select"
+                        options={severityOptions}
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
                       <div className="mt-2">
                         <span
                           className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${getSeverityColor(
@@ -458,136 +409,79 @@ const EditIssue: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Assignee */}
-                    <div>
-                      <label
-                        htmlFor="assigneeId"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
-                        Assignee
-                      </label>
-                      <div className="relative">
-                        <Field
-                          as="select"
-                          id="assigneeId"
-                          name="assigneeId"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
-                        >
-                          <option value="">Unassigned</option>
-                          {users.map((user) => (
-                            <option key={user.id} value={user.id}>
-                              {user.name} ({user.email})
-                            </option>
-                          ))}
-                        </Field>
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg
-                            className="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                      <div className="mt-2">
-                        <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                          values.assigneeId
-                            ? "bg-green-100 border-green-300 text-green-700"
-                            : "bg-gray-100 border-gray-300 text-gray-700"
-                        }`}>
-                          {values.assigneeId
-                            ? `Assigned to ${users.find(u => u.id === values.assigneeId)?.name || "User"}`
-                            : "Unassigned"}
-                        </span>
-                      </div>
-                    </div>
-
                     {/* Project */}
                     <div>
-                      <label
-                        htmlFor="projectId"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                      >
-                        Project
-                      </label>
-                      <div className="relative">
-                        <Field
-                          as="select"
-                          id="projectId"
-                          name="projectId"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 appearance-none bg-white cursor-pointer"
-                        >
-                          <option value="">No Project</option>
-                          {projects.map((project) => (
-                            <option key={project._id} value={project._id}>
-                              {project.icon} {project.name} ({project.key})
-                            </option>
-                          ))}
-                        </Field>
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg
-                            className="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      </div>
-                      {values.projectId && (
-                        <div className="mt-2">
-                          {(() => {
-                            const selectedProject = projects.find(p => p._id === values.projectId);
-                            return selectedProject ? (
-                              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                {selectedProject.icon} {selectedProject.name} ({selectedProject.key})
-                              </span>
-                            ) : null;
-                          })()}
-                        </div>
-                      )}
+                      <InputField
+                        label="Project"
+                        name="projectId"
+                        type="select"
+                        options={projectOptions}
+                        required
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
                     </div>
                   </div>
 
-                  {/* Info Box */}
-                  <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <div className="flex gap-3">
-                      <FaInfoCircle className="text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-blue-800">
-                        <p className="font-semibold mb-1">Classification Guide:</p>
-                        <ul className="space-y-1 text-xs">
-                          <li>
-                            <strong>Priority:</strong> How quickly the issue needs to
-                            be addressed
-                          </li>
-                          <li>
-                            <strong>Severity:</strong> The impact of the issue on the
-                            system
-                          </li>
-                          <li>
-                            <strong>Status:</strong> Current state of the issue
-                          </li>
-                          <li>
-                            <strong>Assignee:</strong> Person responsible for the issue
-                          </li>
-                        </ul>
-                      </div>
+                  {/* Assignee */}
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <InputField
+                      label="Assignee"
+                      name="assigneeId"
+                      type="select"
+                      options={assigneeOptions}
+                      placeholder="Unassigned"
+                      handleChange={handleChange}
+                      values={values}
+                      errors={errors as Record<string, string>}
+                      touched={touched as Record<string, boolean>}
+                    />
+                    <div className="mt-2">
+                      <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                        values.assigneeId
+                          ? "bg-green-100 border-green-300 text-green-700"
+                          : "bg-gray-100 border-gray-300 text-gray-700"
+                      }`}
+                      >
+                        {values.assigneeId
+                          ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
+                          : "Unassigned"}
+                      </span>
                     </div>
                   </div>
                 </div>
+
+                {/* Info Box */}
+                <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <div className="flex gap-3">
+                    <FaInfoCircle className="text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-semibold mb-1">Classification Guide:</p>
+                      <ul className="space-y-1 text-xs">
+                        <li>
+                          <strong>Priority:</strong> How quickly the issue needs to
+                          be addressed
+                        </li>
+                        <li>
+                          <strong>Severity:</strong> The impact of the issue on the
+                          system
+                        </li>
+                        <li>
+                          <strong>Status:</strong> Current state of the issue
+                        </li>
+                        <li>
+                          <strong>Assignee:</strong> Person responsible for the issue
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </Form>
+              );
+            }}
+          </Formik>
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row gap-4">

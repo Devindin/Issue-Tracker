@@ -75,9 +75,9 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 name="name"
                 type="text"
                 placeholder="Enter full name"
-                requiredfiled
+                required
                 handleChange={handleChange}
-                values={values}
+                values={values as any}
                 errors={errors as Record<string, string>}
                 touched={touched as Record<string, boolean>}
               />
@@ -87,9 +87,9 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 name="email"
                 type="email"
                 placeholder="Enter email"
-                requiredfiled
+                required
                 handleChange={handleChange}
-                values={values}
+                values={values as any}
                 errors={errors as Record<string, string>}
                 touched={touched as Record<string, boolean>}
               />
@@ -99,10 +99,10 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 name="password"
                 type="password"
                 placeholder="Enter password"
-                requiredfiled
+                required
                 showLockIcon
                 handleChange={handleChange}
-                values={values}
+                values={values as any}
                 errors={errors as Record<string, string>}
                 touched={touched as Record<string, boolean>}
               />
@@ -112,13 +112,13 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
                 name="role"
                 type="select"
                 options={roleOptions}
-                requiredfiled
-                handleChange={(e: any) => {
-                  const role = e.target.value as UserRole;
+                required
+                handleChange={(e) => {
+                  const role = (e.target as HTMLSelectElement).value as UserRole;
                   setFieldValue("role", role);
                   setFieldValue("permissions", getDefaultPermissions(role));
                 }}
-                values={values}
+                values={values as any}
                 errors={errors as Record<string, string>}
                 touched={touched as Record<string, boolean>}
               />
