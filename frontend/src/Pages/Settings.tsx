@@ -48,7 +48,6 @@ const Settings: React.FC = () => {
   const tabs = [
     { id: "profile", label: "Profile", icon: <FaUser /> },
     { id: "security", label: "Security", icon: <FaLock /> },
-    { id: "notifications", label: "Notifications", icon: <FaBell /> },
     { id: "users", label: "User Management", icon: <FaShieldAlt /> },
   ];
 
@@ -167,15 +166,6 @@ const Settings: React.FC = () => {
                   }}
                 />
               )}
-
-              {/* Notifications Tab */}
-              {/* {activeTab === "notifications" && (
-                <NotificationsTab
-                  notifications={notifications}
-                  setNotifications={(updates: Partial<NotificationSettings>) => dispatch(setNotifications(updates))}
-                  saveSettings={saveSettings}
-                />
-              )} */}
 
               {/* User Management Tab */}
               {activeTab === "users" && <UserManagementTab />}
