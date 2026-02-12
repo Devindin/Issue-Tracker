@@ -34,7 +34,7 @@ const Dashboard: React.FC = () => {
   };
 
   // Fetch recent issues
-  const { data: issuesData, isLoading: issuesLoading, isError: issuesError } = useGetRecentIssuesQuery({ limit: 10 });
+  const { data: issuesData, isLoading: issuesLoading, isError: issuesError } = useGetRecentIssuesQuery({ limit: 5 });
   const issues = issuesData?.issues || [];
 
   const isLoading = statsLoading || issuesLoading;
