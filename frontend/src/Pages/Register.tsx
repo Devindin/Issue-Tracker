@@ -12,6 +12,7 @@ import AuthBackground from "../Components/AuthBackground";
 import { useRegisterCompanyMutation } from "../features/auth/authApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../features/auth/authSlice";
+import { FaCheckCircle } from "react-icons/fa";
 
 interface RegisterFormValues {
   companyName: string;
@@ -37,7 +38,7 @@ const registerValidationSchema = Yup.object({
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password')], 'Passwords must match')
+    .oneOf([Yup.ref("password")], "Passwords must match")
     .required("Please confirm your password"),
 });
 
@@ -46,6 +47,7 @@ function Register(): React.JSX.Element {
   const dispatch = useDispatch();
   const [registerCompany, { isLoading }] = useRegisterCompanyMutation();
   const [submitError, setSubmitError] = useState<string>("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Motion variants
   const containerVariants: Variants = {
@@ -78,11 +80,15 @@ function Register(): React.JSX.Element {
         setCredentials({
           user: result?.user || null,
           token: result?.token || null,
-        })
+        }),
       );
 
       // Navigate to dashboard after successful registration
-      navigate("/dashboard");
+      setIsSuccess(true);
+
+      setTimeout(() => {
+        navigate("/");
+      }, 2500);
     } catch (error: any) {
       console.error("Register error:", error);
       const message =
@@ -94,8 +100,47 @@ function Register(): React.JSX.Element {
       setSubmitError(message);
     }
   };
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] relative overflow-hidden p-10">
+        <AuthBackground />
 
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-12 text-center max-w-md w-full relative z-10"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 10 }}
+          >
+            <FaCheckCircle className="mx-auto text-6xl text-green-500 drop-shadow-lg" />
+          </motion.div>
 
+          <h1 className="text-2xl font-bold mt-6 text-gray-800">
+            Registration Successful!
+          </h1>
+
+          <p className="text-gray-500 mt-3">
+            Your company account has been created successfully.
+          </p>
+
+          <p className="text-sm text-gray-400 mt-2">
+            Redirecting to dashboard...
+          </p>
+
+          <Link
+            to="/"
+            className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-[#1976D2] to-[#00C6D7] text-white rounded-xl shadow-lg hover:scale-105 transition-transform"
+          >
+            Go to Login
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A3D91] via-[#1976D2] to-[#00C6D7] relative overflow-hidden p-10">
       <AuthBackground />
@@ -238,8 +283,10 @@ function Register(): React.JSX.Element {
                     />
                   </motion.div>
 
-
-                  <motion.div variants={itemVariants} className="text-center mt-4">
+                  <motion.div
+                    variants={itemVariants}
+                    className="text-center mt-4"
+                  >
                     <span className="text-gray-600 dark:text-gray-400 text-sm">
                       Already have an account?{" "}
                       <Link
