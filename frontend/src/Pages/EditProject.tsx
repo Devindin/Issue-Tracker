@@ -229,21 +229,6 @@ const EditProject: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                    as="textarea"
-                    id="description"
-                    name="description"
-                    rows={4}
-                    maxLength={500}
-                    placeholder="Describe the purpose and goals of this project..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
-                  />
-                  <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1" />
-                  <div className="flex justify-end mt-1">
-                    <span className="text-xs text-gray-500">
-                      {values.description.length}/500
-                    </span>
-                  </div>
-                </div>
 
                 {/* Status */}
                 <div className="mb-6">

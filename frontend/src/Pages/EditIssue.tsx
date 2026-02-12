@@ -478,10 +478,6 @@ const EditIssue: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              </Form>
-              );
-            }}
-          </Formik>
 
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -525,7 +521,8 @@ const EditIssue: React.FC = () => {
                   </Link>
                 </div>
               </Form>
-            )}
+              );
+            }}
           </Formik>
         </motion.div>
       </div>

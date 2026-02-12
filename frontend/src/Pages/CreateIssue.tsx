@@ -78,7 +78,7 @@ const CreateIssue: React.FC = () => {
   const DESCRIPTION_MAX_LENGTH = 1000;
 
   // Handle form submission
-  const handleSubmit = async (values: IssueFormData) => {
+  const handleSubmit = async (values: IssueFormData, resetForm?: () => void) => {
     try {
       setErrorMessage("");
       setErrorModalOpen(false);
@@ -105,6 +105,11 @@ const CreateIssue: React.FC = () => {
 
       setCreatedIssueId(result?.issue?.id?.toString() || null);
       setShowSuccessModal(true);
+      
+      // Reset form after successful issue creation
+      if (resetForm) {
+        resetForm();
+      }
     } catch (error: any) {
       console.error("Error creating issue:", error);
 
@@ -180,7 +185,9 @@ const CreateIssue: React.FC = () => {
             projectId: "",
           }}
           validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+          onSubmit={async (values, { resetForm }) => {
+            await handleSubmit(values, resetForm);
+          }}
         >
           {({ isSubmitting, values, errors, touched, handleChange }) => {
             // Create dynamic options

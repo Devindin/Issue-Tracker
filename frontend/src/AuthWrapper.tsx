@@ -21,7 +21,7 @@ const AuthWrapper = ({ children }: Props) => {
       }
 
       try {
-        const response = await axios.get("/api/me", {
+        const response = await axios.get("/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

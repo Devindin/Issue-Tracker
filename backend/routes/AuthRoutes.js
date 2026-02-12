@@ -200,51 +200,31 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-// Change password (for authenticated users)
-router.put('/change-password', authMiddleware, async (req, res) => {
+// Get current authenticated user
+router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
-
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: 'Current password and new password are required' });
-    }
-
-    // Validate new password strength
-    if (newPassword.length < 8) {
-      return res.status(400).json({ message: 'New password must be at least 8 characters long' });
-    }
-
-    // Find user
-    const user = await User.findById(req.user?.userId);
+    const user = await User.findById(req.user?.userId).populate('company').select('-password');
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Verify current password
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-    
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Current password is incorrect' });
-    }
-
-    // Check if new password is same as current
-    const isSamePassword = await bcrypt.compare(newPassword, user.password);
-    if (isSamePassword) {
-      return res.status(400).json({ message: 'New password must be different from current password' });
-    }
-
-    // Update password (will be hashed by the pre-save hook)
-    user.password = newPassword;
-    await user.save();
-
     res.status(200).json({
-      message: 'Password changed successfully',
-      success: true
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      company: user.company
+        ? {
+            id: user.company._id,
+            name: user.company.name,
+            description: user.company.description,
+          }
+        : null,
+      permissions: user.permissions,
     });
-
   } catch (error) {
-    console.error('Change password error:', error);
+    console.error('Get current user error:', error);
     res.status(500).json({ message: error?.message || 'Server error' });
   }
 });
