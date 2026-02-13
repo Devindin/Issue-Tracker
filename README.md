@@ -1181,53 +1181,10 @@ git push origin feature/your-feature-name
 - Keep components small and focused
 - Use Tailwind classes for styling
 
-### Commit Message Convention
-
-```
-Add: New feature
-Fix: Bug fix
-Update: Changes to existing feature
-Refactor: Code restructuring
-Docs: Documentation changes
-Style: Formatting changes
-Test: Adding tests
-```
 
 ---
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
-
----
-
-## 🙏 Acknowledgments
-
-- React team for the amazing framework
-- MongoDB team for the database
-- All open-source contributors
-- Community for feedback and support
-
----
-
-## 📞 Support
-
-Need help? Have questions?
-
-1. Check the [Troubleshooting](#-troubleshooting) section
-2. Review the permission documentation files
-3. Search existing issues on GitHub
-4. Create a new issue with detailed description
-
----
 
 ## 🗺️ Roadmap
 
@@ -1255,22 +1212,4 @@ Need help? Have questions?
 
 ---
 
-## 📊 Project Statistics
 
-- **Total Components:** 40+
-- **API Endpoints:** 20+
-- **Database Models:** 4
-- **User Roles:** 5
-- **Permission Flags:** 8
-- **Lines of Code:** ~15,000+
-- **Dependencies:** 50+
-
----
-
-**Version:** 1.0.0  
-**Last Updated:** February 10, 2026  
-**Status:** ✅ Production Ready
-
----
-
-<p align="center">Made with ❤️ by your development team</p>
