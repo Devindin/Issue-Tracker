@@ -10,17 +10,22 @@ const requirePermission = (permissionName) => {
         return res.status(401).json({ message: 'User not found' });
       }
 
+      console.log(`[Permission Check] User ID: ${user._id}, Role: ${user.role}, Permission: ${permissionName}`);
+
       // Admin role bypasses all permission checks
       if (user.role === 'admin') {
+        console.log(`[Permission Check] Admin user - bypassing permission check`);
         return next();
       }
 
       // Check specific permission
       if (user.permissions && user.permissions[permissionName]) {
+        console.log(`[Permission Check] User has ${permissionName} permission - allowing`);
         return next();
       }
 
       // Permission denied
+      console.log(`[Permission Check] User does not have ${permissionName} permission - denying`);
       return res.status(403).json({ 
         message: `You don't have permission to perform this action. Required: ${permissionName}`,
         requiredPermission: permissionName
