@@ -83,7 +83,7 @@ const CreateProject: React.FC = () => {
 
   return (
     <PageLayout>
-      <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="space-y-6  mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
