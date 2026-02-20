@@ -23,6 +23,62 @@ interface RegisterFormValues {
   confirmPassword: string;
 }
 
+const bannedPasswords = [
+  // Most common
+  "123456",
+  "12345678",
+  "123456789",
+  "password",
+  "password123",
+  "qwerty",
+  "qwerty123",
+  "abc123",
+  "letmein",
+  "welcome",
+  "admin",
+  "admin123",
+  "123",
+  "456",
+  "12345",
+  "1234567",
+
+  // Sequential numbers
+  "123123",
+  "123321",
+  "654321",
+  "000000",
+  "111111",
+  "222222",
+
+  // Keyboard patterns
+  "asdfgh",
+  "zxcvbn",
+  "asdf1234",
+  "qwertyuiop",
+  "1q2w3e4r",
+
+  // Common simple words
+  "iloveyou",
+  "football",
+  "monkey",
+  "dragon",
+  "sunshine",
+  "princess",
+
+  // Year-based
+  "2023",
+  "2024",
+  "2025",
+  "password2024",
+  "welcome2025",
+
+  // Default device passwords
+  "root",
+  "root123",
+  "guest",
+  "test123",
+];
+
 const registerValidationSchema = Yup.object({
   companyName: Yup.string()
     .min(2, "Company name must be at least 2 characters")
@@ -35,7 +91,33 @@ const registerValidationSchema = Yup.object({
     .email("Please enter a valid email address")
     .required("Email is required"),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
+    .min(8, "Password must be at least 8 characters")
+    .max(12, "Password must be at most 12 characters")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/\d/, "Password must contain at least one number")
+    .matches(
+      /[!@#$%^&*(),.?":{}|<>]/,
+      "Password must contain at least one special character",
+    )
+    .test(
+  "weak-pattern-check",
+  "Password contains weak or common patterns.",
+  (value) => {
+    if (!value) return true;
+
+    const lower = value.toLowerCase();
+
+    const containsBanned = bannedPasswords.some((word) =>
+      lower.includes(word)
+    );
+
+    const repeated = /^(.)\1+$/.test(value);
+    const sequential = /(1234|2345|3456|4567|5678|6789)/.test(value);
+
+    return !(containsBanned || repeated || sequential);
+  }
+    )
     .required("Password is required"),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords must match")
