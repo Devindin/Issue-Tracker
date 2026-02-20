@@ -101,22 +101,42 @@ const registerValidationSchema = Yup.object({
       "Password must contain at least one special character",
     )
     .test(
-  "weak-pattern-check",
-  "Password contains weak or common patterns.",
-  (value) => {
-    if (!value) return true;
+      "weak-pattern-check",
+      "Password contains weak, common, or personal information.",
+      function (value) {
+        if (!value) return true;
 
-    const lower = value.toLowerCase();
+        const { name, email } = this.parent; //  Access other fields
 
-    const containsBanned = bannedPasswords.some((word) =>
-      lower.includes(word)
-    );
+        const lower = value.toLowerCase();
 
-    const repeated = /^(.)\1+$/.test(value);
-    const sequential = /(1234|2345|3456|4567|5678|6789)/.test(value);
+        //  Check banned patterns
+        const containsBanned = bannedPasswords.some((word) =>
+          lower.includes(word),
+        );
 
-    return !(containsBanned || repeated || sequential);
-  }
+        //  Repeated characters
+        const repeated = /^(.)\1+$/.test(value);
+
+        // Sequential numbers
+        const sequential = /(1234|2345|3456|4567|5678|6789)/.test(value);
+
+        // Block name inside password
+        const containsName = name && lower.includes(name.toLowerCase());
+
+        // Block email username inside password
+        const emailUsername = email ? email.split("@")[0] : "";
+        const containsEmailUsername =
+          emailUsername && lower.includes(emailUsername.toLowerCase());
+
+        return !(
+          containsBanned ||
+          repeated ||
+          sequential ||
+          containsName ||
+          containsEmailUsername
+        );
+      },
     )
     .required("Password is required"),
   confirmPassword: Yup.string()
