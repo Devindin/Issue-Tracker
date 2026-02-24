@@ -1,8 +1,8 @@
 import React from "react";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import type { ManagedUser } from "../types/settings";
-
 import { getDefaultPermissions } from "../utils/permissions";
+import InputField from "../Components/InputField";
 
 interface Props {
   user: ManagedUser;
@@ -31,30 +31,58 @@ const EditUserModal: React.FC<Props> = ({
           }}
           onSubmit={onSubmit}
         >
-          {({ setFieldValue }) => (
+          {({ values, errors, touched, handleChange, setFieldValue }) => (
             <Form className="space-y-4">
-              <Field name="name" className="w-full border p-2 rounded" />
-              <Field name="email" className="w-full border p-2 rounded" />
+              {/* Name */}
+              <InputField
+                label="Name"
+                name="name"
+                type="text"
+                placeholder="Enter name"
+                handleChange={handleChange}
+                values={values as any}
+                errors={errors as Record<string, string>}
+                touched={touched as Record<string, boolean>}
+                required
+              />
 
-              <Field
-                as="select"
+              {/* Email */}
+              <InputField
+                label="Email"
+                name="email"
+                type="email"
+                placeholder="Enter email"
+                handleChange={handleChange}
+                values={values as any}
+                errors={errors as Record<string, string>}
+                touched={touched as Record<string, boolean>}
+                required
+              />
+
+              {/* Role Select */}
+              <InputField
+                label="Role"
                 name="role"
-                className="w-full border p-2 rounded"
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  const role = e.target.value;
-                  setFieldValue("role", role);
+                type="select"
+                handleChange={(e) => {
+                  handleChange(e);
                   setFieldValue(
                     "permissions",
-                    getDefaultPermissions(role)
+                    getDefaultPermissions(e.target.value),
                   );
                 }}
-              >
-                <option value="viewer">Viewer</option>
-                <option value="developer">Developer</option>
-                <option value="qa">QA</option>
-                <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
-              </Field>
+                values={values as any}
+                errors={errors as Record<string, string>}
+                touched={touched as Record<string, boolean>}
+                options={[
+                  { value: "viewer", label: "Viewer" },
+                  { value: "developer", label: "Developer" },
+                  { value: "qa", label: "QA" },
+                  { value: "manager", label: "Manager" },
+                  { value: "admin", label: "Admin" },
+                ]}
+                required
+              />
 
               <div className="flex gap-3 pt-4">
                 <button
