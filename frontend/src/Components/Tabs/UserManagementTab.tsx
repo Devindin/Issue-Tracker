@@ -24,6 +24,8 @@ import {
 } from "../../features/users/userApi";
 import ConfirmDeleteModal from "../../modals/ConfirmDeleteModal";
 import CreateUserModal from "../../modals/CreateUserModal";
+import UsersTable from "../UsersTable";
+import EditUserModal from "../../modals/EditUserModal";
 
 interface UserManagementTabProps {}
 
@@ -288,103 +290,14 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
             </h3>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Login
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                            <FaUser className="h-5 w-5 text-indigo-600" />
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {user.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getRoleColor(user.role)}`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(user.status)}`}
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.lastLogin
-                        ? new Date(user.lastLogin).toLocaleDateString()
-                        : "Never"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEditUser(user)}
-                          disabled={isUpdating || isDeleting}
-                          className="text-indigo-600 hover:text-indigo-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Edit user"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(user)}
-                          disabled={isUpdating || isDeleting}
-                          className={`${user.status === "active" ? "text-red-600 hover:text-red-900" : "text-green-600 hover:text-green-900"} disabled:opacity-50 disabled:cursor-not-allowed`}
-                          title={
-                            user.status === "active"
-                              ? "Deactivate user"
-                              : "Activate user"
-                          }
-                        >
-                          {user.status === "active" ? <FaTimes /> : <FaCheck />}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user)}
-                          disabled={isUpdating || isDeleting}
-                          className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Delete user"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+         <UsersTable
+  users={users}
+  isUpdating={isUpdating}
+  isDeleting={isDeleting}
+  onEdit={handleEditUser}
+  onDelete={handleDeleteUser}
+  onToggleStatus={handleToggleStatus}
+/>
         </div>
       )}
 
@@ -401,96 +314,13 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
 
       {/* Edit User Modal */}
       {editingUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md mx-4"
-          >
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Edit User
-            </h3>
-            <Formik
-              initialValues={{
-                name: editingUser.name,
-                email: editingUser.email,
-                role: editingUser.role,
-                permissions: editingUser.permissions,
-              }}
-              onSubmit={handleUpdateUser}
-            >
-              {({ setFieldValue }) => (
-                <Form className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
-                    </label>
-                    <Field
-                      name="name"
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <Field
-                      name="email"
-                      type="email"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Role
-                    </label>
-                    <Field
-                      as="select"
-                      name="role"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                        const role = e.target.value;
-                        setFieldValue("role", role);
-                        setFieldValue(
-                          "permissions",
-                          getDefaultPermissions(role),
-                        );
-                      }}
-                    >
-                      <option value="viewer">Viewer</option>
-                      <option value="developer">Developer</option>
-                      <option value="qa">QA</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
-                    </Field>
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setEditingUser(null)}
-                      disabled={isUpdating}
-                      className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isUpdating}
-                      className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isUpdating ? "Updating..." : "Update User"}
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </motion.div>
-        </div>
-      )}
+  <EditUserModal
+    user={editingUser}
+    isUpdating={isUpdating}
+    onClose={() => setEditingUser(null)}
+    onSubmit={handleUpdateUser}
+  />
+)}
 
       {/* Delete User Modal */}
       <ConfirmDeleteModal
