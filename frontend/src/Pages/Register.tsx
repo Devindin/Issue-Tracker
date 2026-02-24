@@ -290,15 +290,7 @@ function Register(): React.JSX.Element {
                     </p>
                   </motion.div>
 
-                  {submitError && (
-                    <div
-                      role="alert"
-                      aria-live="assertive"
-                      className="mb-2 rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-700"
-                    >
-                      {submitError}
-                    </div>
-                  )}
+                  
 
                   <motion.div variants={itemVariants}>
                     <InputField
@@ -383,6 +375,15 @@ function Register(): React.JSX.Element {
                       label={isLoading ? "Signing Up..." : "Sign Up"}
                       type="submit"
                     />
+                     {submitError && (
+                    <div
+                      role="alert"
+                      aria-live="assertive"
+                      className="mb-2 rounded-md  px-3 py-2 text-sm text-red-700"
+                    >
+                      {submitError}
+                    </div>
+                  )}
                   </motion.div>
 
                   <motion.div
@@ -399,6 +400,7 @@ function Register(): React.JSX.Element {
                       </Link>
                     </span>
                   </motion.div>
+                 
                 </Form>
               )}
             </Formik>
