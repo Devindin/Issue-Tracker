@@ -1,16 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import {
-  FaUserPlus,
-  FaUsers,
-  FaEdit,
-  FaTrash,
-  FaCheck,
-  FaTimes,
-  FaUser,
-} from "react-icons/fa";
+import { FaUserPlus, FaUsers, FaCheck, FaTimes } from "react-icons/fa";
 import {
   type ManagedUser,
   type CreateUserData,
@@ -202,28 +192,10 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
     }
   };
 
-  const getRoleColor = (role: string) => {
-    const colors = {
-      admin: "bg-red-100 border-red-300 text-red-700",
-      manager: "bg-blue-100 border-blue-300 text-blue-700",
-      developer: "bg-green-100 border-green-300 text-green-700",
-      qa: "bg-purple-100 border-purple-300 text-purple-700",
-      viewer: "bg-gray-100 border-gray-300 text-gray-700",
-    };
-    return colors[role as keyof typeof colors];
-  };
-
-  const getStatusColor = (status: string) => {
-    return status === "active"
-      ? "bg-green-100 border-green-300 text-green-700"
-      : "bg-red-100 border-red-300 text-red-700";
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
     >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -290,14 +262,14 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
             </h3>
           </div>
 
-         <UsersTable
-  users={users}
-  isUpdating={isUpdating}
-  isDeleting={isDeleting}
-  onEdit={handleEditUser}
-  onDelete={handleDeleteUser}
-  onToggleStatus={handleToggleStatus}
-/>
+          <UsersTable
+            users={users}
+            isUpdating={isUpdating}
+            isDeleting={isDeleting}
+            onEdit={handleEditUser}
+            onDelete={handleDeleteUser}
+            onToggleStatus={handleToggleStatus}
+          />
         </div>
       )}
 
@@ -314,13 +286,13 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
 
       {/* Edit User Modal */}
       {editingUser && (
-  <EditUserModal
-    user={editingUser}
-    isUpdating={isUpdating}
-    onClose={() => setEditingUser(null)}
-    onSubmit={handleUpdateUser}
-  />
-)}
+        <EditUserModal
+          user={editingUser}
+          isUpdating={isUpdating}
+          onClose={() => setEditingUser(null)}
+          onSubmit={handleUpdateUser}
+        />
+      )}
 
       {/* Delete User Modal */}
       <ConfirmDeleteModal
