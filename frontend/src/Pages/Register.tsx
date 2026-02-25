@@ -167,6 +167,7 @@ function Register(): React.JSX.Element {
   };
 
   const handleSubmit = async (values: RegisterFormValues): Promise<void> => {
+    if (isLoading) return; // prevent duplicate submit
     setSubmitError("");
     try {
       const result = await registerCompany({
@@ -374,6 +375,7 @@ function Register(): React.JSX.Element {
                     <PrimaryButton
                       label={isLoading ? "Signing Up..." : "Sign Up"}
                       type="submit"
+                      disabled={isLoading}
                     />
                      {submitError && (
                     <div
