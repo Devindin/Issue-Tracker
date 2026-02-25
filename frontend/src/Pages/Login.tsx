@@ -79,33 +79,33 @@ const loginValidationSchema = Yup.object({
     .email("Please enter a valid email address")
     .required("Email is required"),
   password: Yup.string()
-      .min(8, "Password must be at least 8 characters")
-      .max(12, "Password must be at most 12 characters")
-      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-      .matches(/\d/, "Password must contain at least one number")
-      .matches(
-        /[!@#$%^&*(),.?":{}|<>]/,
-        "Password must contain at least one special character",
-      )
-      .test(
-    "weak-pattern-check",
-    "Password contains weak or common patterns.",
-    (value) => {
-      if (!value) return true;
-  
-      const lower = value.toLowerCase();
-  
-      const containsBanned = bannedPasswords.some((word) =>
-        lower.includes(word)
-      );
-  
-      const repeated = /^(.)\1+$/.test(value);
-      const sequential = /(1234|2345|3456|4567|5678|6789)/.test(value);
-  
-      return !(containsBanned || repeated || sequential);
-    }
-      )
+    .min(8, "Password must be at least 8 characters")
+    .max(12, "Password must be at most 12 characters")
+    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+    .matches(/\d/, "Password must contain at least one number")
+    .matches(
+      /[!@#$%^&*(),.?":{}|<>]/,
+      "Password must contain at least one special character",
+    )
+    .test(
+      "weak-pattern-check",
+      "Password contains weak or common patterns.",
+      (value) => {
+        if (!value) return true;
+
+        const lower = value.toLowerCase();
+
+        const containsBanned = bannedPasswords.some((word) =>
+          lower.includes(word),
+        );
+
+        const repeated = /^(.)\1+$/.test(value);
+        const sequential = /(1234|2345|3456|4567|5678|6789)/.test(value);
+
+        return !(containsBanned || repeated || sequential);
+      },
+    )
     .required("Password is required"),
 });
 
@@ -135,6 +135,7 @@ function Login(): React.JSX.Element {
   };
 
   const handleSubmit = async (values: LoginFormValues): Promise<void> => {
+    if (isLoading) return; // prevent duplicate submit
     setSubmitError("");
     try {
       const result = await login({
@@ -146,7 +147,7 @@ function Login(): React.JSX.Element {
         setCredentials({
           user: result?.user || null,
           token: result?.token || null,
-        })
+        }),
       );
 
       navigate(from);
@@ -179,7 +180,7 @@ function Login(): React.JSX.Element {
           initial="hidden"
           animate="visible"
         >
-            <img src={Logo} alt="Logo" className="w-40 mx-auto " />
+          <img src={Logo} alt="Logo" className="w-40 mx-auto " />
           <motion.div
             className="flex flex-col justify-center items-center flex-grow"
             variants={itemVariants}
@@ -191,7 +192,6 @@ function Login(): React.JSX.Element {
             >
               {({ handleChange, values, errors, touched }) => (
                 <Form className="flex flex-col w-full max-w-md space-y-2">
-                 
                   <motion.div variants={itemVariants}>
                     <InputField
                       label="Email"
@@ -226,7 +226,7 @@ function Login(): React.JSX.Element {
                       Forgot Password?
                     </Link>
                   </motion.div>
-                   {submitError && (
+                  {submitError && (
                     <div
                       role="alert"
                       aria-live="assertive"
@@ -239,10 +239,14 @@ function Login(): React.JSX.Element {
                     <PrimaryButton
                       label={isLoading ? "Signing In..." : "Sign In"}
                       type="submit"
+                      disabled={isLoading}
                     />
                   </motion.div>
 
-                  <motion.div variants={itemVariants} className="text-center mt-4">
+                  <motion.div
+                    variants={itemVariants}
+                    className="text-center mt-4"
+                  >
                     <span className="text-gray-600 dark:text-gray-400 text-sm">
                       Don't have an account?{" "}
                       <Link
