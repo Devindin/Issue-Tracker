@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import PageLayout from "../Layout/PageLayout";
-import IssueCard from "../Components/IssueCard";
 import { useGetIssuesQuery } from "../features/issues/issueApi";
+import KanbanIssueCard from "../Components/KanbanIssueCard";
 
 const columns = [
   { key: "Open", color: "bg-blue-500" },
@@ -69,18 +69,9 @@ const KanbanIssues: React.FC = () => {
                     No issues
                   </div>
                 ) : (
-                  column.items.map((issue, index) => (
-                    <motion.div
-                      key={issue.id}
-                      whileHover={{ scale: 1.02 }}
-                      transition={{ type: "spring", stiffness: 200 }}
-                    >
-                      <IssueCard
-                        issue={issue}
-                        index={index}
-                      />
-                    </motion.div>
-                  ))
+                  column.items.map((issue) => (
+  <KanbanIssueCard key={issue.id} issue={issue} />
+))
                 )}
               </div>
             </motion.div>
