@@ -88,6 +88,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { icon: <FaExclamationTriangle />, label: "Issues", path: "/issues" },
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
     { icon: <FaFolder />, label: "Projects", path: "/projects" },
+    {icon: <FaBars />, label: "Kanban Board", path: "/kanban" },
     { icon: <FaCog />, label: "Settings", path: "/settings" },
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];
@@ -116,7 +117,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           </button>
         </div>
 
-        <div className="flex items-center justify-center flex-col py-4">
+        <div className="flex items-center justify-center flex-col py-2">
           <motion.div
             className="w-12 h-12 rounded-full border-2 border-[#00C6D7] bg-[#1976D2] flex items-center justify-center"
             animate={{ scale: collapsed ? 0.8 : 1 }}
