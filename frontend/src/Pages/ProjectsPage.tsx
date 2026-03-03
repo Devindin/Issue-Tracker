@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   FaPlus,
   FaEdit,
@@ -12,6 +12,8 @@ import {
   FaFolderOpen,
   FaFilter,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import {
@@ -29,6 +31,16 @@ import { paginate } from "../utils/pagination";
 import CommonButton from "../Components/CommonButton";
 
 const ProjectsPage: React.FC = () => {
+  const { user } = useSelector((state: any) => state.auth);
+  const canCreate = hasPermission(user, 'canCreateProjects');
+  const canEdit = hasPermission(user, 'canEditProjects');
+  const canDelete = hasPermission(user, 'canDeleteProjects');
+
+  // redirect users who have no project permissions at all
+  if (!canCreate && !canEdit && !canDelete) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("active");
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
@@ -103,9 +115,11 @@ const ProjectsPage: React.FC = () => {
             subtitle="Organize and manage your projects"
             textColor="text-white"
           />
-          <Link to="/projects/new">
-            <CommonButton icon={<FaPlus />}>Create Project</CommonButton>
-          </Link>
+          {canCreate && (
+            <Link to="/projects/new">
+              <CommonButton icon={<FaPlus />}>Create Project</CommonButton>
+            </Link>
+          )}
         </motion.div>
 
         {/* Filters */}
@@ -264,31 +278,37 @@ const ProjectsPage: React.FC = () => {
                     >
                       View Details
                     </Link>
-                    <button
-                      onClick={() => handleToggleArchive(project._id)}
-                      disabled={isToggling}
-                      className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-                      title={
-                        project.status === "archived" ? "Restore" : "Archive"
-                      }
-                    >
-                      <FaArchive />
-                    </button>
-                    <Link
-                      to={`/projects/${project._id}/edit`}
-                      className="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <FaEdit />
-                    </Link>
-                    <button
-                      onClick={() => setDeletingProject(project)}
-                      disabled={isDeleting}
-                      className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </button>
+                    {canEdit && (
+                      <button
+                        onClick={() => handleToggleArchive(project._id)}
+                        disabled={isToggling}
+                        className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                        title={
+                          project.status === "archived" ? "Restore" : "Archive"
+                        }
+                      >
+                        <FaArchive />
+                      </button>
+                    )}
+                    {canEdit && (
+                      <Link
+                        to={`/projects/${project._id}/edit`}
+                        className="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <FaEdit />
+                      </Link>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => setDeletingProject(project)}
+                        disabled={isDeleting}
+                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               ))}

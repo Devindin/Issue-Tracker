@@ -1,4 +1,6 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import { FaEdit, FaTrash, FaCheck, FaTimes, FaUser } from "react-icons/fa";
 import type { ManagedUser } from "../types/settings";
 
@@ -35,6 +37,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
       ? "bg-green-100 border-green-300 text-green-700"
       : "bg-red-100 border-red-300 text-red-700";
 
+  // check current user's permission
+  const { user } = useSelector((state: any) => state.auth);
+  const canManage = hasPermission(user, 'canManageUsers');
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -52,9 +58,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
               Last Login
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-              Actions
-            </th>
+            {canManage && (
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
 
@@ -99,35 +107,37 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   : "Never"}
               </td>
 
-              <td className="px-6 py-4 flex gap-2">
-                <button
-                  onClick={() => onEdit(user)}
-                  disabled={isUpdating || isDeleting}
-                  className="text-indigo-600"
-                >
-                  <FaEdit />
-                </button>
+              {canManage && (
+                <td className="px-6 py-4 flex gap-2">
+                  <button
+                    onClick={() => onEdit(user)}
+                    disabled={isUpdating || isDeleting}
+                    className="text-indigo-600"
+                  >
+                    <FaEdit />
+                  </button>
 
-                <button
-                  onClick={() => onToggleStatus(user)}
-                  disabled={isUpdating || isDeleting}
-                  className={
-                    user.status === "active"
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }
-                >
-                  {user.status === "active" ? <FaTimes /> : <FaCheck />}
-                </button>
+                  <button
+                    onClick={() => onToggleStatus(user)}
+                    disabled={isUpdating || isDeleting}
+                    className={
+                      user.status === "active"
+                        ? "text-red-600"
+                        : "text-green-600"
+                    }
+                  >
+                    {user.status === "active" ? <FaTimes /> : <FaCheck />}
+                  </button>
 
-                <button
-                  onClick={() => onDelete(user)}
-                  disabled={isUpdating || isDeleting}
-                  className="text-red-600"
-                >
-                  <FaTrash />
-                </button>
-              </td>
+                  <button
+                    onClick={() => onDelete(user)}
+                    disabled={isUpdating || isDeleting}
+                    className="text-red-600"
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
+import { hasPermission } from '../utils/permissions';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -17,8 +18,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, permission })
 
   // if a permission was specified, make sure user has it
   if (permission) {
-    // import here to avoid circular import problems
-    const { hasPermission } = require("../utils/permissions");
     if (!hasPermission(user, permission)) {
       // redirect to dashboard or show 403
       return <Navigate to="/dashboard" replace />;

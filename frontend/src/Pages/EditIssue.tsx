@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Formik, Form } from "formik";
@@ -37,6 +39,9 @@ const EditIssue: React.FC = () => {
   
   // Fetch users for assignee dropdown
   const { data: users = [] } = useGetUsersQuery();
+
+  const { user } = useSelector((state:any) => state.auth);
+  const canAssign = hasPermission(user, 'canAssignIssues');
 
   // Character count limits
   const TITLE_MAX_LENGTH = 100;
@@ -426,31 +431,33 @@ const EditIssue: React.FC = () => {
                   </div>
 
                   {/* Assignee */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <InputField
-                      label="Assignee"
-                      name="assigneeId"
-                      type="select"
-                      options={assigneeOptions}
-                      placeholder="Unassigned"
-                      handleChange={handleChange}
-                      values={values}
-                      errors={errors as Record<string, string>}
-                      touched={touched as Record<string, boolean>}
-                    />
-                    <div className="mt-2">
-                      <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                        values.assigneeId
-                          ? "bg-green-100 border-green-300 text-green-700"
-                          : "bg-gray-100 border-gray-300 text-gray-700"
-                      }`}
-                      >
-                        {values.assigneeId
-                          ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
-                          : "Unassigned"}
-                      </span>
+                  {canAssign && (
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                      <InputField
+                        label="Assignee"
+                        name="assigneeId"
+                        type="select"
+                        options={assigneeOptions}
+                        placeholder="Unassigned"
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
+                      <div className="mt-2">
+                        <span className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                          values.assigneeId
+                            ? "bg-green-100 border-green-300 text-green-700"
+                            : "bg-gray-100 border-gray-300 text-gray-700"
+                        }`}
+                        >
+                          {values.assigneeId
+                            ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
+                            : "Unassigned"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Info Box */}

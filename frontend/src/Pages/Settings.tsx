@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
+import { hasPermission } from "../utils/permissions";
 import { FaUser, FaLock, FaBell, FaCheck, FaShieldAlt } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
@@ -44,12 +45,23 @@ const Settings: React.FC = () => {
     window.location.href = "/login";
   };
 
-  // Tabs configuration
+  // Tabs configuration (filter "users" tab based on permission)
+  const { user } = useSelector((state: RootState) => state.auth);
   const tabs = [
     { id: "profile", label: "Profile", icon: <FaUser /> },
     { id: "security", label: "Security", icon: <FaLock /> },
-    { id: "users", label: "User Management", icon: <FaShieldAlt /> },
+    // only show user management tab to users with manage permission
+    ...(hasPermission(user, "canManageUsers")
+      ? [{ id: "users", label: "User Management", icon: <FaShieldAlt /> }]
+      : []),
   ];
+
+  // if activeTab is users but permission revoked, switch to profile
+  React.useEffect(() => {
+    if (activeTab === "users" && !hasPermission(user, "canManageUsers")) {
+      dispatch(setActiveTab("profile"));
+    }
+  }, [activeTab, user, dispatch]);
 
   return (
     <PageLayout>
@@ -168,7 +180,14 @@ const Settings: React.FC = () => {
               )}
 
               {/* User Management Tab */}
-              {activeTab === "users" && <UserManagementTab />}
+              {activeTab === "users" &&
+                (hasPermission(user, "canManageUsers") ? (
+                  <UserManagementTab />
+                ) : (
+                  <p className="text-center text-gray-600 py-8">
+                    You do not have permission to view user management.
+                  </p>
+                ))}
             </motion.div>
           </div>
         )}

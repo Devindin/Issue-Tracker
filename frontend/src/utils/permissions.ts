@@ -64,6 +64,10 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
         canExportData: false,
       };
     case 'viewer':
+      return {
+        ...basePermissions,
+        canViewAllIssues: true,
+      };
     default:
       return basePermissions;
   }

@@ -159,45 +159,48 @@ const Dashboard: React.FC = () => {
           )}
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
-        >
-          <DashboardCard title="Total" value={stats.total} variant="total" />
-          <DashboardCard title="Open" value={stats.open} variant="open" />
-          <DashboardCard
-            title="In Progress"
-            value={stats.inProgress}
-            variant="inProgress"
-          />
-          <DashboardCard
-            title="Resolved"
-            value={stats.resolved}
-            variant="resolved"
-          />
-          <DashboardCard title="Closed" value={stats.closed} variant="closed" />
-        </motion.div>
+        {/* Stats Cards (only shown if user can view reports) */}
+        {hasPermission(user, 'canViewReports') && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+          >
+            <DashboardCard title="Total" value={stats.total} variant="total" />
+            <DashboardCard title="Open" value={stats.open} variant="open" />
+            <DashboardCard
+              title="In Progress"
+              value={stats.inProgress}
+              variant="inProgress"
+            />
+            <DashboardCard
+              title="Resolved"
+              value={stats.resolved}
+              variant="resolved"
+            />
+            <DashboardCard title="Closed" value={stats.closed} variant="closed" />
+          </motion.div>
+        )}
 
-        {/* Charts */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-         className="grid grid-cols-1 gap-6"
+        {/* Charts (only if reports permitted) */}
+        {hasPermission(user, 'canViewReports') && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+           className="grid grid-cols-1 gap-6"
 
-        >
-          {analyticsLoading ? (
-            <div className="col-span-2 flex justify-center p-12">
-              <FaSpinner className="text-4xl animate-spin text-indigo-600" />
-            </div>
-          ) : analyticsError ? (
-            <div className="  items-center p-12 text-red-500 bg-red-50 rounded-2xl">
-              <FaExclamationCircle className="text-5xl mb-4" />
-              <p className="font-semibold mb-2">Error loading analytics</p>
-              <p className="text-sm text-red-600">{String(analyticsErrorMsg || "Please try refreshing the page")}</p>
+          >
+            {analyticsLoading ? (
+              <div className="col-span-2 flex justify-center p-12">
+                <FaSpinner className="text-4xl animate-spin text-indigo-600" />
+              </div>
+            ) : analyticsError ? (
+              <div className="  items-center p-12 text-red-500 bg-red-50 rounded-2xl">
+                <FaExclamationCircle className="text-5xl mb-4" />
+                <p className="font-semibold mb-2">Error loading analytics</p>
+                <p className="text-sm text-red-600">{String(analyticsErrorMsg || "Please try refreshing the page")}</p>
             </div>
           ) : (
             <>
@@ -207,6 +210,7 @@ const Dashboard: React.FC = () => {
             </>
           )}
         </motion.div>
+        )}
 
         {/* Recent Issues */}
         <motion.div

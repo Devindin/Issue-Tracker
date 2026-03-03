@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../../utils/permissions"; 
 import { motion } from "framer-motion";
 import { FaUserPlus, FaUsers, FaCheck, FaTimes } from "react-icons/fa";
 import {
@@ -20,6 +22,9 @@ import EditUserModal from "../../modals/EditUserModal";
 interface UserManagementTabProps {}
 
 const UserManagementTab: React.FC<UserManagementTabProps> = () => {
+  const { user } = useSelector((state: any) => state.auth);
+  const canManage = hasPermission(user, 'canManageUsers');
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [deletingUser, setDeletingUser] = useState<ManagedUser | null>(null);
@@ -31,6 +36,15 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+
+  // if user can't manage, render message and early return
+  if (!canManage) {
+    return (
+      <div className="p-8 text-center text-gray-600">
+        You do not have permission to manage users.
+      </div>
+    );
+  }
 
   // Default permissions based on role
   const getDefaultPermissions = (role: string): UserPermissions => {

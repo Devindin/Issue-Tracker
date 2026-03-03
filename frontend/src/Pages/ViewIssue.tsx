@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -30,6 +32,10 @@ const ViewIssue: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+
+  const { user } = useSelector((state: any) => state.auth);
+  const canEdit = hasPermission(user, 'canEditIssues');
+  const canDelete = hasPermission(user, 'canDeleteIssues');
 
   // Fetch issue data from API
   const { data, isLoading, error } = useGetIssueByIdQuery(id || "", {
@@ -168,18 +174,22 @@ const ViewIssue: React.FC = () => {
             />
           </div>
           <div className="flex gap-3">
-            <Link
-              to={`/issues/${issue.id}/edit`}
-              className="flex items-center gap-2 px-6 py-3 bg-[#00C6D7] text-white rounded-xl font-semibold hover:bg-[#00ACC1] transition-colors shadow-lg shadow-[#00C6D7]/25"
-            >
-              <FaEdit /> Edit Issue
-            </Link>
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
-            >
-              <FaTrash /> Delete Issue
-            </button>
+            {canEdit && (
+              <Link
+                to={`/issues/${issue.id}/edit`}
+                className="flex items-center gap-2 px-6 py-3 bg-[#00C6D7] text-white rounded-xl font-semibold hover:bg-[#00ACC1] transition-colors shadow-lg shadow-[#00C6D7]/25"
+              >
+                <FaEdit /> Edit Issue
+              </Link>
+            )}
+            {canDelete && (
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+              >
+                <FaTrash /> Delete Issue
+              </button>
+            )}
           </div>
         </motion.div>
 

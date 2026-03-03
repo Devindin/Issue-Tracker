@@ -140,6 +140,10 @@ const ViewProject: React.FC = () => {
     statusConfig[project.status as keyof typeof statusConfig] ||
     statusConfig.active;
 
+  const { user } = useSelector((state: any) => state.auth);
+  const canEdit = hasPermission(user, 'canEditProjects');
+  const canDelete = hasPermission(user, 'canDeleteProjects');
+
   return (
     <PageLayout>
       <div className="space-y-6 max-w-6xl mx-auto">
@@ -168,26 +172,32 @@ const ViewProject: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <button
-              onClick={() => navigate(`/projects/${id}/edit`)}
-              className="px-4 py-2 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 transition-colors flex items-center gap-2 shadow-md"
-            >
-              <FaEdit /> Edit
-            </button>
-            <button
-              onClick={handleToggleArchive}
-              disabled={isToggling}
-              className="px-4 py-2 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-md disabled:opacity-50"
-            >
-              <FaArchive />{" "}
-              {project.status === "archived" ? "Unarchive" : "Archive"}
-            </button>
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 shadow-md"
-            >
-              <FaTrash /> Delete
-            </button>
+            {canEdit && (
+              <button
+                onClick={() => navigate(`/projects/${id}/edit`)}
+                className="px-4 py-2 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 transition-colors flex items-center gap-2 shadow-md"
+              >
+                <FaEdit /> Edit
+              </button>
+            )}
+            {canEdit && (
+              <button
+                onClick={handleToggleArchive}
+                disabled={isToggling}
+                className="px-4 py-2 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-md disabled:opacity-50"
+              >
+                <FaArchive />{" "}
+                {project.status === "archived" ? "Unarchive" : "Archive"}
+              </button>
+            )}
+            {canDelete && (
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 shadow-md"
+              >
+                <FaTrash /> Delete
+              </button>
+            )}
           </div>
         </motion.div>
 

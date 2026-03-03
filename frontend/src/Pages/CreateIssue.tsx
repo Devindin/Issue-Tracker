@@ -376,34 +376,36 @@ const CreateIssue: React.FC = () => {
                   </div>
 
                   {/* Assignee */}
-                  <div>
-                    <InputField
-                      label="Assignee"
-                      name="assigneeId"
-                      type="select"
-                      options={assigneeOptions}
-                      placeholder="Unassigned"
-                      handleChange={handleChange}
-                      values={values}
-                      errors={errors as Record<string, string>}
-                      touched={touched as Record<string, boolean>}
-                    />
-                    <div className="mt-2">
-                      <span
-                        className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                          values.assigneeId
-                            ? "bg-green-100 border-green-300 text-green-700"
-                            : "bg-gray-100 border-gray-300 text-gray-700"
-                        }`}
-                      >
-                        {values.assigneeId === "me"
-                          ? "👤 Assigned to me"
-                          : values.assigneeId
-                            ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
-                            : "Unassigned"}
-                      </span>
+                  {hasPermission(user, 'canAssignIssues') && (
+                    <div>
+                      <InputField
+                        label="Assignee"
+                        name="assigneeId"
+                        type="select"
+                        options={assigneeOptions}
+                        placeholder="Unassigned"
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
+                      <div className="mt-2">
+                        <span
+                          className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                            values.assigneeId
+                              ? "bg-green-100 border-green-300 text-green-700"
+                              : "bg-gray-100 border-gray-300 text-gray-700"
+                          }`}
+                        >
+                          {values.assigneeId === "me"
+                            ? "👤 Assigned to me"
+                            : values.assigneeId
+                              ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
+                              : "Unassigned"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Info Box */}

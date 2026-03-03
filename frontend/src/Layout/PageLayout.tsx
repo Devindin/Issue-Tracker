@@ -106,6 +106,14 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   if (!hasPermission(user, 'canViewKanban')) {
     menuItems = menuItems.filter(item => item.path !== "/kanban");
   }
+  // hide projects entirely if user has no project-related permissions
+  if (
+    !hasPermission(user, 'canCreateProjects') &&
+    !hasPermission(user, 'canEditProjects') &&
+    !hasPermission(user, 'canDeleteProjects')
+  ) {
+    menuItems = menuItems.filter(item => item.path !== "/projects");
+  }
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">
