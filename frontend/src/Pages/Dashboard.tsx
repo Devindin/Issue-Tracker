@@ -8,6 +8,7 @@ import {
   FaSpinner,
   FaPlus,
 } from "react-icons/fa";
+import { hasPermission } from "../utils/permissions";
 
 import DashboardCard from "../Components/Dashboardcard";
 import IssueCard from "../Components/IssueCard";
@@ -28,6 +29,7 @@ import { useGetIssueAnalyticsQuery } from "../features/issues/issueApi";
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const { searchTerm, filterStatus, filterPriority } = useSelector(
     (state: RootState) => state.issuesFilter,
@@ -150,9 +152,11 @@ const Dashboard: React.FC = () => {
             textColor="text-white"
           />
 
-          <Link to="/issues/new">
-            <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
-          </Link>
+          {hasPermission(user, 'canCreateIssues') && (
+            <Link to="/issues/new">
+              <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
+            </Link>
+          )}
         </motion.div>
 
         {/* Stats Cards */}

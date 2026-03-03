@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import {
   FaSave,
   FaTimes,
@@ -65,6 +66,12 @@ const severityOptions = [
 const CreateIssue: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
+
+  // redirect users without create permission
+  if (!hasPermission(user, 'canCreateIssues')) {
+    return <Navigate to="/issues" replace />;
+  }
+
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [createdIssueId, setCreatedIssueId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");

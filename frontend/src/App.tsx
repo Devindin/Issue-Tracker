@@ -25,12 +25,40 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/issues" element={<ProtectedRoute><Issues /></ProtectedRoute>} />
-        <Route path="/issues/new" element={<ProtectedRoute><CreateIssue /></ProtectedRoute>} />
-        <Route path="/issues/:id/edit" element={<ProtectedRoute><EditIssue /></ProtectedRoute>} />
+        <Route
+          path="/issues/new"
+          element={
+            <ProtectedRoute permission="canCreateIssues">
+              <CreateIssue />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/issues/:id/edit"
+          element={
+            <ProtectedRoute permission="canEditIssues">
+              <EditIssue />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/issues/:id" element={<ProtectedRoute><ViewIssue /></ProtectedRoute>} />
         <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
-        <Route path="/projects/new" element={<ProtectedRoute><CreateProject /></ProtectedRoute>} />
-        <Route path="/projects/:id/edit" element={<ProtectedRoute><EditProject /></ProtectedRoute>} />
+        <Route
+          path="/projects/new"
+          element={
+            <ProtectedRoute permission="canCreateProjects">
+              <CreateProject />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/projects/:id/edit"
+          element={
+            <ProtectedRoute permission="canEditProjects">
+              <EditProject />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/projects/:id" element={<ProtectedRoute><ViewProject /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/kanban" element={<ProtectedRoute><KanbanIssues /></ProtectedRoute>} />

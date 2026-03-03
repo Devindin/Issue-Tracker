@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   FaExclamationCircle,
   FaSpinner,
@@ -26,8 +26,17 @@ import { filterIssues } from "../utils/issueFilters";
 import { exportIssuesToCSV, exportIssuesToJSON } from "../utils/exportUtils";
 import { sortIssues } from "../utils/issueSort";
 import CommonButton from "../Components/CommonButton";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 
 const Issues: React.FC = () => {
+  const { user } = useSelector((state: any) => state.auth);
+
+  // redirect if the user is not allowed to view issues at all
+  if (!hasPermission(user, 'canViewAllIssues') && !hasPermission(user, 'canCreateIssues') && !hasPermission(user, 'canEditIssues')) {
+    return <Navigate to="/dashboard" replace />; // or show a 403 component
+  }
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterPriority, setFilterPriority] = useState<string>("All");
@@ -172,34 +181,40 @@ const Issues: React.FC = () => {
             textColor="text-white"
           />
           <div className="flex gap-3">
-            <div className="relative">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
-              >
-                <FaFileExport />
-                Export
-              </button>
-              {showFilters && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
-                  <button
-                    onClick={exportToCSV}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Export as CSV
-                  </button>
-                  <button
-                    onClick={exportToJSON}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Export as JSON
-                  </button>
-                </div>
-              )}
-            </div>
-            <Link to="/issues/new">
-            <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
-          </Link>
+            {hasPermission(user, 'canViewReports') && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
+                >
+                  <FaFileExport />
+                  Export
+                </button>
+                {showFilters && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
+                    <button
+                      onClick={exportToCSV}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
+                    >
+                      Export as CSV
+                    </button>
+                    <button
+                      onClick={exportToJSON}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
+                    >
+                      Export as JSON
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {hasPermission(user, 'canCreateIssues') && (
+              <Link to="/issues/new">
+                <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
+              </Link>
+            )}
+
           </div>
         </motion.div>
 
@@ -409,7 +424,7 @@ const Issues: React.FC = () => {
                 ? "Try adjusting your search or filters"
                 : "Get started by creating your first issue"}
             </p>
-            {!hasActiveFilters && (
+            {!hasActiveFilters && hasPermission(user, 'canCreateIssues') && (
               <Link to="/issues/new">
                 <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
                   Create First Issue

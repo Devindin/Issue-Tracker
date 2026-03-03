@@ -17,6 +17,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
 import { logout } from "../features/auth/authSlice";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { hasPermission } from "../utils/permissions";
 
 interface MenuItem {
   icon: React.JSX.Element;
@@ -83,9 +84,13 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     return location.pathname === path;
   };
 
-  const menuItems: MenuItem[] = [
+  const user = useSelector((state: RootState) => state.auth.user);
+  const userName = user?.name ?? "User";
+
+  let menuItems: MenuItem[] = [
     { icon: <FaHome />, label: "Dashboard", path: "/dashboard" },
     { icon: <FaExclamationTriangle />, label: "Issues", path: "/issues" },
+    // Create issue entry will be filtered below based on permission
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
     { icon: <FaFolder />, label: "Projects", path: "/projects" },
     {icon: <FaBars />, label: "Kanban Board", path: "/kanban" },
@@ -93,8 +98,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];
 
-  const user = useSelector((state: RootState) => state.auth.user);
-  const userName = user?.name ?? "User";
+  // remove create‑issue link if user can't create
+  if (!hasPermission(user, 'canCreateIssues')) {
+    menuItems = menuItems.filter(item => item.path !== "/issues/new");
+  }
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">
