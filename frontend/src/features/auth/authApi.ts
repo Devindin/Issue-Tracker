@@ -21,6 +21,9 @@ interface AuthResponse {
     name: string;
     email: string;
     role: string;
+    permissions?: {
+      [key: string]: boolean;
+    };
     company: {
       id: string;
       name: string;
@@ -110,6 +113,7 @@ export const authApi = apiSlice.injectEndpoints({
           companyName: response.user?.company?.name,
           role: response.user?.role,
           hasToken: !!response.token,
+          hasPermissions: !!response.user?.permissions,
           timestamp: new Date().toISOString()
         });
         return response;

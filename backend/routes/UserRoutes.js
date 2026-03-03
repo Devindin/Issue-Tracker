@@ -223,6 +223,7 @@ router.post("/", authMiddleware, async (req, res) => {
         canDeleteIssues: false,
         canAssignIssues: false,
         canViewAllIssues: true,
+        canViewKanban: false,
         canManageUsers: false,
         canViewReports: false,
         canExportData: false
@@ -233,6 +234,7 @@ router.post("/", authMiddleware, async (req, res) => {
         canDeleteIssues: false,
         canAssignIssues: false,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: false,
         canViewReports: false,
         canExportData: false
@@ -243,6 +245,7 @@ router.post("/", authMiddleware, async (req, res) => {
         canDeleteIssues: false,
         canAssignIssues: true,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: false,
         canViewReports: true,
         canExportData: false
@@ -253,6 +256,7 @@ router.post("/", authMiddleware, async (req, res) => {
         canDeleteIssues: true,
         canAssignIssues: true,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: true,
         canViewReports: true,
         canExportData: true
@@ -263,6 +267,7 @@ router.post("/", authMiddleware, async (req, res) => {
         canDeleteIssues: true,
         canAssignIssues: true,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: true,
         canViewReports: true,
         canExportData: true

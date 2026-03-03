@@ -102,6 +102,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   if (!hasPermission(user, 'canCreateIssues')) {
     menuItems = menuItems.filter(item => item.path !== "/issues/new");
   }
+  // hide kanban entry if user lacks view permission
+  if (!hasPermission(user, 'canViewKanban')) {
+    menuItems = menuItems.filter(item => item.path !== "/kanban");
+  }
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">

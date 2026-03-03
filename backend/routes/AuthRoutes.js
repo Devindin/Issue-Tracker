@@ -68,6 +68,7 @@ router.post('/register-company', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        permissions: user.permissions, // return permissions object
         company: {
           id: company._id,
           name: company.name,
@@ -117,6 +118,7 @@ router.post('/login', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        permissions: user.permissions,
         company: user.company
           ? {
               id: user.company._id,

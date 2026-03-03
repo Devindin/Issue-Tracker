@@ -1,6 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Navigate } from "react-router-dom";
 import PageLayout from "../Layout/PageLayout";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import { useGetIssuesQuery } from "../features/issues/issueApi";
 import KanbanIssueCard from "../Components/KanbanIssueCard";
 
@@ -12,6 +15,12 @@ const columns = [
 ];
 
 const KanbanIssues: React.FC = () => {
+  const { user } = useSelector((state: any) => state.auth);
+
+  if (!hasPermission(user, 'canViewKanban')) {
+    return <Navigate to="/issues" replace />;
+  }
+
   const { data, isLoading } = useGetIssuesQuery({});
   const issues = data?.issues || [];
 

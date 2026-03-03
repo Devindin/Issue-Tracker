@@ -7,6 +7,7 @@ const userPermissionsSchema = new mongoose.Schema({
   canDeleteIssues: { type: Boolean, default: false },
   canAssignIssues: { type: Boolean, default: false },
   canViewAllIssues: { type: Boolean, default: false },
+  canViewKanban: { type: Boolean, default: false },
   canManageUsers: { type: Boolean, default: false },
   canViewReports: { type: Boolean, default: false },
   canExportData: { type: Boolean, default: false }

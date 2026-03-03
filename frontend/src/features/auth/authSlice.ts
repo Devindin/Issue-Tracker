@@ -6,6 +6,9 @@ export interface User {
   name: string;
   email: string;
   role: string;
+  permissions?: {
+    [key: string]: boolean;
+  };
   company: {
     id: string;
     name: string;

@@ -98,6 +98,7 @@ The Issue Tracker uses a **Role-Based Access Control (RBAC)** system with fine-g
 | Permission | Description | Roles with Access |
 |-----------|-------------|-------------------|
 | `canViewReports` | Access reports section | QA, Manager, Admin |
+| `canViewKanban` | View the Kanban board | Developer, QA, Manager, Admin |
 | `canExportData` | Export data to CSV/JSON | QA, Manager, Admin |
 
 ---

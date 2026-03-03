@@ -61,7 +61,7 @@ function App() {
         />
         <Route path="/projects/:id" element={<ProtectedRoute><ViewProject /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-        <Route path="/kanban" element={<ProtectedRoute><KanbanIssues /></ProtectedRoute>} />
+        <Route path="/kanban" element={<ProtectedRoute permission="canViewKanban"><KanbanIssues /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
