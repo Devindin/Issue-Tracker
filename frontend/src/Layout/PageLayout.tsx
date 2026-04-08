@@ -10,6 +10,7 @@ import {
   FaBars,
   FaPlus,
   FaUser,
+  FaUserTie,
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
@@ -94,6 +95,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
     { icon: <FaFolder />, label: "Projects", path: "/projects" },
     {icon: <FaBars />, label: "Kanban Board", path: "/kanban" },
+    { icon: <FaUserTie />, label: "Employees", path: "/employees" },
     { icon: <FaCog />, label: "Settings", path: "/settings" },
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];
@@ -102,6 +104,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   if (!hasPermission(user, 'canCreateIssues')) {
     menuItems = menuItems.filter(item => item.path !== "/issues/new");
   }
+  // Note: Kanban, Projects, and Employees are always shown in menu
+  // Routing protection handles permission checks
+  /*
   // hide kanban entry if user lacks view permission
   if (!hasPermission(user, 'canViewKanban')) {
     menuItems = menuItems.filter(item => item.path !== "/kanban");
@@ -110,10 +115,16 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   if (
     !hasPermission(user, 'canCreateProjects') &&
     !hasPermission(user, 'canEditProjects') &&
-    !hasPermission(user, 'canDeleteProjects')
+    !hasPermission(user, 'canDeleteProjects') &&
+    !hasPermission(user, 'canViewAllIssues') // Allow viewing projects if they can view issues
   ) {
     menuItems = menuItems.filter(item => item.path !== "/projects");
   }
+  // hide employees if user can't manage users
+  if (!hasPermission(user, 'canManageUsers')) {
+    menuItems = menuItems.filter(item => item.path !== "/employees");
+  }
+  */
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">

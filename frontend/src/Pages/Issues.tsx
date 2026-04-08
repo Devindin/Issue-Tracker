@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import {
   FaExclamationCircle,
   FaSpinner,
@@ -32,10 +32,8 @@ import { hasPermission } from "../utils/permissions";
 const Issues: React.FC = () => {
   const { user } = useSelector((state: any) => state.auth);
 
-  // redirect if the user is not allowed to view issues at all
-  if (!hasPermission(user, 'canViewAllIssues') && !hasPermission(user, 'canCreateIssues') && !hasPermission(user, 'canEditIssues')) {
-    return <Navigate to="/dashboard" replace />; // or show a 403 component
-  }
+  const [searchParams] = useSearchParams();
+  const projectParam = searchParams.get('project');
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("All");
@@ -68,6 +66,19 @@ const Issues: React.FC = () => {
   const { data: projectsData } = useGetProjectsQuery({});
   const projects = projectsData || [];
 
+  // Set project filter from URL parameter
+  useEffect(() => {
+    if (projectParam && projects.length > 0) {
+      const project = projects.find(p => p.key === projectParam);
+      if (project) {
+        setFilterProject(project._id);
+      } else {
+        // If project not found by key, try to use the param directly as ID
+        setFilterProject(projectParam);
+      }
+    }
+  }, [projectParam, projects]);
+
   // Fetch users for assignee filter
   const { data: users = [] } = useGetUsersQuery();
 
@@ -77,6 +88,7 @@ const Issues: React.FC = () => {
     status: filterStatus !== "All" ? filterStatus : undefined,
     priority: filterPriority !== "All" ? filterPriority : undefined,
     severity: filterSeverity !== "All" ? filterSeverity : undefined,
+    project: filterProject !== "All" ? filterProject : undefined,
   });
 
   // Get issues from API response
@@ -85,7 +97,7 @@ const Issues: React.FC = () => {
   const filteredIssues = useMemo(() => {
     const filtered = filterIssues(issues, {
       filterAssignee,
-      filterProject,
+      filterProject: "All", // Project filtering is now done server-side
       filterCompletedDate,
     });
 
@@ -93,7 +105,6 @@ const Issues: React.FC = () => {
   }, [
     issues,
     filterAssignee,
-    filterProject,
     filterCompletedDate,
     sortField,
     sortOrder,
@@ -116,7 +127,6 @@ const Issues: React.FC = () => {
     filterPriority,
     filterSeverity,
     filterAssignee,
-    filterProject,
     filterCompletedDate,
   ]);
 

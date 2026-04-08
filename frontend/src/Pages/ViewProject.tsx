@@ -23,6 +23,7 @@ import {
   useDeleteProjectMutation,
   useToggleProjectArchiveMutation,
 } from "../features/projects/projectApi";
+import { useGetIssuesQuery } from "../features/issues/issueApi";
 
 const ViewProject: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +39,16 @@ const ViewProject: React.FC = () => {
   } = useGetProjectByIdQuery(id!, {
     skip: !id,
   });
+
+  const {
+    data: issuesData,
+    isLoading: issuesLoading,
+  } = useGetIssuesQuery({
+    project: id,
+  });
+
+  const issues = issuesData?.issues || [];
+
   const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
   const [toggleArchive, { isLoading: isToggling }] =
     useToggleProjectArchiveMutation();
@@ -364,6 +375,81 @@ const ViewProject: React.FC = () => {
             </Link>
           </div>
         </motion.div>
+
+        {/* Recent Issues */}
+        {issues.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="bg-white rounded-2xl shadow-md p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Recent Issues
+              </h2>
+              <Link
+                to={`/issues?project=${project.key}`}
+                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+              >
+                View All →
+              </Link>
+            </div>
+
+            <div className="space-y-3">
+              {issues.slice(0, 5).map((issue: Issue) => (
+                <Link
+                  key={issue.id}
+                  to={`/issues/${issue.id}`}
+                  className="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-gray-400 font-mono text-sm">
+                          #{issue.id}
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                            issue.status === "Open"
+                              ? "bg-orange-50 text-orange-700"
+                              : issue.status === "In Progress"
+                              ? "bg-blue-50 text-blue-700"
+                              : issue.status === "Resolved"
+                              ? "bg-green-50 text-green-700"
+                              : "bg-gray-50 text-gray-700"
+                          }`}
+                        >
+                          {issue.status}
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${
+                            issue.priority === "High" || issue.priority === "Critical"
+                              ? "bg-red-50 text-red-700"
+                              : issue.priority === "Medium"
+                              ? "bg-yellow-50 text-yellow-700"
+                              : "bg-green-50 text-green-700"
+                          }`}
+                        >
+                          {issue.priority}
+                        </span>
+                      </div>
+                      <h3 className="font-medium text-gray-800 truncate">
+                        {issue.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        {issue.description}
+                      </p>
+                    </div>
+                    <div className="text-right text-xs text-gray-500 ml-4">
+                      {new Date(issue.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Back Button */}
         <motion.div
