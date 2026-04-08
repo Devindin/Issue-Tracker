@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import {
   FaEdit,
   FaArchive,
@@ -39,6 +41,10 @@ const ViewProject: React.FC = () => {
   const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
   const [toggleArchive, { isLoading: isToggling }] =
     useToggleProjectArchiveMutation();
+
+  const { user } = useSelector((state: any) => state.auth);
+  const canEdit = hasPermission(user, 'canEditProjects');
+  const canDelete = hasPermission(user, 'canDeleteProjects');
 
   React.useEffect(() => {
     console.log("ViewProject Component - ID:", id);
@@ -139,10 +145,6 @@ const ViewProject: React.FC = () => {
   const status =
     statusConfig[project.status as keyof typeof statusConfig] ||
     statusConfig.active;
-
-  const { user } = useSelector((state: any) => state.auth);
-  const canEdit = hasPermission(user, 'canEditProjects');
-  const canDelete = hasPermission(user, 'canDeleteProjects');
 
   return (
     <PageLayout>
