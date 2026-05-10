@@ -95,7 +95,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
     { icon: <FaFolder />, label: "Projects", path: "/projects" },
     {icon: <FaBars />, label: "Kanban Board", path: "/kanban" },
-    { icon: <FaUserTie />, label: "Employees", path: "/employees" },
     { icon: <FaCog />, label: "Settings", path: "/settings" },
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];
