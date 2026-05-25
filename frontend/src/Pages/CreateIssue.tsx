@@ -164,7 +164,6 @@ const CreateIssue: React.FC = () => {
   return (
     <PageLayout>
       <div className=" mx-auto">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
