@@ -10,8 +10,21 @@ router.get("/", authMiddleware, async (req, res) => {
   try {
     const { search, status, priority, severity, project } = req.query;
     
+    // Get user to check permissions
+    const User = require("../models/User");
+    const currentUser = await User.findById(req.user?.userId).select('permissions role');
+    
     // Build query
     const query = { company: req.user?.companyId };
+    
+    // If user doesn't have canViewAllIssues permission and is not admin
+    // Only show issues they're assigned to or reported
+    if (currentUser && currentUser.role !== 'admin' && !currentUser.permissions?.canViewAllIssues) {
+      query.$or = [
+        { assignee: req.user?.userId },
+        { reporter: req.user?.userId }
+      ];
+    }
     
     // Add search filter (case-insensitive)
     if (search) {
@@ -181,6 +194,46 @@ router.post("/", authMiddleware, requirePermission('canCreateIssues'), async (re
   } catch (error) {
     console.error("Create issue error:", error);
     return res.status(500).json({ message: error?.message || "Server error" });
+  }
+});
+
+// Export issues (CSV/JSON)
+router.get("/export", authMiddleware, requirePermission('canExportData'), async (req, res) => {
+  try {
+    const { format = 'csv' } = req.query;
+    
+    const issues = await Issue.find({ company: req.user?.companyId })
+      .populate("assignee", "name email")
+      .populate("reporter", "name email")
+      .populate("project", "name key icon")
+      .sort({ createdAt: -1 });
+    
+    if (format === 'json') {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename=issues.json');
+      return res.json(issues);
+    }
+    
+    // CSV format
+    const csv = [
+      ['ID', 'Title', 'Status', 'Priority', 'Assignee', 'Project', 'Created'].join(','),
+      ...issues.map(issue => [
+        issue._id,
+        `"${issue.title.replace(/"/g, '""')}"`,
+        issue.status,
+        issue.priority,
+        issue.assignee?.name || 'Unassigned',
+        issue.project?.name || 'No Project',
+        issue.createdAt
+      ].join(','))
+    ].join('\n');
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=issues.csv');
+    res.send(csv);
+  } catch (error) {
+    console.error("Export error:", error);
+    return res.status(500).json({ message: error?.message || "Export failed" });
   }
 });
 

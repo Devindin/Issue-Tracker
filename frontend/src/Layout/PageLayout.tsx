@@ -10,7 +10,9 @@ import {
   FaBars,
   FaPlus,
   FaUser,
+  FaChartBar,
 } from "react-icons/fa";
+import { hasPermission } from "../utils/permissions";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useSelector, useDispatch } from "react-redux";
@@ -88,12 +90,23 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { icon: <FaExclamationTriangle />, label: "Issues", path: "/issues" },
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
     { icon: <FaFolder />, label: "Projects", path: "/projects" },
+    { icon: <FaChartBar />, label: "Reports", path: "/reports" },
     { icon: <FaCog />, label: "Settings", path: "/settings" },
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];
 
   const user = useSelector((state: RootState) => state.auth.user);
   const userName = user?.name ?? "User";
+
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (item.path === "/issues/new") {
+      return hasPermission(user, "canCreateIssues");
+    }
+    if (item.path === "/reports") {
+      return hasPermission(user, "canViewReports");
+    }
+    return true;
+  });
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-50">
@@ -137,7 +150,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         </div>
 
         <nav className="flex-1 p-2 space-y-1">
-          {menuItems.map((item, index) =>
+          {filteredMenuItems.map((item, index) =>
             item.path ? (
               <Link
                 key={index}
@@ -218,7 +231,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               </div>
 
               <motion.nav className="space-y-2 flex-1">
-                {menuItems.map((item, index) =>
+                {filteredMenuItems.map((item, index) =>
                   item.path ? (
                     <motion.div key={index} variants={itemVariants}>
                       <Link

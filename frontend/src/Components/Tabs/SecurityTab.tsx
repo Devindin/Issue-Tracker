@@ -13,9 +13,9 @@ interface SecurityTabProps {
 }
 
 const SecurityTab: React.FC<SecurityTabProps> = ({
-  security,
-  setSecurity,
-  saveSettings,
+  security: _security,
+  setSecurity: _setSecurity,
+  saveSettings: _saveSettings,
   onSuccess,
 }) => {
   const [passwordData, setPasswordData] = useState({

@@ -27,6 +27,7 @@ app.use('/auth', require('./routes/AuthRoutes'));
 app.use('/issues', require('./routes/IssueRoutes'));
 app.use('/users', require('./routes/UserRoutes'));
 app.use('/projects', require('./routes/ProjectRoutes'));
+app.use('/reports', require('./routes/ReportRoutes'));
 
 // Error handling middleware
 app.use((error, req, res, next) => {

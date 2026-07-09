@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -21,11 +21,12 @@ import {
 } from "../features/issues/issueApi";
 import { useGetProjectsQuery } from "../features/projects/projectApi";
 import { useGetUsersQuery } from "../features/users/userApi";
+import { useSelector } from "react-redux";
 import { useMemo } from "react";
 import { filterIssues } from "../utils/issueFilters";
-import { exportIssuesToCSV, exportIssuesToJSON } from "../utils/exportUtils";
 import { sortIssues } from "../utils/issueSort";
 import CommonButton from "../Components/CommonButton";
+import PermissionGate from "../Components/PermissionGate";
 
 const Issues: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -41,6 +42,8 @@ const Issues: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [issueToDelete, setIssueToDelete] = useState<Issue | null>(null);
   const [showFilters, setShowFilters] = useState<boolean>(false);
+
+  const { token } = useSelector((state: any) => state.auth);
 
   const itemsPerPage = 6;
 
@@ -132,8 +135,47 @@ const Issues: React.FC = () => {
     }
   };
 
-  const exportToCSV = () => exportIssuesToCSV(filteredIssues);
-  const exportToJSON = () => exportIssuesToJSON(filteredIssues);
+  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+  const exportToCSV = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/issues/export?format=csv`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error("Failed to export");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `issues-export-${new Date().toISOString().split("T")[0]}.csv`;
+      a.click();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export CSV. Please try again.");
+    }
+  };
+
+  const exportToJSON = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/issues/export?format=json`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error("Failed to export");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `issues-export-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export JSON. Please try again.");
+    }
+  };
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -172,34 +214,38 @@ const Issues: React.FC = () => {
             textColor="text-white"
           />
           <div className="flex gap-3">
-            <div className="relative">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
-              >
-                <FaFileExport />
-                Export
-              </button>
-              {showFilters && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
-                  <button
-                    onClick={exportToCSV}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Export as CSV
-                  </button>
-                  <button
-                    onClick={exportToJSON}
-                    className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Export as JSON
-                  </button>
-                </div>
-              )}
-            </div>
-            <Link to="/issues/new">
-            <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
-          </Link>
+            <PermissionGate permission="canExportData">
+              <div className="relative">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2"
+                >
+                  <FaFileExport />
+                  Export
+                </button>
+                {showFilters && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-10">
+                    <button
+                      onClick={exportToCSV}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
+                    >
+                      Export as CSV
+                    </button>
+                    <button
+                      onClick={exportToJSON}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
+                    >
+                      Export as JSON
+                    </button>
+                  </div>
+                )}
+              </div>
+            </PermissionGate>
+            <PermissionGate permission="canCreateIssues">
+              <Link to="/issues/new">
+                <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
+              </Link>
+            </PermissionGate>
           </div>
         </motion.div>
 

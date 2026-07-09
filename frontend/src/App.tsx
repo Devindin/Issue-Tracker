@@ -14,6 +14,7 @@ import ViewProject from "./Pages/ViewProject";
 import Settings from "./Pages/Settings";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import KanbanIssues from "./Pages/KanbanIssues";
+import Reports from "./Pages/Reports";
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         <Route path="/projects/:id" element={<ProtectedRoute><ViewProject /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/kanban" element={<ProtectedRoute><KanbanIssues /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

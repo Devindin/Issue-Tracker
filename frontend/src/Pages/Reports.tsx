@@ -67,25 +67,31 @@ const Reports: React.FC = () => {
   const fetchReportData = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API call
-      await fetch(
-        `/api/issues/reports?days=${dateRange}`,
+      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await fetch(
+        `${BASE_URL}/reports?days=${dateRange}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Accept: "application/json"
           },
         }
       );
 
-      // Mock data for development
-      const mockIssues: ReportIssue[] = generateMockIssues();
-      setIssues(mockIssues);
+      if (!response.ok) {
+        throw new Error("Failed to fetch reports from backend");
+      }
 
-      const calculatedStats = calculateStats(mockIssues);
-      setStats(calculatedStats);
+      const data = await response.json();
 
-      const trend = calculateTrendData(mockIssues, parseInt(dateRange));
-      setTrendData(trend);
+      if (data.success && data.issues) {
+        const backendIssues = data.issues;
+        setIssues(backendIssues);
+        setStats(calculateStats(backendIssues));
+        setTrendData(calculateTrendData(backendIssues, parseInt(dateRange)));
+      } else {
+        throw new Error(data.message || "Failed to parse reports response");
+      }
     } catch (error) {
       console.error("Error fetching report data:", error);
       // Use mock data on error

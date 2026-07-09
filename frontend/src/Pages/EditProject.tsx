@@ -11,7 +11,6 @@ import {
   useGetProjectByIdQuery,
   useUpdateProjectMutation,
 } from "../features/projects/projectApi";
-import ErrorModal from "../Components/ErrorModal";
 import InputField from "../Components/InputField";
 
 // Validation schema

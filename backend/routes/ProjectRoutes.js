@@ -3,6 +3,7 @@ const router = express.Router();
 const Project = require("../models/Project");
 const Issue = require("../models/Issue");
 const authMiddleware = require("../middleware/authmiddleware");
+const { requireRole } = require("../middleware/permissionMiddleware");
 
 ///////////////////////////////////////// Get all projects for the company /////////////////////////////
 router.get("/", authMiddleware, async (req, res) => {
@@ -100,7 +101,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 ////////////////////////////////// Create new project ////////////////////////////
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", authMiddleware, requireRole(["manager", "admin"]), async (req, res) => {
   try {
     const { name, description, key, lead, members, color, icon, startDate, endDate } = req.body;
 
@@ -158,7 +159,7 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 ///////////////////////////// Update project //////////////////////////////////
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", authMiddleware, requireRole(["manager", "admin"]), async (req, res) => {
   try {
     const { name, description, key, lead, members, status, color, icon, startDate, endDate } = req.body;
 
@@ -224,7 +225,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 ///////////////////////////////// Delete project //////////////////////////////////
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, requireRole("admin"), async (req, res) => {
   try {
     const project = await Project.findOne({
       _id: req.params.id,
@@ -268,7 +269,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 });
 
 ///////////////////////////////////// Archive/Unarchive project //////////////////////////////////
-router.patch("/:id/archive", authMiddleware, async (req, res) => {
+router.patch("/:id/archive", authMiddleware, requireRole(["manager", "admin"]), async (req, res) => {
   try {
     const project = await Project.findOne({
       _id: req.params.id,

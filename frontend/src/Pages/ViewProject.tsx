@@ -16,6 +16,7 @@ import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import StatusModal from "../modals/StatusModal";
+import PermissionGate from "../Components/PermissionGate";
 import {
   useGetProjectByIdQuery,
   useDeleteProjectMutation,
@@ -168,26 +169,32 @@ const ViewProject: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <button
-              onClick={() => navigate(`/projects/${id}/edit`)}
-              className="px-4 py-2 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 transition-colors flex items-center gap-2 shadow-md"
-            >
-              <FaEdit /> Edit
-            </button>
-            <button
-              onClick={handleToggleArchive}
-              disabled={isToggling}
-              className="px-4 py-2 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-md disabled:opacity-50"
-            >
-              <FaArchive />{" "}
-              {project.status === "archived" ? "Unarchive" : "Archive"}
-            </button>
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 shadow-md"
-            >
-              <FaTrash /> Delete
-            </button>
+            <PermissionGate role={["manager", "admin"]}>
+              <button
+                onClick={() => navigate(`/projects/${id}/edit`)}
+                className="px-4 py-2 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 transition-colors flex items-center gap-2 shadow-md"
+              >
+                <FaEdit /> Edit
+              </button>
+            </PermissionGate>
+            <PermissionGate role={["manager", "admin"]}>
+              <button
+                onClick={handleToggleArchive}
+                disabled={isToggling}
+                className="px-4 py-2 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-md disabled:opacity-50"
+              >
+                <FaArchive />{" "}
+                {project.status === "archived" ? "Unarchive" : "Archive"}
+              </button>
+            </PermissionGate>
+            <PermissionGate role="admin">
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 shadow-md"
+              >
+                <FaTrash /> Delete
+              </button>
+            </PermissionGate>
           </div>
         </motion.div>
 

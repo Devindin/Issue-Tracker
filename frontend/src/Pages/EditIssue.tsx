@@ -219,7 +219,7 @@ const EditIssue: React.FC = () => {
           transition={{ delay: 0.1 }}
           className="space-y-6"
         >
-          <Formik
+          <Formik<any>
             initialValues={{
               title: issue.title,
               description: issue.description,

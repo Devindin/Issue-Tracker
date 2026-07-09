@@ -12,7 +12,7 @@ const columns = [
 ];
 
 const KanbanIssues: React.FC = () => {
-  const { data, isLoading } = useGetIssuesQuery({});
+  const { data } = useGetIssuesQuery({});
   const issues = data?.issues || [];
 
   const groupedIssues = columns.map((col) => ({

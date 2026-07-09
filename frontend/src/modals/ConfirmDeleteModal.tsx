@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaTrash, FaTimes, FaSpinner } from "react-icons/fa";
+import { FaTrash, FaSpinner } from "react-icons/fa";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;

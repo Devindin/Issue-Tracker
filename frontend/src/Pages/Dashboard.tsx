@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "../app/stores";
 import {
   FaExclamationCircle,
@@ -25,10 +25,9 @@ import ChartErrorBoundary from "../Components/ChartErrorBoundary";
 
 import type { ChartData } from "chart.js";
 import { useGetIssueAnalyticsQuery } from "../features/issues/issueApi";
+import PermissionGate from "../Components/PermissionGate";
 
 const Dashboard: React.FC = () => {
-  const dispatch = useDispatch();
-
   const { searchTerm, filterStatus, filterPriority } = useSelector(
     (state: RootState) => state.issuesFilter,
   );
@@ -150,9 +149,11 @@ const Dashboard: React.FC = () => {
             textColor="text-white"
           />
 
-          <Link to="/issues/new">
-            <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
-          </Link>
+          <PermissionGate permission="canCreateIssues">
+            <Link to="/issues/new">
+              <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
+            </Link>
+          </PermissionGate>
         </motion.div>
 
         {/* Stats Cards */}

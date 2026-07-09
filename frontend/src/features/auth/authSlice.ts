@@ -11,6 +11,17 @@ export interface User {
     name: string;
     description?: string;
   };
+  permissions?: {
+    canCreateIssues: boolean;
+    canEditIssues: boolean;
+    canDeleteIssues: boolean;
+    canAssignIssues: boolean;
+    canViewAllIssues: boolean;
+    canManageUsers: boolean;
+    canViewReports: boolean;
+    canExportData: boolean;
+    [key: string]: boolean;
+  };
 }
 
 interface AuthState {

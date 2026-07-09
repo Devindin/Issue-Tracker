@@ -2,7 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
-import { FaUser, FaLock, FaBell, FaCheck, FaShieldAlt } from "react-icons/fa";
+import { FaUser, FaLock, FaCheck, FaShieldAlt } from "react-icons/fa";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import ProfileTab from "../Components/Tabs/ProfileTab";
@@ -28,6 +28,7 @@ const Settings: React.FC = () => {
 
   // Get active tab from Redux
   const { activeTab } = useSelector((state: RootState) => state.settings);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   // Fetch profile from API
   const {
@@ -48,7 +49,9 @@ const Settings: React.FC = () => {
   const tabs = [
     { id: "profile", label: "Profile", icon: <FaUser /> },
     { id: "security", label: "Security", icon: <FaLock /> },
-    { id: "users", label: "User Management", icon: <FaShieldAlt /> },
+    ...(user?.role === "admin" || user?.permissions?.canManageUsers
+      ? [{ id: "users", label: "User Management", icon: <FaShieldAlt /> }]
+      : []),
   ];
 
   return (
@@ -168,7 +171,7 @@ const Settings: React.FC = () => {
               )}
 
               {/* User Management Tab */}
-              {activeTab === "users" && <UserManagementTab />}
+              {activeTab === "users" && (user?.role === "admin" || user?.permissions?.canManageUsers) && <UserManagementTab />}
             </motion.div>
           </div>
         )}

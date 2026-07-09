@@ -22,6 +22,7 @@ import {
 } from "../features/projects/projectApi";
 import Pagination from "../Components/Pagination";
 import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
+import PermissionGate from "../Components/PermissionGate";
 import { useMemo } from "react";
 import { filterProjects } from "../utils/projectFilters";
 import { getProjectStatusColor } from "../utils/projectStatus";
@@ -103,9 +104,11 @@ const ProjectsPage: React.FC = () => {
             subtitle="Organize and manage your projects"
             textColor="text-white"
           />
-          <Link to="/projects/new">
-            <CommonButton icon={<FaPlus />}>Create Project</CommonButton>
-          </Link>
+          <PermissionGate role={["manager", "admin"]}>
+            <Link to="/projects/new">
+              <CommonButton icon={<FaPlus />}>Create Project</CommonButton>
+            </Link>
+          </PermissionGate>
         </motion.div>
 
         {/* Filters */}
@@ -264,31 +267,37 @@ const ProjectsPage: React.FC = () => {
                     >
                       View Details
                     </Link>
-                    <button
-                      onClick={() => handleToggleArchive(project._id)}
-                      disabled={isToggling}
-                      className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-                      title={
-                        project.status === "archived" ? "Restore" : "Archive"
-                      }
-                    >
-                      <FaArchive />
-                    </button>
-                    <Link
-                      to={`/projects/${project._id}/edit`}
-                      className="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <FaEdit />
-                    </Link>
-                    <button
-                      onClick={() => setDeletingProject(project)}
-                      disabled={isDeleting}
-                      className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                      title="Delete"
-                    >
-                      <FaTrash />
-                    </button>
+                    <PermissionGate role={["manager", "admin"]}>
+                      <button
+                        onClick={() => handleToggleArchive(project._id)}
+                        disabled={isToggling}
+                        className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                        title={
+                          project.status === "archived" ? "Restore" : "Archive"
+                        }
+                      >
+                        <FaArchive />
+                      </button>
+                    </PermissionGate>
+                    <PermissionGate role={["manager", "admin"]}>
+                      <Link
+                        to={`/projects/${project._id}/edit`}
+                        className="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <FaEdit />
+                      </Link>
+                    </PermissionGate>
+                    <PermissionGate role="admin">
+                      <button
+                        onClick={() => setDeletingProject(project)}
+                        disabled={isDeleting}
+                        className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                        title="Delete"
+                      >
+                        <FaTrash />
+                      </button>
+                    </PermissionGate>
                   </div>
                 </motion.div>
               ))}
