@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import {
   FaExclamationCircle,
   FaSpinner,
@@ -26,9 +26,19 @@ import { useMemo } from "react";
 import { filterIssues } from "../utils/issueFilters";
 import { sortIssues } from "../utils/issueSort";
 import CommonButton from "../Components/CommonButton";
+<<<<<<< HEAD
 import PermissionGate from "../Components/PermissionGate";
+=======
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
+>>>>>>> newBranch
 
 const Issues: React.FC = () => {
+  const { user } = useSelector((state: any) => state.auth);
+
+  const [searchParams] = useSearchParams();
+  const projectParam = searchParams.get('project');
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterPriority, setFilterPriority] = useState<string>("All");
@@ -62,6 +72,19 @@ const Issues: React.FC = () => {
   const { data: projectsData } = useGetProjectsQuery({});
   const projects = projectsData || [];
 
+  // Set project filter from URL parameter
+  useEffect(() => {
+    if (projectParam && projects.length > 0) {
+      const project = projects.find(p => p.key === projectParam);
+      if (project) {
+        setFilterProject(project._id);
+      } else {
+        // If project not found by key, try to use the param directly as ID
+        setFilterProject(projectParam);
+      }
+    }
+  }, [projectParam, projects]);
+
   // Fetch users for assignee filter
   const { data: users = [] } = useGetUsersQuery();
 
@@ -71,6 +94,7 @@ const Issues: React.FC = () => {
     status: filterStatus !== "All" ? filterStatus : undefined,
     priority: filterPriority !== "All" ? filterPriority : undefined,
     severity: filterSeverity !== "All" ? filterSeverity : undefined,
+    project: filterProject !== "All" ? filterProject : undefined,
   });
 
   // Get issues from API response
@@ -79,7 +103,7 @@ const Issues: React.FC = () => {
   const filteredIssues = useMemo(() => {
     const filtered = filterIssues(issues, {
       filterAssignee,
-      filterProject,
+      filterProject: "All", // Project filtering is now done server-side
       filterCompletedDate,
     });
 
@@ -87,7 +111,6 @@ const Issues: React.FC = () => {
   }, [
     issues,
     filterAssignee,
-    filterProject,
     filterCompletedDate,
     sortField,
     sortOrder,
@@ -110,7 +133,6 @@ const Issues: React.FC = () => {
     filterPriority,
     filterSeverity,
     filterAssignee,
-    filterProject,
     filterCompletedDate,
   ]);
 
@@ -214,7 +236,11 @@ const Issues: React.FC = () => {
             textColor="text-white"
           />
           <div className="flex gap-3">
+<<<<<<< HEAD
             <PermissionGate permission="canExportData">
+=======
+            {hasPermission(user, 'canViewReports') && (
+>>>>>>> newBranch
               <div className="relative">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
@@ -240,12 +266,23 @@ const Issues: React.FC = () => {
                   </div>
                 )}
               </div>
+<<<<<<< HEAD
             </PermissionGate>
             <PermissionGate permission="canCreateIssues">
               <Link to="/issues/new">
                 <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
               </Link>
             </PermissionGate>
+=======
+            )}
+
+            {hasPermission(user, 'canCreateIssues') && (
+              <Link to="/issues/new">
+                <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
+              </Link>
+            )}
+
+>>>>>>> newBranch
           </div>
         </motion.div>
 
@@ -455,7 +492,7 @@ const Issues: React.FC = () => {
                 ? "Try adjusting your search or filters"
                 : "Get started by creating your first issue"}
             </p>
-            {!hasActiveFilters && (
+            {!hasActiveFilters && hasPermission(user, 'canCreateIssues') && (
               <Link to="/issues/new">
                 <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
                   Create First Issue

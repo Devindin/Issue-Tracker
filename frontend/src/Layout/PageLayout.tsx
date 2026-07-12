@@ -10,7 +10,11 @@ import {
   FaBars,
   FaPlus,
   FaUser,
+<<<<<<< HEAD
   FaChartBar,
+=======
+  FaUserTie,
+>>>>>>> newBranch
 } from "react-icons/fa";
 import { hasPermission } from "../utils/permissions";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
@@ -19,6 +23,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
 import { logout } from "../features/auth/authSlice";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { hasPermission } from "../utils/permissions";
 
 interface MenuItem {
   icon: React.JSX.Element;
@@ -85,18 +90,49 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     return location.pathname === path;
   };
 
-  const menuItems: MenuItem[] = [
+  const user = useSelector((state: RootState) => state.auth.user);
+  const userName = user?.name ?? "User";
+
+  let menuItems: MenuItem[] = [
     { icon: <FaHome />, label: "Dashboard", path: "/dashboard" },
     { icon: <FaExclamationTriangle />, label: "Issues", path: "/issues" },
+    // Create issue entry will be filtered below based on permission
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
     { icon: <FaFolder />, label: "Projects", path: "/projects" },
+<<<<<<< HEAD
     { icon: <FaChartBar />, label: "Reports", path: "/reports" },
+=======
+    {icon: <FaBars />, label: "Kanban Board", path: "/kanban" },
+>>>>>>> newBranch
     { icon: <FaCog />, label: "Settings", path: "/settings" },
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];
 
-  const user = useSelector((state: RootState) => state.auth.user);
-  const userName = user?.name ?? "User";
+  // remove create‑issue link if user can't create
+  if (!hasPermission(user, 'canCreateIssues')) {
+    menuItems = menuItems.filter(item => item.path !== "/issues/new");
+  }
+  // Note: Kanban, Projects, and Employees are always shown in menu
+  // Routing protection handles permission checks
+  /*
+  // hide kanban entry if user lacks view permission
+  if (!hasPermission(user, 'canViewKanban')) {
+    menuItems = menuItems.filter(item => item.path !== "/kanban");
+  }
+  // hide projects entirely if user has no project-related permissions
+  if (
+    !hasPermission(user, 'canCreateProjects') &&
+    !hasPermission(user, 'canEditProjects') &&
+    !hasPermission(user, 'canDeleteProjects') &&
+    !hasPermission(user, 'canViewAllIssues') // Allow viewing projects if they can view issues
+  ) {
+    menuItems = menuItems.filter(item => item.path !== "/projects");
+  }
+  // hide employees if user can't manage users
+  if (!hasPermission(user, 'canManageUsers')) {
+    menuItems = menuItems.filter(item => item.path !== "/employees");
+  }
+  */
 
   const filteredMenuItems = menuItems.filter((item) => {
     if (item.path === "/issues/new") {
@@ -129,7 +165,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           </button>
         </div>
 
-        <div className="flex items-center justify-center flex-col py-4">
+        <div className="flex items-center justify-center flex-col py-2">
           <motion.div
             className="w-12 h-12 rounded-full border-2 border-[#00C6D7] bg-[#1976D2] flex items-center justify-center"
             animate={{ scale: collapsed ? 0.8 : 1 }}

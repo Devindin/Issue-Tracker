@@ -37,6 +37,7 @@
 | Action | Viewer | Developer | QA | Manager | Admin |
 |--------|:------:|:---------:|:--:|:-------:|:-----:|
 | View Issues | Limited* | ✅ | ✅ | ✅ | ✅ |
+| View Kanban | ❌ | ✅ | ✅ | ✅ | ✅ |
 | Create Issues | ❌ | ✅ | ✅ | ✅ | ✅ |
 | Edit Issues | ❌ | ✅ | ✅ | ✅ | ✅ |
 | Delete Issues | ❌ | ❌ | ❌ | ✅ | ✅ |
@@ -47,7 +48,8 @@
 | Manage Projects | ❌ | ❌ | ❌ | ✅** | ✅ |
 
 *Limited = Only if `canViewAllIssues` is true, otherwise only sees assigned/reported issues
-**Recommended implementation, currently not enforced
+
+*For Kanban access use `canViewKanban` permission (defaults mirror view-issues rights).**Recommended implementation, currently not enforced
 
 ## Code Examples
 
@@ -108,6 +110,7 @@ if (user?.role === 'admin') {
   canDeleteIssues: false,
   canAssignIssues: false,
   canViewAllIssues: false,
+  canViewKanban: false,
   canManageUsers: false,
   canViewReports: false,
   canExportData: false

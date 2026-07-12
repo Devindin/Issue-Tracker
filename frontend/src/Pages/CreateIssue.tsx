@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import {
   FaSave,
   FaTimes,
@@ -65,6 +66,12 @@ const severityOptions = [
 const CreateIssue: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: any) => state.auth);
+
+  // redirect users without create permission
+  if (!hasPermission(user, 'canCreateIssues')) {
+    return <Navigate to="/issues" replace />;
+  }
+
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [createdIssueId, setCreatedIssueId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -157,7 +164,6 @@ const CreateIssue: React.FC = () => {
   return (
     <PageLayout>
       <div className=" mx-auto">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -369,34 +375,36 @@ const CreateIssue: React.FC = () => {
                   </div>
 
                   {/* Assignee */}
-                  <div>
-                    <InputField
-                      label="Assignee"
-                      name="assigneeId"
-                      type="select"
-                      options={assigneeOptions}
-                      placeholder="Unassigned"
-                      handleChange={handleChange}
-                      values={values}
-                      errors={errors as Record<string, string>}
-                      touched={touched as Record<string, boolean>}
-                    />
-                    <div className="mt-2">
-                      <span
-                        className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-                          values.assigneeId
-                            ? "bg-green-100 border-green-300 text-green-700"
-                            : "bg-gray-100 border-gray-300 text-gray-700"
-                        }`}
-                      >
-                        {values.assigneeId === "me"
-                          ? "👤 Assigned to me"
-                          : values.assigneeId
-                            ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
-                            : "Unassigned"}
-                      </span>
+                  {hasPermission(user, 'canAssignIssues') && (
+                    <div>
+                      <InputField
+                        label="Assignee"
+                        name="assigneeId"
+                        type="select"
+                        options={assigneeOptions}
+                        placeholder="Unassigned"
+                        handleChange={handleChange}
+                        values={values}
+                        errors={errors as Record<string, string>}
+                        touched={touched as Record<string, boolean>}
+                      />
+                      <div className="mt-2">
+                        <span
+                          className={`inline-block px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                            values.assigneeId
+                              ? "bg-green-100 border-green-300 text-green-700"
+                              : "bg-gray-100 border-gray-300 text-gray-700"
+                          }`}
+                        >
+                          {values.assigneeId === "me"
+                            ? "👤 Assigned to me"
+                            : values.assigneeId
+                              ? `Assigned to ${users.find((u) => u.id === values.assigneeId)?.name || "User"}`
+                              : "Unassigned"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Info Box */}

@@ -1,8 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Navigate } from "react-router-dom";
 import PageLayout from "../Layout/PageLayout";
-import IssueCard from "../Components/IssueCard";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import { useGetIssuesQuery } from "../features/issues/issueApi";
+import KanbanIssueCard from "../Components/KanbanIssueCard";
 
 const columns = [
   { key: "Open", color: "bg-blue-500" },
@@ -12,7 +15,17 @@ const columns = [
 ];
 
 const KanbanIssues: React.FC = () => {
+<<<<<<< HEAD
   const { data } = useGetIssuesQuery({});
+=======
+  const { user } = useSelector((state: any) => state.auth);
+
+  if (!hasPermission(user, 'canViewKanban')) {
+    return <Navigate to="/issues" replace />;
+  }
+
+  const { data, isLoading } = useGetIssuesQuery({});
+>>>>>>> newBranch
   const issues = data?.issues || [];
 
   const groupedIssues = columns.map((col) => ({
@@ -69,18 +82,9 @@ const KanbanIssues: React.FC = () => {
                     No issues
                   </div>
                 ) : (
-                  column.items.map((issue, index) => (
-                    <motion.div
-                      key={issue.id}
-                      whileHover={{ scale: 1.02 }}
-                      transition={{ type: "spring", stiffness: 200 }}
-                    >
-                      <IssueCard
-                        issue={issue}
-                        index={index}
-                      />
-                    </motion.div>
-                  ))
+                  column.items.map((issue) => (
+  <KanbanIssueCard key={issue.id} issue={issue} />
+))
                 )}
               </div>
             </motion.div>

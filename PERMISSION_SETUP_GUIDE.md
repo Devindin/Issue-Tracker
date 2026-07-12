@@ -198,6 +198,9 @@ export const hasPermission = (user: User | null, permission: string): boolean =>
   return user.permissions?.[permission] || false;
 };
 
+// example: to protect the kanban board
+// if (!hasPermission(user, 'canViewKanban')) { /* redirect or hide link */ }
+
 export const hasRole = (user: User | null, role: string | string[]): boolean => {
   if (!user) return false;
   const roles = Array.isArray(role) ? role : [role];

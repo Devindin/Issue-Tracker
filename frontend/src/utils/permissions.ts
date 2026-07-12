@@ -4,36 +4,20 @@ export interface UserPermissions {
   canDeleteIssues: boolean;
   canAssignIssues: boolean;
   canViewAllIssues: boolean;
+  canViewKanban: boolean;
   canManageUsers: boolean;
   canViewReports: boolean;
   canExportData: boolean;
 }
 
-interface User {
+export interface User {
   role: string;
   permissions?: {
     [key: string]: boolean;
   };
 }
 
-export const hasPermission = (user: User | null, permission: string): boolean => {
-  if (!user) return false;
-  if (user.role === 'admin') return true;
-  return user.permissions?.[permission] || false;
-};
-
-export const hasRole = (user: User | null, role: string | string[]): boolean => {
-  if (!user) return false;
-  const roles = Array.isArray(role) ? role : [role];
-  return roles.includes(user.role);
-};
-
-export const hasAnyPermission = (user: User | null, permissions: string[]): boolean => {
-  if (!user) return false;
-  if (user.role === 'admin') return true;
-  return permissions.some(permission => user.permissions?.[permission]);
-};
-
+// default permission map for roles
 export const getDefaultPermissions = (role: string): UserPermissions => {
   const basePermissions: UserPermissions = {
     canCreateIssues: false,
@@ -41,6 +25,7 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
     canDeleteIssues: false,
     canAssignIssues: false,
     canViewAllIssues: false,
+    canViewKanban: false,
     canManageUsers: false,
     canViewReports: false,
     canExportData: false,
@@ -54,6 +39,7 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
         canDeleteIssues: true,
         canAssignIssues: true,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: true,
         canViewReports: true,
         canExportData: true,
@@ -65,6 +51,7 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
         canDeleteIssues: false,
         canAssignIssues: true,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: true,
         canViewReports: true,
         canExportData: true,
@@ -76,6 +63,7 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
         canDeleteIssues: false,
         canAssignIssues: false,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: false,
         canViewReports: false,
         canExportData: false,
@@ -87,6 +75,7 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
         canDeleteIssues: false,
         canAssignIssues: true,
         canViewAllIssues: true,
+        canViewKanban: true,
         canManageUsers: false,
         canViewReports: true,
         canExportData: true,
@@ -98,6 +87,7 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
         canDeleteIssues: false,
         canAssignIssues: false,
         canViewAllIssues: true,
+        canViewKanban: false,
         canManageUsers: false,
         canViewReports: false,
         canExportData: false,
@@ -105,4 +95,31 @@ export const getDefaultPermissions = (role: string): UserPermissions => {
     default:
       return basePermissions;
   }
+};
+
+// helpers that components consume to gate UI
+export const hasPermission = (user: User | null, permission: string): boolean => {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+
+  // explicit override in user.permissions takes precedence
+  if (user.permissions && permission in user.permissions) {
+    return !!user.permissions[permission];
+  }
+
+  // fall back to role defaults so that viewers with empty object still behave
+  const defaults = getDefaultPermissions(user.role);
+  return !!(defaults as any)[permission];
+};
+
+export const hasRole = (user: User | null, role: string | string[]): boolean => {
+  if (!user) return false;
+  const roles = Array.isArray(role) ? role : [role];
+  return roles.includes(user.role);
+};
+
+export const hasAnyPermission = (user: User | null, permissions: string[]): boolean => {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  return permissions.some(p => !!user.permissions?.[p] || !!(getDefaultPermissions(user.role) as any)[p]);
 };

@@ -45,7 +45,8 @@ const Settings: React.FC = () => {
     window.location.href = "/login";
   };
 
-  // Tabs configuration
+  // Tabs configuration (filter "users" tab based on permission)
+  const { user } = useSelector((state: RootState) => state.auth);
   const tabs = [
     { id: "profile", label: "Profile", icon: <FaUser /> },
     { id: "security", label: "Security", icon: <FaLock /> },
@@ -53,6 +54,13 @@ const Settings: React.FC = () => {
       ? [{ id: "users", label: "User Management", icon: <FaShieldAlt /> }]
       : []),
   ];
+
+  // if activeTab is users but permission revoked, switch to profile
+  React.useEffect(() => {
+    if (activeTab === "users" && !hasPermission(user, "canManageUsers")) {
+      dispatch(setActiveTab("profile"));
+    }
+  }, [activeTab, user, dispatch]);
 
   return (
     <PageLayout>

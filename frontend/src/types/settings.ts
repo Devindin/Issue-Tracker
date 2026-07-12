@@ -29,6 +29,7 @@ export interface UserPermissions {
   canDeleteIssues: boolean;
   canAssignIssues: boolean;
   canViewAllIssues: boolean;
+  canViewKanban: boolean;
   canManageUsers: boolean;
   canViewReports: boolean;
   canExportData: boolean;

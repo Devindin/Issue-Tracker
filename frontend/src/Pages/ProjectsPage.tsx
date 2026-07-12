@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   FaPlus,
   FaEdit,
@@ -12,6 +12,8 @@ import {
   FaFolderOpen,
   FaFilter,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { hasPermission } from "../utils/permissions";
 import PageLayout from "../Layout/PageLayout";
 import PageTitle from "../Components/PageTitle";
 import {
@@ -30,6 +32,16 @@ import { paginate } from "../utils/pagination";
 import CommonButton from "../Components/CommonButton";
 
 const ProjectsPage: React.FC = () => {
+  const { user } = useSelector((state: any) => state.auth);
+  const canCreate = hasPermission(user, 'canCreateProjects');
+  const canEdit = hasPermission(user, 'canEditProjects');
+  const canDelete = hasPermission(user, 'canDeleteProjects');
+
+  // redirect users who have no project permissions at all
+  if (!canCreate && !canEdit && !canDelete) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("active");
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
