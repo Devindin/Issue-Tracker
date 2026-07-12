@@ -21,7 +21,7 @@ const KanbanIssues: React.FC = () => {
     return <Navigate to="/issues" replace />;
   }
 
-  const { data, isLoading } = useGetIssuesQuery({});
+  const { data } = useGetIssuesQuery({});
   const issues = data?.issues || [];
 
   const groupedIssues = columns.map((col) => ({

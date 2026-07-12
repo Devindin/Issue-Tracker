@@ -11,7 +11,6 @@ import {
   FaPlus,
   FaUser,
   FaChartBar,
-  FaUserTie,
 } from "react-icons/fa";
 import { hasPermission } from "../utils/permissions";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";

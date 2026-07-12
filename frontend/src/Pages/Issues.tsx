@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   FaExclamationCircle,
   FaSpinner,
@@ -26,12 +26,7 @@ import { useMemo } from "react";
 import { filterIssues } from "../utils/issueFilters";
 import { sortIssues } from "../utils/issueSort";
 import CommonButton from "../Components/CommonButton";
-<<<<<<< HEAD
-import PermissionGate from "../Components/PermissionGate";
-=======
-import { useSelector } from "react-redux";
 import { hasPermission } from "../utils/permissions";
->>>>>>> newBranch
 
 const Issues: React.FC = () => {
   const { user } = useSelector((state: any) => state.auth);
@@ -236,11 +231,7 @@ const Issues: React.FC = () => {
             textColor="text-white"
           />
           <div className="flex gap-3">
-<<<<<<< HEAD
-            <PermissionGate permission="canExportData">
-=======
-            {hasPermission(user, 'canViewReports') && (
->>>>>>> newBranch
+            {hasPermission(user, 'canExportData') && (
               <div className="relative">
                 <button
                   onClick={() => setShowFilters(!showFilters)}
@@ -266,14 +257,6 @@ const Issues: React.FC = () => {
                   </div>
                 )}
               </div>
-<<<<<<< HEAD
-            </PermissionGate>
-            <PermissionGate permission="canCreateIssues">
-              <Link to="/issues/new">
-                <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
-              </Link>
-            </PermissionGate>
-=======
             )}
 
             {hasPermission(user, 'canCreateIssues') && (
@@ -281,8 +264,6 @@ const Issues: React.FC = () => {
                 <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
               </Link>
             )}
-
->>>>>>> newBranch
           </div>
         </motion.div>
 

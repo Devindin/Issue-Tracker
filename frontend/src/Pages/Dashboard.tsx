@@ -26,15 +26,10 @@ import ChartErrorBoundary from "../Components/ChartErrorBoundary";
 
 import type { ChartData } from "chart.js";
 import { useGetIssueAnalyticsQuery } from "../features/issues/issueApi";
-import PermissionGate from "../Components/PermissionGate";
 
 const Dashboard: React.FC = () => {
-<<<<<<< HEAD
-=======
-  const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
 
->>>>>>> newBranch
   const { searchTerm, filterStatus, filterPriority } = useSelector(
     (state: RootState) => state.issuesFilter,
   );
@@ -156,19 +151,11 @@ const Dashboard: React.FC = () => {
             textColor="text-white"
           />
 
-<<<<<<< HEAD
-          <PermissionGate permission="canCreateIssues">
-            <Link to="/issues/new">
-              <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
-            </Link>
-          </PermissionGate>
-=======
-          {hasPermission(user, 'canCreateIssues') && (
-            <Link to="/issues/new">
-              <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
-            </Link>
-          )}
->>>>>>> newBranch
+        {hasPermission(user, 'canCreateIssues') && (
+          <Link to="/issues/new">
+            <CommonButton icon={<FaPlus />}>Create Issue</CommonButton>
+          </Link>
+        )}
         </motion.div>
 
         {/* Stats Cards (only shown if user can view reports) */}

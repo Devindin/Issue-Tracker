@@ -37,9 +37,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
-<<<<<<< HEAD
-
-=======
   // if user can't manage, render message and early return
   if (!canManage) {
     return (
@@ -48,87 +45,6 @@ const UserManagementTab: React.FC<UserManagementTabProps> = () => {
       </div>
     );
   }
-
-  // Default permissions based on role
-  const getDefaultPermissions = (role: string): UserPermissions => {
-    const basePermissions: UserPermissions = {
-      canCreateIssues: false,
-      canEditIssues: false,
-      canDeleteIssues: false,
-      canAssignIssues: false,
-      canViewAllIssues: false,
-      canViewKanban: false,
-      canManageUsers: false,
-      canViewReports: false,
-      canExportData: false,
-    };
-
-    switch (role) {
-      case "admin":
-        return {
-          canCreateIssues: true,
-          canEditIssues: true,
-          canDeleteIssues: true,
-          canAssignIssues: true,
-          canViewAllIssues: true,
-          canViewKanban: true,
-          canManageUsers: true,
-          canViewReports: true,
-          canExportData: true,
-        };
-      case "manager":
-        return {
-          canCreateIssues: true,
-          canEditIssues: true,
-          canDeleteIssues: false,
-          canAssignIssues: true,
-          canViewAllIssues: true,
-          canViewKanban: true,
-          canManageUsers: false,
-          canViewReports: true,
-          canExportData: true,
-        };
-      case "developer":
-        return {
-          canCreateIssues: true,
-          canEditIssues: true,
-          canDeleteIssues: false,
-          canAssignIssues: false,
-          canViewAllIssues: true,
-          canViewKanban: true,
-          canManageUsers: false,
-          canViewReports: false,
-          canExportData: false,
-        };
-      case "qa":
-        return {
-          canCreateIssues: true,
-          canEditIssues: true,
-          canDeleteIssues: false,
-          canAssignIssues: true,
-          canViewAllIssues: true,
-          canViewKanban: true,
-          canManageUsers: false,
-          canViewReports: true,
-          canExportData: true,
-        };
-      case "viewer":
-        return {
-          canCreateIssues: false,
-          canEditIssues: false,
-          canDeleteIssues: false,
-          canAssignIssues: false,
-          canViewAllIssues: false,
-          canViewKanban: false,
-          canManageUsers: false,
-          canViewReports: false,
-          canExportData: false,
-        };
-      default:
-        return basePermissions;
-    }
-  };
->>>>>>> newBranch
 
   // Handle create user
   const handleCreateUser = async (values: CreateUserData) => {
