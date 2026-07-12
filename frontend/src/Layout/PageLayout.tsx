@@ -10,11 +10,8 @@ import {
   FaBars,
   FaPlus,
   FaUser,
-<<<<<<< HEAD
   FaChartBar,
-=======
   FaUserTie,
->>>>>>> newBranch
 } from "react-icons/fa";
 import { hasPermission } from "../utils/permissions";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
@@ -23,7 +20,6 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../app/stores";
 import { logout } from "../features/auth/authSlice";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-import { hasPermission } from "../utils/permissions";
 
 interface MenuItem {
   icon: React.JSX.Element;
@@ -99,11 +95,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     // Create issue entry will be filtered below based on permission
     { icon: <FaPlus />, label: "Create Issue", path: "/issues/new" },
     { icon: <FaFolder />, label: "Projects", path: "/projects" },
-<<<<<<< HEAD
     { icon: <FaChartBar />, label: "Reports", path: "/reports" },
-=======
-    {icon: <FaBars />, label: "Kanban Board", path: "/kanban" },
->>>>>>> newBranch
+    { icon: <FaBars />, label: "Kanban Board", path: "/kanban" },
     { icon: <FaCog />, label: "Settings", path: "/settings" },
     { icon: <FaSignOutAlt />, label: "Sign Out" },
   ];

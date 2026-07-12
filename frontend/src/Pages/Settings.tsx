@@ -12,6 +12,7 @@ import ConfirmDeleteModal from "../modals/ConfirmDeleteModal";
 import { useGetProfileQuery } from "../features/profile/profileApi";
 import { setActiveTab } from "../features/settings/settingsSlice";
 import type { SecuritySettings } from "../types";
+import { hasPermission } from "../utils/permissions";
 
 const Settings: React.FC = () => {
   const dispatch = useDispatch();
@@ -46,7 +47,6 @@ const Settings: React.FC = () => {
   };
 
   // Tabs configuration (filter "users" tab based on permission)
-  const { user } = useSelector((state: RootState) => state.auth);
   const tabs = [
     { id: "profile", label: "Profile", icon: <FaUser /> },
     { id: "security", label: "Security", icon: <FaLock /> },

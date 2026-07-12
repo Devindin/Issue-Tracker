@@ -15,17 +15,13 @@ const columns = [
 ];
 
 const KanbanIssues: React.FC = () => {
-<<<<<<< HEAD
-  const { data } = useGetIssuesQuery({});
-=======
   const { user } = useSelector((state: any) => state.auth);
 
-  if (!hasPermission(user, 'canViewKanban')) {
+  if (!hasPermission(user, "canViewKanban")) {
     return <Navigate to="/issues" replace />;
   }
 
   const { data, isLoading } = useGetIssuesQuery({});
->>>>>>> newBranch
   const issues = data?.issues || [];
 
   const groupedIssues = columns.map((col) => ({
