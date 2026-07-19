@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import {
   FaEdit,
   FaArchive,

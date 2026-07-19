@@ -7,15 +7,6 @@ export interface User {
   email: string;
   role: string;
   permissions?: {
-    canCreateIssues: boolean;
-    canEditIssues: boolean;
-    canDeleteIssues: boolean;
-    canAssignIssues: boolean;
-    canViewAllIssues: boolean;
-    canViewKanban: boolean;
-    canManageUsers: boolean;
-    canViewReports: boolean;
-    canExportData: boolean;
     [key: string]: boolean;
   };
   company: {
